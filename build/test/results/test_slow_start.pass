@@ -1,0 +1,20 @@
+---
+:source:
+  :path: test
+  :file: test_slow_start.c
+:successes:
+- :test: test_TCP_successful_send_all_data_using_slow_start
+  :line: 9
+  :message: ''
+:failures: []
+:ignores: []
+:counts:
+  :total: 1
+  :passed: 1
+  :failed: 0
+  :ignored: 0
+:stdout:
+- '2 '
+- '1000 '
+- '2 '
+- '1000 '
