@@ -19,11 +19,14 @@ int counterTimeOut(){
 }
 
 int senderSlowStart(DataBlock *ssData){
+	ssData->cwnd = 1;
+	ssData->packet_num = 1;
+	
 	if(sendData() == 1){
 		if(counterTimeOut() <= 500){
 			if(returnACK() == 1){
 				ssData->cwnd = ssData->cwnd+1;
-				
+				ssData->packet_num = ssData->packet_num*2;
 			}else{
 				printf("Does Not Return Any Acknowlegde");
 			}

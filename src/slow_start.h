@@ -7,6 +7,7 @@ typedef struct{
 	int seq_num;
 	int ssthres;
 	int packet_num;
+	int *packet_size[500];
 }DataBlock;
 
 
