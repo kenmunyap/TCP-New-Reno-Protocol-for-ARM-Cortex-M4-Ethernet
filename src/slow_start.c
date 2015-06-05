@@ -1,11 +1,6 @@
 #include <stdio.h>
 #include "slow_start.h"
 
-int counterRTT(){
-	int i = 0;
-	for(i=0;i<=500;i++);
-}
-
 int returnACK(){
 	if(getData() == 1){
 		return 1;
@@ -14,22 +9,27 @@ int returnACK(){
 	}	
 }
 
-int senderSlowStart(){
-	int sque_num = 0
-	int cwnd = 1;
-	int totalCWNDSize = 65000;
-	int cwndSize = 500;
-	
+int counterTimeOut(){
+	int i = 0;
+	int counter = 0;
+	for(i=0;i<500;i++){
+		counter = counter+1;
+	}
+	return counter;
+}
+
+int senderSlowStart(DataBlock *ssData){
 	if(sendData() == 1){
-		if(returnACK() == 1){
-				sque_num = cwndSize;
-				cwnd = cwnd*2;
-				cwndSize = (500*cwnd) + 1;
+		if(counterTimeOut() <= 500){
+			if(returnACK() == 1){
+				ssData->cwnd = ssData->cwnd+1;
+				
+			}else{
+				printf("Does Not Return Any Acknowlegde");
+			}
 		}else{
-				sque_num;
+			printf("TimeOut Of Data Occur");
 		}
-	}else{
-		printf("data not send");
 	}
 }
 

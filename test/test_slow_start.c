@@ -7,7 +7,5 @@ void setUp(void){}
 void tearDown(void){}
 
 void test_TCP_successful_send_all_data_using_slow_start(void){	
-	sendData_IgnoreAndReturn(1);
-	getData_IgnoreAndReturn(1);
-	senderSlowStart();
+
 }
