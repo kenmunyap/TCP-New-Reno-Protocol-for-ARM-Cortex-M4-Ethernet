@@ -2,26 +2,34 @@
 #include <stdlib.h>
 #include "slow_start.h"
 #include "congestionWindow.h"
+#include "delay.h"
+#include "getData.h"
 
 
-int txSlowStart(DataBlock *data){
+char txSlowStart(DataBlock *data){	
 	int i;
+	data->index = sequenceNumber();
 	if(data->index == 0){
-			increaseCongestionWindow();
-			sendData();
-			sequnceNumber();
-	}else if(data->index == recieveRxACK()){
-		for(i=0;i<=increaseCongestionWindow();i++){
-			sendData();
-			sequnceNumber();
-		}	
-		data->index = (sequnceNumber/(i+1))+1;
+		if(delayRTT() == 500){
+			for(i=0;i<increaseCongestionWindow();i++){
+				sendData();
+				data->nextSeqNum = sequenceNumber();
+			}
+				if(recieveRxACK() == data->nextSeqNum){
+					increaseCongestionWindow();
+					data->index = data->nextSeqNum;
+				}else{
+					decreaseCongestionWindow();	
+				}
+		}else{
+			decreaseCongestionWindow();
+		}
 	}else{
 		
-	}
-
-	
+	}	
 }
+
+
 
 
 

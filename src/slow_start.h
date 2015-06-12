@@ -9,7 +9,16 @@ typedef struct{
 		int packet_num;
 		int ack;
 		int index;
+		int nextSeqNum;
+		int baseSeqNum;
 }DataBlock;
+
+typedef enum{
+	getData,
+	waitDelay,
+	waitAck,
+	
+}State;
 
 
 

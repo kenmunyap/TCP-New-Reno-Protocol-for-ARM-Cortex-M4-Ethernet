@@ -3,4 +3,6 @@
 
 
 int increaseCongestionWindow();
+int decreaseCongestionWindow();
+
 #endif // CONGESTION_WINDOW_H

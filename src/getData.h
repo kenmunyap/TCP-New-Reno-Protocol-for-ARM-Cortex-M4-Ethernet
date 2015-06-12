@@ -4,7 +4,8 @@
 int getBufferSize();
 int sendData();
 int recieveRxACK();
-int sequnceNumber();
+int sequenceNumber();
 int rxSlowStart();
 int indexSeqNumber();
+int datalength();
 #endif // GET_DATA_H
