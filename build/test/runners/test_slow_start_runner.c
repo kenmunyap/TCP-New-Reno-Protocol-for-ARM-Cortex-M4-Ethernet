@@ -26,6 +26,8 @@
 #include "cmock.h"
 #include <setjmp.h>
 #include <stdio.h>
+#include "mock_congestionWindow.h"
+#include "mock_delay.h"
 #include "mock_getData.h"
 
 int GlobalExpectCount;
@@ -44,14 +46,20 @@ static void CMock_Init(void)
   GlobalExpectCount = 0;
   GlobalVerifyOrder = 0;
   GlobalOrderError = NULL;
+  mock_congestionWindow_Init();
+  mock_delay_Init();
   mock_getData_Init();
 }
 static void CMock_Verify(void)
 {
+  mock_congestionWindow_Verify();
+  mock_delay_Verify();
   mock_getData_Verify();
 }
 static void CMock_Destroy(void)
 {
+  mock_congestionWindow_Destroy();
+  mock_delay_Destroy();
   mock_getData_Destroy();
 }
 
@@ -71,7 +79,7 @@ int main(void)
 {
   Unity.TestFile = "test_slow_start.c";
   UnityBegin();
-  RUN_TEST(test_TCP_successful_send_all_data_using_slow_start, 9);
+  RUN_TEST(test_TCP_successful_send_all_data_using_slow_start, 11);
 
   return (UnityEnd());
 }
