@@ -3,15 +3,18 @@
 
 
 typedef struct{
-	int cwnd;
-	int seq_num;
-	int ssthres;
-	int packet_num;
-	int *packet_size[500];
+		int cwnd;
+		int seq_num;
+		int ssthres;
+		int packet_num;
+		int ack;
+		int index;
 }DataBlock;
 
 
-int senderSlowStart();
+
+char txSlowStart(DataBlock *data);
+char txData(DataBlock *ssData, char *buffer);
 int returnACK();
 int counterRTT();
 
