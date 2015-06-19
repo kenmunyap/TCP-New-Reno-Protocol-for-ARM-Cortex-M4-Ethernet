@@ -11,17 +11,11 @@ void mock_congestionWindow_Verify(void);
 
 
 
-#define increaseCongestionWindow_IgnoreAndReturn(cmock_retval) increaseCongestionWindow_CMockIgnoreAndReturn(__LINE__, cmock_retval)
-void increaseCongestionWindow_CMockIgnoreAndReturn(UNITY_LINE_TYPE cmock_line, int cmock_to_return);
-#define increaseCongestionWindow_ExpectAndReturn(cmock_retval) increaseCongestionWindow_CMockExpectAndReturn(__LINE__, cmock_retval)
-void increaseCongestionWindow_CMockExpectAndReturn(UNITY_LINE_TYPE cmock_line, int cmock_to_return);
-typedef int (* CMOCK_increaseCongestionWindow_CALLBACK)(int cmock_num_calls);
-void increaseCongestionWindow_StubWithCallback(CMOCK_increaseCongestionWindow_CALLBACK Callback);
-#define decreaseCongestionWindow_IgnoreAndReturn(cmock_retval) decreaseCongestionWindow_CMockIgnoreAndReturn(__LINE__, cmock_retval)
-void decreaseCongestionWindow_CMockIgnoreAndReturn(UNITY_LINE_TYPE cmock_line, int cmock_to_return);
-#define decreaseCongestionWindow_ExpectAndReturn(cmock_retval) decreaseCongestionWindow_CMockExpectAndReturn(__LINE__, cmock_retval)
-void decreaseCongestionWindow_CMockExpectAndReturn(UNITY_LINE_TYPE cmock_line, int cmock_to_return);
-typedef int (* CMOCK_decreaseCongestionWindow_CALLBACK)(int cmock_num_calls);
-void decreaseCongestionWindow_StubWithCallback(CMOCK_decreaseCongestionWindow_CALLBACK Callback);
+#define congestionWindow_IgnoreAndReturn(cmock_retval) congestionWindow_CMockIgnoreAndReturn(__LINE__, cmock_retval)
+void congestionWindow_CMockIgnoreAndReturn(UNITY_LINE_TYPE cmock_line, int cmock_to_return);
+#define congestionWindow_ExpectAndReturn(cmock_retval) congestionWindow_CMockExpectAndReturn(__LINE__, cmock_retval)
+void congestionWindow_CMockExpectAndReturn(UNITY_LINE_TYPE cmock_line, int cmock_to_return);
+typedef int (* CMOCK_congestionWindow_CALLBACK)(int cmock_num_calls);
+void congestionWindow_StubWithCallback(CMOCK_congestionWindow_CALLBACK Callback);
 
 #endif

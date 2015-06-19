@@ -4,8 +4,4 @@
 
 
 
-
-
-int increaseCongestionWindow();
-
-int decreaseCongestionWindow();
+int congestionWindow();

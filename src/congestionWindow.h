@@ -1,8 +1,6 @@
-#ifndef CONGESTION_WINDOW_H
-#define CONGESTION_WINDOW_H
+#ifndef CONGESTIONWINDOW_H
+#define CONGESTIONWINDOW_H
 
+int congestionWindow();
 
-int increaseCongestionWindow();
-int decreaseCongestionWindow();
-
-#endif // CONGESTION_WINDOW_H
+#endif // CONGESTIONWINDOW_H

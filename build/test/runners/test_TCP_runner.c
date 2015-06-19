@@ -26,9 +26,11 @@
 #include "cmock.h"
 #include <setjmp.h>
 #include <stdio.h>
+#include "mock_Data.h"
+#include "mock_ack.h"
 #include "mock_congestionWindow.h"
-#include "mock_delay.h"
-#include "mock_getData.h"
+#include "mock_sequenceNumber.h"
+#include "mock_timeOutTimer.h"
 
 int GlobalExpectCount;
 int GlobalVerifyOrder;
@@ -37,7 +39,9 @@ char* GlobalOrderError;
 //=======External Functions This Runner Calls=====
 extern void setUp(void);
 extern void tearDown(void);
-extern void test_TCP_successful_send_all_data_using_slow_start(void);
+extern void test_successful_transmit_1st_packet(void);
+extern void test_successful_transmit_2_packet(void);
+extern void test_1st_and_2nd_pack_successful_send_without_time_out_3rd_time_out(void);
 
 
 //=======Mock Management=====
@@ -46,21 +50,27 @@ static void CMock_Init(void)
   GlobalExpectCount = 0;
   GlobalVerifyOrder = 0;
   GlobalOrderError = NULL;
+  mock_Data_Init();
+  mock_ack_Init();
   mock_congestionWindow_Init();
-  mock_delay_Init();
-  mock_getData_Init();
+  mock_sequenceNumber_Init();
+  mock_timeOutTimer_Init();
 }
 static void CMock_Verify(void)
 {
+  mock_Data_Verify();
+  mock_ack_Verify();
   mock_congestionWindow_Verify();
-  mock_delay_Verify();
-  mock_getData_Verify();
+  mock_sequenceNumber_Verify();
+  mock_timeOutTimer_Verify();
 }
 static void CMock_Destroy(void)
 {
+  mock_Data_Destroy();
+  mock_ack_Destroy();
   mock_congestionWindow_Destroy();
-  mock_delay_Destroy();
-  mock_getData_Destroy();
+  mock_sequenceNumber_Destroy();
+  mock_timeOutTimer_Destroy();
 }
 
 //=======Test Reset Option=====
@@ -77,9 +87,11 @@ void resetTest()
 //=======MAIN=====
 int main(void)
 {
-  Unity.TestFile = "test_slow_start.c";
+  Unity.TestFile = "test_TCP.c";
   UnityBegin();
-  RUN_TEST(test_TCP_successful_send_all_data_using_slow_start, 11);
+  RUN_TEST(test_successful_transmit_1st_packet, 13);
+  RUN_TEST(test_successful_transmit_2_packet, 41);
+  RUN_TEST(test_1st_and_2nd_pack_successful_send_without_time_out_3rd_time_out, 89);
 
   return (UnityEnd());
 }

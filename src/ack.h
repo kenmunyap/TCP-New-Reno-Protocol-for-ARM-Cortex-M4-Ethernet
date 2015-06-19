@@ -1,0 +1,6 @@
+#ifndef ACKNOWLEDGEMENT_H
+#define ACKNOWLEDGEMENT_H
+
+int recieveRxACK();
+
+#endif // ACKNOWLEDGEMENT_H
