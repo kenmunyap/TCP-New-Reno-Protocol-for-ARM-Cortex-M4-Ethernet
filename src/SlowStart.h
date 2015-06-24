@@ -5,7 +5,7 @@
 
 #define MSS 50
 
-char Buffer[100000];
+uint8_t Buffer[1000];
  
 typedef enum{
 	SlowStart,
