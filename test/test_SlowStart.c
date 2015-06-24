@@ -6,6 +6,15 @@ void setUp(void){}
 
 void tearDown(void){}
 
+void test_cwndInitWindow_should_init_a_window_with_empty_data(void){
+	
+  Cwnd Window;
+  cwndInitWindow(&Window);
+  
+  TEST_ASSERT_EQUAL(0,Window.offset);
+  TEST_ASSERT_EQUAL(0,Window.size);
+}
+
 void test_module_generator_needs_to_be_implemented(void)
 {
 	Cwnd data;

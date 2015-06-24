@@ -9,7 +9,7 @@ char Buffer[100000];
  
 typedef enum{
 	SlowStart,
-	WaitACK,
+	SlowStartWaitACK,
 }State;
 
 typedef struct{
@@ -17,8 +17,8 @@ typedef struct{
 }TCP_state;
 
 typedef struct{
-	int offset;
-	int size;
+	uint32_t offset;
+	uint32_t size;
 }Cwnd;
 
 #endif // SlowStart_H
