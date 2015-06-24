@@ -36,6 +36,8 @@ char* GlobalOrderError;
 extern void setUp(void);
 extern void tearDown(void);
 extern void test_module_generator_needs_to_be_implemented(void);
+extern void test_cwndInitWindow_should_init_a_window_with_default_data(void);
+extern void test_initTCPState_should_go_to_the_slow_start_state(void);
 
 
 //=======Mock Management=====
@@ -71,7 +73,13 @@ int main(void)
 {
   Unity.TestFile = "test_SlowStart.c";
   UnityBegin();
+<<<<<<< HEAD
   RUN_TEST(test_module_generator_needs_to_be_implemented, 11);
+=======
+  RUN_TEST(test_module_generator_needs_to_be_implemented, 8);
+  RUN_TEST(test_cwndInitWindow_should_init_a_window_with_default_data, 30);
+  RUN_TEST(test_initTCPState_should_go_to_the_slow_start_state, 39);
+>>>>>>> a4181e80062f6d390b75858f99da7bf406fee684
 
   return (UnityEnd());
 }

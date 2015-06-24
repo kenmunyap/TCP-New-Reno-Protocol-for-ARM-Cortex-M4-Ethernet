@@ -15,7 +15,7 @@ void initTCPState(TCP_state *state){
 uint32_t TxTCP(TCP_state *state, Cwnd *cwnd){
 	switch(state->state){
 		case SlowStart:	
-			// if(Buffer[0] != 0){
+      // if(Buffer[0] != 0){
 				// cwndGetDataBlock(cwnd,offset,requestedSize,block);
 			// }
 			// else{
