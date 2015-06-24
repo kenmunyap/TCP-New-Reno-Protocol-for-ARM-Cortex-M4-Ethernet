@@ -71,7 +71,7 @@ int main(void)
 {
   Unity.TestFile = "test_SlowStart.c";
   UnityBegin();
-  RUN_TEST(test_module_generator_needs_to_be_implemented, 9);
+  RUN_TEST(test_module_generator_needs_to_be_implemented, 11);
 
   return (UnityEnd());
 }

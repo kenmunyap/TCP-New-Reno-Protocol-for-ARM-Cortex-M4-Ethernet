@@ -12,7 +12,7 @@ void initTCPState(TCP_state *state){
 	state->state = SlowStart;
 }
 
-uint32_t TxTCP(TCP_state *state,Cwnd *cwnd){
+uint32_t TxTCP(TCP_state *state, Cwnd *cwnd){
 	switch(state->state){
 		case SlowStart:	
 			// if(Buffer[0] != 0){
@@ -22,6 +22,9 @@ uint32_t TxTCP(TCP_state *state,Cwnd *cwnd){
 				// state->state = SlowStart;
 			// }
 		break;
+    
+    case SlowStartWaitACK:
+    break;
 	}
 }
 
