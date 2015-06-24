@@ -18,7 +18,7 @@ typedef struct _CMOCK_cwndGetBeginningOffset_CALL_INSTANCE
 typedef struct _CMOCK_cwndIncrementWindow_CALL_INSTANCE
 {
   UNITY_LINE_TYPE LineNumber;
-  int ReturnVal;
+  uint32_t ReturnVal;
   int CallOrder;
   Cwnd* Expected_cwnd;
   uint32_t Expected_size;
@@ -33,7 +33,7 @@ typedef struct _CMOCK_cwndGetDataBlock_CALL_INSTANCE
   Cwnd* Expected_cwnd;
   uint32_t Expected_offset;
   uint32_t Expected_requestedSize;
-  char** Expected_block;
+  uint8_t** Expected_block;
 
 } CMOCK_cwndGetDataBlock_CALL_INSTANCE;
 
@@ -45,7 +45,7 @@ static struct mock_CongestionWindowInstance
   int cwndGetBeginningOffset_CallbackCalls;
   CMOCK_MEM_INDEX_TYPE cwndGetBeginningOffset_CallInstance;
   int cwndIncrementWindow_IgnoreBool;
-  int cwndIncrementWindow_FinalReturn;
+  uint32_t cwndIncrementWindow_FinalReturn;
   CMOCK_cwndIncrementWindow_CALLBACK cwndIncrementWindow_CallbackFunctionPointer;
   int cwndIncrementWindow_CallbackCalls;
   CMOCK_MEM_INDEX_TYPE cwndIncrementWindow_CallInstance;
@@ -158,7 +158,7 @@ void cwndGetBeginningOffset_StubWithCallback(CMOCK_cwndGetBeginningOffset_CALLBA
   Mock.cwndGetBeginningOffset_CallbackFunctionPointer = Callback;
 }
 
-int cwndIncrementWindow(Cwnd* cwnd, uint32_t size)
+uint32_t cwndIncrementWindow(Cwnd* cwnd, uint32_t size)
 {
   UNITY_LINE_TYPE cmock_line = TEST_LINE_NUM;
   CMOCK_cwndIncrementWindow_CALL_INSTANCE* cmock_call_instance = (CMOCK_cwndIncrementWindow_CALL_INSTANCE*)CMock_Guts_GetAddressFor(Mock.cwndIncrementWindow_CallInstance);
@@ -191,7 +191,7 @@ void CMockExpectParameters_cwndIncrementWindow(CMOCK_cwndIncrementWindow_CALL_IN
   cmock_call_instance->Expected_size = size;
 }
 
-void cwndIncrementWindow_CMockIgnoreAndReturn(UNITY_LINE_TYPE cmock_line, int cmock_to_return)
+void cwndIncrementWindow_CMockIgnoreAndReturn(UNITY_LINE_TYPE cmock_line, uint32_t cmock_to_return)
 {
   CMOCK_MEM_INDEX_TYPE cmock_guts_index = CMock_Guts_MemNew(sizeof(CMOCK_cwndIncrementWindow_CALL_INSTANCE));
   CMOCK_cwndIncrementWindow_CALL_INSTANCE* cmock_call_instance = (CMOCK_cwndIncrementWindow_CALL_INSTANCE*)CMock_Guts_GetAddressFor(cmock_guts_index);
@@ -202,7 +202,7 @@ void cwndIncrementWindow_CMockIgnoreAndReturn(UNITY_LINE_TYPE cmock_line, int cm
   Mock.cwndIncrementWindow_IgnoreBool = (int)1;
 }
 
-void cwndIncrementWindow_CMockExpectAndReturn(UNITY_LINE_TYPE cmock_line, Cwnd* cwnd, uint32_t size, int cmock_to_return)
+void cwndIncrementWindow_CMockExpectAndReturn(UNITY_LINE_TYPE cmock_line, Cwnd* cwnd, uint32_t size, uint32_t cmock_to_return)
 {
   CMOCK_MEM_INDEX_TYPE cmock_guts_index = CMock_Guts_MemNew(sizeof(CMOCK_cwndIncrementWindow_CALL_INSTANCE));
   CMOCK_cwndIncrementWindow_CALL_INSTANCE* cmock_call_instance = (CMOCK_cwndIncrementWindow_CALL_INSTANCE*)CMock_Guts_GetAddressFor(cmock_guts_index);
@@ -219,7 +219,7 @@ void cwndIncrementWindow_StubWithCallback(CMOCK_cwndIncrementWindow_CALLBACK Cal
   Mock.cwndIncrementWindow_CallbackFunctionPointer = Callback;
 }
 
-uint32_t cwndGetDataBlock(Cwnd* cwnd, uint32_t offset, uint32_t requestedSize, char** block)
+uint32_t cwndGetDataBlock(Cwnd* cwnd, uint32_t offset, uint32_t requestedSize, uint8_t** block)
 {
   UNITY_LINE_TYPE cmock_line = TEST_LINE_NUM;
   CMOCK_cwndGetDataBlock_CALL_INSTANCE* cmock_call_instance = (CMOCK_cwndGetDataBlock_CALL_INSTANCE*)CMock_Guts_GetAddressFor(Mock.cwndGetDataBlock_CallInstance);
@@ -244,19 +244,16 @@ uint32_t cwndGetDataBlock(Cwnd* cwnd, uint32_t offset, uint32_t requestedSize, c
   UNITY_TEST_ASSERT_EQUAL_MEMORY((void*)(cmock_call_instance->Expected_cwnd), (void*)(cwnd), sizeof(Cwnd), cmock_line, "Function 'cwndGetDataBlock' called with unexpected value for argument 'cwnd'.");
   UNITY_TEST_ASSERT_EQUAL_HEX32(cmock_call_instance->Expected_offset, offset, cmock_line, "Function 'cwndGetDataBlock' called with unexpected value for argument 'offset'.");
   UNITY_TEST_ASSERT_EQUAL_HEX32(cmock_call_instance->Expected_requestedSize, requestedSize, cmock_line, "Function 'cwndGetDataBlock' called with unexpected value for argument 'requestedSize'.");
-  if (cmock_call_instance->Expected_block == NULL)
-    { UNITY_TEST_ASSERT_NULL(block, cmock_line, "Expected NULL. Function 'cwndGetDataBlock' called with unexpected value for argument 'block'."); }
-  else
-    { UNITY_TEST_ASSERT_EQUAL_STRING_ARRAY(cmock_call_instance->Expected_block, block, 1, cmock_line, "Function 'cwndGetDataBlock' called with unexpected value for argument 'block'."); }
+  UNITY_TEST_ASSERT_EQUAL_PTR(cmock_call_instance->Expected_block, block, cmock_line, "Function 'cwndGetDataBlock' called with unexpected value for argument 'block'.");
   return cmock_call_instance->ReturnVal;
 }
 
-void CMockExpectParameters_cwndGetDataBlock(CMOCK_cwndGetDataBlock_CALL_INSTANCE* cmock_call_instance, Cwnd* cwnd, uint32_t offset, uint32_t requestedSize, char** block)
+void CMockExpectParameters_cwndGetDataBlock(CMOCK_cwndGetDataBlock_CALL_INSTANCE* cmock_call_instance, Cwnd* cwnd, uint32_t offset, uint32_t requestedSize, uint8_t** block)
 {
   cmock_call_instance->Expected_cwnd = cwnd;
   cmock_call_instance->Expected_offset = offset;
   cmock_call_instance->Expected_requestedSize = requestedSize;
-  memcpy(&cmock_call_instance->Expected_block, &block, sizeof(char**));
+  cmock_call_instance->Expected_block = block;
 }
 
 void cwndGetDataBlock_CMockIgnoreAndReturn(UNITY_LINE_TYPE cmock_line, uint32_t cmock_to_return)
@@ -270,7 +267,7 @@ void cwndGetDataBlock_CMockIgnoreAndReturn(UNITY_LINE_TYPE cmock_line, uint32_t 
   Mock.cwndGetDataBlock_IgnoreBool = (int)1;
 }
 
-void cwndGetDataBlock_CMockExpectAndReturn(UNITY_LINE_TYPE cmock_line, Cwnd* cwnd, uint32_t offset, uint32_t requestedSize, char** block, uint32_t cmock_to_return)
+void cwndGetDataBlock_CMockExpectAndReturn(UNITY_LINE_TYPE cmock_line, Cwnd* cwnd, uint32_t offset, uint32_t requestedSize, uint8_t** block, uint32_t cmock_to_return)
 {
   CMOCK_MEM_INDEX_TYPE cmock_guts_index = CMock_Guts_MemNew(sizeof(CMOCK_cwndGetDataBlock_CALL_INSTANCE));
   CMOCK_cwndGetDataBlock_CALL_INSTANCE* cmock_call_instance = (CMOCK_cwndGetDataBlock_CALL_INSTANCE*)CMock_Guts_GetAddressFor(cmock_guts_index);
