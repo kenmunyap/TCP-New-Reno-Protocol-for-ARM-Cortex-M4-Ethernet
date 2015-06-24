@@ -6,13 +6,13 @@
 #define MSS 50
 
 typedef enum{
-	sendData,
-	waitACK,
+	SlowStart,
+	WaitACK,
 }State;
 
 typedef struct{
 	State state;
-}SS_state;
+}TCP_state;
 
 typedef struct{
 	int offset;

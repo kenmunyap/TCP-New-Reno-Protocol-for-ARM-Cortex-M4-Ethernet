@@ -2,20 +2,32 @@
 #ifndef _MOCK_CONGESTIONWINDOW_H
 #define _MOCK_CONGESTIONWINDOW_H
 
-#include "congestionWindow.h"
+#include "CongestionWindow.h"
 
-void mock_congestionWindow_Init(void);
-void mock_congestionWindow_Destroy(void);
-void mock_congestionWindow_Verify(void);
-
-
+void mock_CongestionWindow_Init(void);
+void mock_CongestionWindow_Destroy(void);
+void mock_CongestionWindow_Verify(void);
 
 
-#define congestionWindow_IgnoreAndReturn(cmock_retval) congestionWindow_CMockIgnoreAndReturn(__LINE__, cmock_retval)
-void congestionWindow_CMockIgnoreAndReturn(UNITY_LINE_TYPE cmock_line, int cmock_to_return);
-#define congestionWindow_ExpectAndReturn(cmock_retval) congestionWindow_CMockExpectAndReturn(__LINE__, cmock_retval)
-void congestionWindow_CMockExpectAndReturn(UNITY_LINE_TYPE cmock_line, int cmock_to_return);
-typedef int (* CMOCK_congestionWindow_CALLBACK)(int cmock_num_calls);
-void congestionWindow_StubWithCallback(CMOCK_congestionWindow_CALLBACK Callback);
+
+
+#define cwndGetBeginningOffset_IgnoreAndReturn(cmock_retval) cwndGetBeginningOffset_CMockIgnoreAndReturn(__LINE__, cmock_retval)
+void cwndGetBeginningOffset_CMockIgnoreAndReturn(UNITY_LINE_TYPE cmock_line, uint32_t cmock_to_return);
+#define cwndGetBeginningOffset_ExpectAndReturn(cwnd, cmock_retval) cwndGetBeginningOffset_CMockExpectAndReturn(__LINE__, cwnd, cmock_retval)
+void cwndGetBeginningOffset_CMockExpectAndReturn(UNITY_LINE_TYPE cmock_line, Cwnd* cwnd, uint32_t cmock_to_return);
+typedef uint32_t (* CMOCK_cwndGetBeginningOffset_CALLBACK)(Cwnd* cwnd, int cmock_num_calls);
+void cwndGetBeginningOffset_StubWithCallback(CMOCK_cwndGetBeginningOffset_CALLBACK Callback);
+#define cwndIncrementWindow_IgnoreAndReturn(cmock_retval) cwndIncrementWindow_CMockIgnoreAndReturn(__LINE__, cmock_retval)
+void cwndIncrementWindow_CMockIgnoreAndReturn(UNITY_LINE_TYPE cmock_line, int cmock_to_return);
+#define cwndIncrementWindow_ExpectAndReturn(cwnd, size, cmock_retval) cwndIncrementWindow_CMockExpectAndReturn(__LINE__, cwnd, size, cmock_retval)
+void cwndIncrementWindow_CMockExpectAndReturn(UNITY_LINE_TYPE cmock_line, Cwnd* cwnd, uint32_t size, int cmock_to_return);
+typedef int (* CMOCK_cwndIncrementWindow_CALLBACK)(Cwnd* cwnd, uint32_t size, int cmock_num_calls);
+void cwndIncrementWindow_StubWithCallback(CMOCK_cwndIncrementWindow_CALLBACK Callback);
+#define cwndGetDataBlock_IgnoreAndReturn(cmock_retval) cwndGetDataBlock_CMockIgnoreAndReturn(__LINE__, cmock_retval)
+void cwndGetDataBlock_CMockIgnoreAndReturn(UNITY_LINE_TYPE cmock_line, uint32_t cmock_to_return);
+#define cwndGetDataBlock_ExpectAndReturn(cwnd, offset, requestedSize, block, cmock_retval) cwndGetDataBlock_CMockExpectAndReturn(__LINE__, cwnd, offset, requestedSize, block, cmock_retval)
+void cwndGetDataBlock_CMockExpectAndReturn(UNITY_LINE_TYPE cmock_line, Cwnd* cwnd, uint32_t offset, uint32_t requestedSize, char** block, uint32_t cmock_to_return);
+typedef uint32_t (* CMOCK_cwndGetDataBlock_CALLBACK)(Cwnd* cwnd, uint32_t offset, uint32_t requestedSize, char** block, int cmock_num_calls);
+void cwndGetDataBlock_StubWithCallback(CMOCK_cwndGetDataBlock_CALLBACK Callback);
 
 #endif

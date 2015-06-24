@@ -8,12 +8,14 @@ void cwndInitWindow(Cwnd *cwnd){
 	cwnd->size = 0;
 }
 
-uint32_t SlowStart(SS_state *state,Cwnd *cwnd){
-	int ackValue;
-	int value;
+void initTCPState(TCP_state *state){
+	state->state = SlowStart;
+}
+
+uint32_t TCP(TCP_state *state,Cwnd *cwnd){
 	switch(state->state){
-		case sendData:
-			// cwndIncrementWindow(cwnd,);
+		case SlowStart:
+
 		break;
 	}
 }

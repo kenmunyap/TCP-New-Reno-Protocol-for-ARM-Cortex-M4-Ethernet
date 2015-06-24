@@ -26,11 +26,7 @@
 #include "cmock.h"
 #include <setjmp.h>
 #include <stdio.h>
-#include "mock_Data.h"
-#include "mock_ack.h"
-#include "mock_congestionWindow.h"
-#include "mock_sequenceNumber.h"
-#include "mock_timeOutTimer.h"
+#include "mock_CongestionWindow.h"
 
 int GlobalExpectCount;
 int GlobalVerifyOrder;
@@ -39,9 +35,7 @@ char* GlobalOrderError;
 //=======External Functions This Runner Calls=====
 extern void setUp(void);
 extern void tearDown(void);
-extern void test_successful_transmit_1st_packet(void);
-extern void test_successful_transmit_2_packet(void);
-extern void test_1st_and_2nd_pack_successful_send_without_time_out_3rd_time_out(void);
+extern void test_module_generator_needs_to_be_implemented(void);
 
 
 //=======Mock Management=====
@@ -50,27 +44,15 @@ static void CMock_Init(void)
   GlobalExpectCount = 0;
   GlobalVerifyOrder = 0;
   GlobalOrderError = NULL;
-  mock_Data_Init();
-  mock_ack_Init();
-  mock_congestionWindow_Init();
-  mock_sequenceNumber_Init();
-  mock_timeOutTimer_Init();
+  mock_CongestionWindow_Init();
 }
 static void CMock_Verify(void)
 {
-  mock_Data_Verify();
-  mock_ack_Verify();
-  mock_congestionWindow_Verify();
-  mock_sequenceNumber_Verify();
-  mock_timeOutTimer_Verify();
+  mock_CongestionWindow_Verify();
 }
 static void CMock_Destroy(void)
 {
-  mock_Data_Destroy();
-  mock_ack_Destroy();
-  mock_congestionWindow_Destroy();
-  mock_sequenceNumber_Destroy();
-  mock_timeOutTimer_Destroy();
+  mock_CongestionWindow_Destroy();
 }
 
 //=======Test Reset Option=====
@@ -87,11 +69,9 @@ void resetTest()
 //=======MAIN=====
 int main(void)
 {
-  Unity.TestFile = "test_TCP.c";
+  Unity.TestFile = "test_SlowStart.c";
   UnityBegin();
-  RUN_TEST(test_successful_transmit_1st_packet, 13);
-  RUN_TEST(test_successful_transmit_2_packet, 41);
-  RUN_TEST(test_1st_and_2nd_pack_successful_send_without_time_out_3rd_time_out, 89);
+  RUN_TEST(test_module_generator_needs_to_be_implemented, 9);
 
   return (UnityEnd());
 }
