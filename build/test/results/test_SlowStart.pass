@@ -4,14 +4,19 @@
   :file: test_SlowStart.c
 :successes:
 - :test: test_module_generator_needs_to_be_implemented
-  :line: 11
+  :line: 9
+  :message: ''
+- :test: test_cwndInitWindow_should_init_a_window_with_default_data
+  :line: 45
+  :message: ''
+- :test: test_initTCPState_should_go_to_the_slow_start_state
+  :line: 54
   :message: ''
 :failures: []
 :ignores: []
 :counts:
-  :total: 1
-  :passed: 1
+  :total: 3
+  :passed: 3
   :failed: 0
   :ignored: 0
-:stdout:
-- a
+:stdout: []

@@ -4,7 +4,7 @@
 #include <setjmp.h>
 #include "unity.h"
 #include "cmock.h"
-#include "mock_CongestionWindow.h"
+#include "mock_congestionWindow.h"
 
 typedef struct _CMOCK_cwndGetBeginningOffset_CALL_INSTANCE
 {
@@ -37,7 +37,7 @@ typedef struct _CMOCK_cwndGetDataBlock_CALL_INSTANCE
 
 } CMOCK_cwndGetDataBlock_CALL_INSTANCE;
 
-static struct mock_CongestionWindowInstance
+static struct mock_congestionWindowInstance
 {
   int cwndGetBeginningOffset_IgnoreBool;
   uint32_t cwndGetBeginningOffset_FinalReturn;
@@ -60,7 +60,7 @@ extern jmp_buf AbortFrame;
 extern int GlobalExpectCount;
 extern int GlobalVerifyOrder;
 
-void mock_CongestionWindow_Verify(void)
+void mock_congestionWindow_Verify(void)
 {
   UNITY_LINE_TYPE cmock_line = TEST_LINE_NUM;
   if (Mock.cwndGetBeginningOffset_IgnoreBool)
@@ -80,12 +80,12 @@ void mock_CongestionWindow_Verify(void)
     Mock.cwndGetDataBlock_CallInstance = CMOCK_GUTS_NONE;
 }
 
-void mock_CongestionWindow_Init(void)
+void mock_congestionWindow_Init(void)
 {
-  mock_CongestionWindow_Destroy();
+  mock_congestionWindow_Destroy();
 }
 
-void mock_CongestionWindow_Destroy(void)
+void mock_congestionWindow_Destroy(void)
 {
   CMock_Guts_MemFreeAll();
   memset(&Mock, 0, sizeof(Mock));

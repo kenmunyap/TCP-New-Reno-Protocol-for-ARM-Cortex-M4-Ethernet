@@ -16,6 +16,7 @@ void initTCPState(TCP_state *state){
 }
 
 uint32_t TxTCP(TCP_state *state, Cwnd *cwnd){
+	uint32_t size;
 	uint32_t requestedSize;
 	uint32_t offset;
 	switch(state->state){
@@ -25,16 +26,28 @@ uint32_t TxTCP(TCP_state *state, Cwnd *cwnd){
 			requestedSize = cwnd->size;
 			cwndGetDataBlock(cwnd,offset,requestedSize,Block);
 			cwnd->lastByteSend = requestedSize;
-			if(cwndGetDataBlock(cwnd,offset,requestedSize,Block) == -1){
-				state->state = SlowStartWaitACK;
-			}
+			cwnd->selectedOffSet = offset;
+			state->state=SlowStartWaitACK;
 		}
 		break;
 		
 		case SlowStartWaitACK:
-			if(returnACK() == cwnd->lastByteSend){
-				// Increment
+			offset = cwnd->selectedOffSet;
+			requestedSize = cwnd->lastByteSend;
+			if(cwndGetDataBlock(cwnd,offset,requestedSize,Block) == -1){
+				if(returnACK() == cwnd->lastByteSend){	
+					if(cwnd->size < ssthres){
+						size = requestedSize - offset;
+						cwnd->size = cwndIncrementWindow(cwnd,size);
+						cwnd->offset = returnACK();
+					}else{
+						state->state = SlowStart;
+					}
+				}
+			}else{
+				
 			}
+			
 		break;
     
 	}

@@ -26,7 +26,8 @@
 #include "cmock.h"
 #include <setjmp.h>
 #include <stdio.h>
-#include "mock_CongestionWindow.h"
+#include "mock_congestionWindow.h"
+#include "mock_returnACK.h"
 
 int GlobalExpectCount;
 int GlobalVerifyOrder;
@@ -46,15 +47,18 @@ static void CMock_Init(void)
   GlobalExpectCount = 0;
   GlobalVerifyOrder = 0;
   GlobalOrderError = NULL;
-  mock_CongestionWindow_Init();
+  mock_congestionWindow_Init();
+  mock_returnACK_Init();
 }
 static void CMock_Verify(void)
 {
-  mock_CongestionWindow_Verify();
+  mock_congestionWindow_Verify();
+  mock_returnACK_Verify();
 }
 static void CMock_Destroy(void)
 {
-  mock_CongestionWindow_Destroy();
+  mock_congestionWindow_Destroy();
+  mock_returnACK_Destroy();
 }
 
 //=======Test Reset Option=====
@@ -73,13 +77,9 @@ int main(void)
 {
   Unity.TestFile = "test_SlowStart.c";
   UnityBegin();
-<<<<<<< HEAD
-  RUN_TEST(test_module_generator_needs_to_be_implemented, 11);
-=======
-  RUN_TEST(test_module_generator_needs_to_be_implemented, 8);
-  RUN_TEST(test_cwndInitWindow_should_init_a_window_with_default_data, 30);
-  RUN_TEST(test_initTCPState_should_go_to_the_slow_start_state, 39);
->>>>>>> a4181e80062f6d390b75858f99da7bf406fee684
+  RUN_TEST(test_module_generator_needs_to_be_implemented, 9);
+  RUN_TEST(test_cwndInitWindow_should_init_a_window_with_default_data, 45);
+  RUN_TEST(test_initTCPState_should_go_to_the_slow_start_state, 54);
 
   return (UnityEnd());
 }
