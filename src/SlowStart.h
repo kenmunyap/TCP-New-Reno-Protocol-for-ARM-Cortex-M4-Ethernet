@@ -6,7 +6,8 @@
 #define MSS 50
 
 uint8_t Buffer[1000];
- 
+extern uint8_t **Block;
+
 typedef enum{
 	SlowStart,
 	SlowStartWaitACK,
@@ -19,6 +20,10 @@ typedef struct{
 typedef struct{
 	uint32_t offset;
 	uint32_t size;
+	uint32_t maximumOffsetSize;
+	uint32_t lastByteSend;
 }Cwnd;
+
+uint32_t TxTCP(TCP_state *state, Cwnd *cwnd);
 
 #endif // SlowStart_H
