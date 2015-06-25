@@ -2,11 +2,11 @@
 #ifndef _MOCK_CONGESTIONWINDOW_H
 #define _MOCK_CONGESTIONWINDOW_H
 
-#include "CongestionWindow.h"
+#include "congestionWindow.h"
 
-void mock_CongestionWindow_Init(void);
-void mock_CongestionWindow_Destroy(void);
-void mock_CongestionWindow_Verify(void);
+void mock_congestionWindow_Init(void);
+void mock_congestionWindow_Destroy(void);
+void mock_congestionWindow_Verify(void);
 
 
 

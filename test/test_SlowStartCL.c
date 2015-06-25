@@ -1,6 +1,7 @@
 #include "unity.h"
 #include "SlowStart.h"
-#include "mock_CongestionWindow.h"
+#include "mock_congestionWindow.h"
+#include "mock_returnACK.h"
 
 void setUp(void){}
 void tearDown(void){}
@@ -51,7 +52,7 @@ void test_TxTCP_should_init_and_send_the_first_data(void){
 
   cwndGetBeginningOffset_ExpectAndReturn(&Window,0);
   cwndGetDataBlock_ExpectAndReturn(&Window,0,50,&(*Block),0);
-  TxTCP(&state,&Window);
+  TxTCP2(&state,&Window);
   
   TEST_ASSERT_EQUAL(0,Window.offset);
   TEST_ASSERT_EQUAL(50,Window.size);
@@ -87,7 +88,7 @@ void test_TxTCP_should_init_and_send_the_first_data_increase_WindowSize_after_AC
   cwndGetDataBlock_ExpectAndReturn(&Window,0,50,&(*Block),50);
   cwndIncrementWindow_ExpectAndReturn(&Window,50,100);
 
-  TxTCP(&state,&Window);
+  TxTCP2(&state,&Window);
   
   TEST_ASSERT_EQUAL(50,Window.offset);
   TEST_ASSERT_EQUAL(100,Window.size);
@@ -126,7 +127,7 @@ void test_TxTCP_should_increase_WindowSize_after_ACK_and_offset_moved_to_100(voi
   cwndGetDataBlock_ExpectAndReturn(&Window,0,50,&(*Block),50);
   cwndIncrementWindow_ExpectAndReturn(&Window,50,100);
 
-  TxTCP(&state,&Window);
+  TxTCP2(&state,&Window);
   
   TEST_ASSERT_EQUAL(50,Window.offset);
   TEST_ASSERT_EQUAL(100,Window.size);
@@ -136,7 +137,7 @@ void test_TxTCP_should_increase_WindowSize_after_ACK_and_offset_moved_to_100(voi
   cwndGetDataBlock_ExpectAndReturn(&Window,50,100,&(*Block),100);
   cwndIncrementWindow_ExpectAndReturn(&Window,100,150);
 
-  TxTCP(&state,&Window);
+  TxTCP2(&state,&Window);
   
   TEST_ASSERT_EQUAL(100,Window.offset);
   TEST_ASSERT_EQUAL(150,Window.size);
@@ -177,7 +178,7 @@ void test_TxTCP_should_increase_WindowSize_after_third_ACK_and_offset_moved_to_1
   cwndGetDataBlock_ExpectAndReturn(&Window,0,50,&(*Block),50);
   cwndIncrementWindow_ExpectAndReturn(&Window,50,100);
 
-  TxTCP(&state,&Window);
+  TxTCP2(&state,&Window);
   
   TEST_ASSERT_EQUAL(50,Window.offset);
   TEST_ASSERT_EQUAL(100,Window.size);
@@ -187,7 +188,7 @@ void test_TxTCP_should_increase_WindowSize_after_third_ACK_and_offset_moved_to_1
   cwndGetDataBlock_ExpectAndReturn(&Window,50,100,&(*Block),100);
   cwndIncrementWindow_ExpectAndReturn(&Window,100,150);
 
-  TxTCP(&state,&Window);
+  TxTCP2(&state,&Window);
   
   TEST_ASSERT_EQUAL(100,Window.offset);
   TEST_ASSERT_EQUAL(150,Window.size);
@@ -197,7 +198,7 @@ void test_TxTCP_should_increase_WindowSize_after_third_ACK_and_offset_moved_to_1
   cwndGetDataBlock_ExpectAndReturn(&Window,100,150,&(*Block),150);
   cwndIncrementWindow_ExpectAndReturn(&Window,150,200);
 
-  TxTCP(&state,&Window);
+  TxTCP2(&state,&Window);
   
   TEST_ASSERT_EQUAL(150,Window.offset);
   TEST_ASSERT_EQUAL(200,Window.size);
