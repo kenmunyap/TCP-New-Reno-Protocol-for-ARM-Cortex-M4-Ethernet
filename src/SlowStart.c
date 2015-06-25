@@ -14,41 +14,31 @@ void initTCPState(TCP_state *state){
 	state->state = SlowStart;
 }
 
-Cwnd *TxTCP(TCP_state *state, Cwnd *cwnd){
+void TxTCP(TCP_state *state, Cwnd *cwnd){
   uint32_t offset;
   uint32_t requestedSize;
   uint32_t availableSize;
   
 	switch(state->state){
 		case SlowStart:
-      
+     //Starting of slowStart
       offset = cwndGetBeginningOffset(cwnd);
+      //printf("offset: %d\n",offset);
       requestedSize = offset + MSS;
       availableSize = cwndGetDataBlock(cwnd,offset,requestedSize,Block);
-      
-      printf("TEST cwnd->offset : %d\n",cwnd->offset);
-      printf("TEST cwnd->size   : %d\n",cwnd->size);
-      printf("TEST offset       : %d\n",offset);
-      printf("TEST requestedSize: %d\n",requestedSize);
-      printf("TEST availableSize: %d\n",availableSize);
-      printf("TEST Block        : %d\n\n",Block);
-      
-      if(requestedSize <= availableSize){
-        cwnd->offset = cwndIncrementWindow(cwnd,requestedSize);
-        printf("TEST cwnd->offset : %d\n",cwnd->offset);
-        printf("TEST cwnd->size   : %d\n",cwnd->size);
-        printf("TEST offset       : %d\n",offset);
-        printf("TEST requestedSize: %d\n",requestedSize);
-        printf("TEST availableSize: %d\n",availableSize);
-        printf("TEST Block        : %d\n\n",Block);
-      }
-      else return NULL;
 
-		break;
+      if(availableSize) state->state = SlowStartWaitACK;
+      else break;
     
     case SlowStartWaitACK:
+    //after ACK received
+      if(requestedSize <= availableSize){
+        cwnd->size = cwndIncrementWindow(cwnd,requestedSize);
+        cwnd->offset = offset + MSS;
+        Block = (uint8_t **)(offset + MSS);
+        state->state = SlowStart;
+      }
+    
     break;
 	}
-  return cwnd;
 }
-

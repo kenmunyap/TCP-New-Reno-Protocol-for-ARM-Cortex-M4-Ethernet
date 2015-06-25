@@ -24,6 +24,6 @@ typedef struct{
 
 void cwndInitWindow(Cwnd *cwnd);
 void initTCPState(TCP_state *state);
-Cwnd *TxTCP(TCP_state *state, Cwnd *cwnd);
+void TxTCP(TCP_state *state, Cwnd *cwnd);
 
 #endif // SlowStart_H
