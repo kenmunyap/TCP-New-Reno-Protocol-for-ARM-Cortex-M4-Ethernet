@@ -51,7 +51,7 @@ void test_TxTCP_should_init_and_send_the_first_data(void){
   TEST_ASSERT_EQUAL(SlowStart,state.state);
 
   cwndGetBeginningOffset_ExpectAndReturn(&Window,0);
-  cwndGetDataBlock_ExpectAndReturn(&Window,0,50,&(*Block),0);
+  cwndGetDataBlock_ExpectAndReturn(&Window,0,50,&Block,0);
   TxTCP2(&state,&Window);
   
   TEST_ASSERT_EQUAL(50,Window.offset);
@@ -85,7 +85,7 @@ void test_TxTCP_should_init_and_send_the_first_data_increase_WindowSize_after_AC
   TEST_ASSERT_EQUAL(SlowStart,state.state);
 
   cwndGetBeginningOffset_ExpectAndReturn(&Window,0);
-  cwndGetDataBlock_ExpectAndReturn(&Window,0,50,&(*Block),50);
+  cwndGetDataBlock_ExpectAndReturn(&Window,0,50,&Block,50);
   cwndIncrementWindow_ExpectAndReturn(&Window,50,100);
 
   TxTCP2(&state,&Window);
@@ -124,7 +124,7 @@ void test_TxTCP_should_increase_WindowSize_after_ACK_and_offset_moved_to_100(voi
   TEST_ASSERT_EQUAL(SlowStart,state.state);
 
   cwndGetBeginningOffset_ExpectAndReturn(&Window,0);
-  cwndGetDataBlock_ExpectAndReturn(&Window,0,50,&(*Block),50);
+  cwndGetDataBlock_ExpectAndReturn(&Window,0,50,&Block,50);
   cwndIncrementWindow_ExpectAndReturn(&Window,50,100);
 
   TxTCP2(&state,&Window);
@@ -134,7 +134,7 @@ void test_TxTCP_should_increase_WindowSize_after_ACK_and_offset_moved_to_100(voi
   TEST_ASSERT_EQUAL(50,Block);
   //printf("========offset==========");
   cwndGetBeginningOffset_ExpectAndReturn(&Window,50);
-  cwndGetDataBlock_ExpectAndReturn(&Window,50,100,&(*Block),100);
+  cwndGetDataBlock_ExpectAndReturn(&Window,50,100,&Block,100);
   cwndIncrementWindow_ExpectAndReturn(&Window,100,150);
 
   TxTCP2(&state,&Window);
@@ -175,7 +175,7 @@ void test_TxTCP_should_increase_WindowSize_after_third_ACK_and_offset_moved_to_1
   TEST_ASSERT_EQUAL(SlowStart,state.state);
 
   cwndGetBeginningOffset_ExpectAndReturn(&Window,0);
-  cwndGetDataBlock_ExpectAndReturn(&Window,0,50,&(*Block),50);
+  cwndGetDataBlock_ExpectAndReturn(&Window,0,50,&Block,50);
   cwndIncrementWindow_ExpectAndReturn(&Window,50,100);
 
   TxTCP2(&state,&Window);
@@ -185,7 +185,7 @@ void test_TxTCP_should_increase_WindowSize_after_third_ACK_and_offset_moved_to_1
   TEST_ASSERT_EQUAL(50,Block);
   
   cwndGetBeginningOffset_ExpectAndReturn(&Window,50);
-  cwndGetDataBlock_ExpectAndReturn(&Window,50,100,&(*Block),100);
+  cwndGetDataBlock_ExpectAndReturn(&Window,50,100,&Block,100);
   cwndIncrementWindow_ExpectAndReturn(&Window,100,150);
 
   TxTCP2(&state,&Window);
@@ -195,7 +195,7 @@ void test_TxTCP_should_increase_WindowSize_after_third_ACK_and_offset_moved_to_1
   TEST_ASSERT_EQUAL(100,Block);
   
   cwndGetBeginningOffset_ExpectAndReturn(&Window,100);
-  cwndGetDataBlock_ExpectAndReturn(&Window,100,150,&(*Block),150);
+  cwndGetDataBlock_ExpectAndReturn(&Window,100,150,&Block,150);
   cwndIncrementWindow_ExpectAndReturn(&Window,150,200);
 
   TxTCP2(&state,&Window);
@@ -236,7 +236,7 @@ void test_TxTCP_should_return_0_if_the_availableSize_not_enough(void){
   TEST_ASSERT_EQUAL(SlowStart,state.state);
 
   cwndGetBeginningOffset_ExpectAndReturn(&Window,0);
-  cwndGetDataBlock_ExpectAndReturn(&Window,0,50,&(*Block),0); 
+  cwndGetDataBlock_ExpectAndReturn(&Window,0,50,&Block,0); 
   // fail to increase windowSize avilable size not enough
   returned = TxTCP2(&state,&Window);
   
@@ -277,7 +277,7 @@ void test_TxTCP_should_return_0_if_the_availableSize_not_enough_case_2(void){
   TEST_ASSERT_EQUAL(SlowStart,state.state);
 
   cwndGetBeginningOffset_ExpectAndReturn(&Window,0);
-  cwndGetDataBlock_ExpectAndReturn(&Window,0,50,&(*Block),50);
+  cwndGetDataBlock_ExpectAndReturn(&Window,0,50,&Block,50);
   cwndIncrementWindow_ExpectAndReturn(&Window,50,100);
 
   TxTCP2(&state,&Window);
@@ -287,7 +287,7 @@ void test_TxTCP_should_return_0_if_the_availableSize_not_enough_case_2(void){
   TEST_ASSERT_EQUAL(50,Block);
   
   cwndGetBeginningOffset_ExpectAndReturn(&Window,50);
-  cwndGetDataBlock_ExpectAndReturn(&Window,50,100,&(*Block),50);
+  cwndGetDataBlock_ExpectAndReturn(&Window,50,100,&Block,50);
 
   returned = TxTCP2(&state,&Window);
   
@@ -331,7 +331,7 @@ void test_TxTCP_should_return_0_if_the_availableSize_not_enough_case_3(void){
   TEST_ASSERT_EQUAL(SlowStart,state.state);
 
   cwndGetBeginningOffset_ExpectAndReturn(&Window,0);
-  cwndGetDataBlock_ExpectAndReturn(&Window,0,50,&(*Block),50);
+  cwndGetDataBlock_ExpectAndReturn(&Window,0,50,&Block,50);
   cwndIncrementWindow_ExpectAndReturn(&Window,50,100);
 
   TxTCP2(&state,&Window);
@@ -341,7 +341,7 @@ void test_TxTCP_should_return_0_if_the_availableSize_not_enough_case_3(void){
   TEST_ASSERT_EQUAL(50,Block);
   
   cwndGetBeginningOffset_ExpectAndReturn(&Window,50);
-  cwndGetDataBlock_ExpectAndReturn(&Window,50,100,&(*Block),0);
+  cwndGetDataBlock_ExpectAndReturn(&Window,50,100,&Block,0);
 
   returned = TxTCP2(&state,&Window);
   
@@ -350,7 +350,7 @@ void test_TxTCP_should_return_0_if_the_availableSize_not_enough_case_3(void){
   TEST_ASSERT_EQUAL(100,Block);
   
   cwndGetBeginningOffset_ExpectAndReturn(&Window,100); 
-  cwndGetDataBlock_ExpectAndReturn(&Window,100,100,&(*Block),100);
+  cwndGetDataBlock_ExpectAndReturn(&Window,100,100,&Block,100);
   cwndIncrementWindow_ExpectAndReturn(&Window,100,150);
 
   TxTCP2(&state,&Window);
