@@ -3,6 +3,7 @@
 #include "SlowStart.h"
 #include "congestionWindow.h"
 #include "returnACK.h"
+#include "Packet.h"
 
 uint8_t **Block;
 uint32_t returnSlowStartflag = 0;
@@ -15,13 +16,48 @@ void cwndInitWindow(Cwnd *cwnd){
 void initTCPState(TCP_state *state){
 	state->state = SlowStart;
 }
+// Merging
+uint32_t TxData(TCP_state *state, Cwnd *cwnd){
+  static uint32_t offset;
+  static uint32_t requestedSize;
+  static uint32_t tempSize;
+  static uint32_t availableSize;
+  static uint8_t *getAddress;
+  static Packet *packet;
+  
+  switch(state->state){
+		case SlowStart:
+      offset = cwndGetBeginningOffset(cwnd);
+      requestedSize = offset + MSS;
+      availableSize = cwndGetDataBlock(cwnd,offset,requestedSize,&getAddress);
+      if(availableSize){
+        state->state = SlowStartWaitACK;
+      }
+    break;
+    
+    case SlowStartWaitACK:
+      availableSize = cwndGetDataBlock(cwnd,offset,requestedSize,&getAddress);
+      if(!availableSize){
+        packet = getDataPacket();
+        if(packet->seqNum == requestedSize)
+        {
+          cwnd->size = cwndIncrementWindow(cwnd,requestedSize);
+        }
+        else{
+          state->state = SlowStart;
+        }
+      }
+    break;
+	}
+}
+
+//=============================================
 
 uint32_t TxTCP2(TCP_state *state, Cwnd *cwnd){
   uint32_t offset;
   uint32_t requestedSize;
   uint32_t availableSize;
   uint32_t tempSize;
-  
   
 	switch(state->state){
 		case SlowStart:

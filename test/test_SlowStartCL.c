@@ -359,5 +359,5 @@ void test_TxTCP_should_return_0_if_the_availableSize_not_enough_case_3(void){
   TEST_ASSERT_EQUAL(150,Window.size);
   TEST_ASSERT_EQUAL(150,Block);
   Block = 0;
+  returnSlowStartflag = 0;
 }
-
