@@ -38,6 +38,8 @@ void test_get_and_send_1_segment_of_data_to_receiver_after_return_ack_increment_
   getDataPacket_ExpectAndReturn(&packet,&receiveData,50);
   cwndIncrementWindow_ExpectAndReturn(&cwnd,50,100);
   TxData(&state,&cwnd,&packet);
+  TEST_ASSERT_EQUAL(50,cwnd.offset);
+  TEST_ASSERT_EQUAL(100,cwnd.size);
 }
 
 

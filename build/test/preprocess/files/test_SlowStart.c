@@ -74,12 +74,8 @@ void test_get_and_send_1_segment_of_data_to_receiver_after_return_ack_increment_
 
   TxData(&state,&cwnd,&packet);
 
+  UnityAssertEqualNumber((_U_SINT)((50)), (_U_SINT)((cwnd.offset)), (((void *)0)), (_U_UINT)41, UNITY_DISPLAY_STYLE_INT);
 
-
-
-
-
-
-
+  UnityAssertEqualNumber((_U_SINT)((100)), (_U_SINT)((cwnd.size)), (((void *)0)), (_U_UINT)42, UNITY_DISPLAY_STYLE_INT);
 
 }
