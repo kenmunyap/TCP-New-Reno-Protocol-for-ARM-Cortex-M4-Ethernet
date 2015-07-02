@@ -17,28 +17,28 @@ void initTCPState(TCP_state *state){
 }
 
 
+
+
 // Merging
-uint32_t TxData(TCP_state *state, Cwnd *cwnd){
-  static Packet *packet;
+uint32_t TxData(TCP_state *state, Cwnd *cwnd, Packet *packet){
   static uint32_t offset;
   uint32_t requestedSize;
   static uint32_t tempSize;
   static uint32_t availableSize;
   static uint8_t *getAddress; 
   static uint32_t sequenceNumber;
-
-
+  
+  
   switch(state->state){
 		case SlowStart:
       offset = cwndGetBeginningOffset(cwnd);
       requestedSize = offset + MSS;
       availableSize = cwndGetDataBlock(cwnd,offset,requestedSize,&Block); 
       if(availableSize != 0){
-        offset = availableSize;
           here:
-        if(availableSize != 0){
-          sendDataPacket(packet,&Block,availableSize);
-          availableSize--;
+        if(offset != availableSize){
+          sendDataPacket(packet,&Block,offset);
+          offset++;
           goto here;
         }else{
           state->state = SlowStartWaitACK;
@@ -50,15 +50,13 @@ uint32_t TxData(TCP_state *state, Cwnd *cwnd){
     break;
     
     case SlowStartWaitACK:
-      requestedSize = offset + MSS;
+      requestedSize = offset;
       availableSize = cwndGetDataBlock(cwnd,offset,requestedSize,&Block);
-      tempSize = cwnd->offset + MSS;
-      printf("tempSize: %d");
       if(availableSize != 0){
-        // sendDataPacket(packet,availableSize);
+        sendDataPacket(packet,&Block,offset);
         availableSize--;
       }else{
-        // sequenceNumber = getDataPacket();
+        sequenceNumber = getDataPacket();
         // if(sequenceNumber == tempSize){
           // cwnd->size = cwndIncrementWindow(cwnd,requestedSize);
           // cwnd->offset = sequenceNumber;
