@@ -8,6 +8,7 @@
 
 uint8_t Buffer[1000];
 extern uint8_t *Block;
+extern uint8_t *receiveData;
 extern uint32_t returnSlowStartflag;
 
 typedef enum{

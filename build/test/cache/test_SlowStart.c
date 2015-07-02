@@ -68,6 +68,10 @@ void test_get_and_send_1_segment_of_data_to_receiver_after_return_ack_increment_
 
   cwndGetDataBlock_CMockExpectAndReturn(37, &cwnd, 50, 50, &Block, 0);
 
+  getDataPacket_CMockExpectAndReturn(38, &packet, &receiveData, 50);
+
+  cwndIncrementWindow_CMockExpectAndReturn(39, &cwnd, 50, 100);
+
   TxData(&state,&cwnd,&packet);
 
 
