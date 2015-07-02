@@ -40,6 +40,7 @@ uint32_t TxTCP(TCP_state *state, Cwnd *cwnd){
 						size = requestedSize - offset;
 						cwnd->size = cwndIncrementWindow(cwnd,size);
 						cwnd->offset = returnACK();
+						state->state = SlowStartWaitACK;
 					}else{
 						state->state = SlowStart;
 					}

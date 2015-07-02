@@ -6,7 +6,7 @@ void setUp(void){}
 void tearDown(void){}
 
 
-void test_module_generator_needs_to_be_implemented(void){
+void test_get_and_send_1_segment_of_data_to_receiver_after_return_ack_increment_size_and_offset(void){
 
 	Cwnd cwnd;
 	TCP_state state;
@@ -30,10 +30,45 @@ void test_module_generator_needs_to_be_implemented(void){
 	cwndIncrementWindow_ExpectAndReturn(&cwnd,size,100);
 	returnACK_ExpectAndReturn(50);
 	TxTCP(&state,&cwnd);
-	// TEST_ASSERT_EQUAL
+	TEST_ASSERT_EQUAL(50,cwnd.offset);
+	TEST_ASSERT_EQUAL(100,cwnd.size);	
+}
+
+void test_get_and_send_3_segment_of_data_to_receiver_after_return_ack_increment_size_and_offset(void){
+	Cwnd cwnd;
+	TCP_state state;
+	uint32_t size;
+	//1st segment
+	cwndInitWindow(&cwnd);
+	TEST_ASSERT_EQUAL(0,cwnd.offset);
+	TEST_ASSERT_EQUAL(50,cwnd.size);
 	
+	initTCPState(&state);
+	TEST_ASSERT_EQUAL(SlowStart,state.state);
+
+	
+	cwndGetDataBlock_ExpectAndReturn(&cwnd,0,50,&(*(Block = 0)),0);
+	TxTCP(&state,&cwnd);
+	TEST_ASSERT_EQUAL(0,&(*Block));
+	
+	cwndGetDataBlock_ExpectAndReturn(&cwnd,0,50,&(*Block),-1);
+	returnACK_ExpectAndReturn(50);
+	size = MSS;
+	cwndIncrementWindow_ExpectAndReturn(&cwnd,size,100);
+	returnACK_ExpectAndReturn(50);
+	TxTCP(&state,&cwnd);
+	TEST_ASSERT_EQUAL(50,cwnd.offset);
+	TEST_ASSERT_EQUAL(100,cwnd.size);	
+	
+	//2nd segment
+	cwndGetDataBlock_ExpectAndReturn(&cwnd,50,100,&(*Block = 0),50);
+	TxTCP(&state,&cwnd);
 	
 }
+
+
+
+
 
 
 
