@@ -67,4 +67,3 @@ uint32_t TxData(TCP_state *state, Cwnd *cwnd){
     break;
 	}
 }
->>>>>>> 3cc8d5ed6f8029e13b8e2b04a923f44589dd6ba1
