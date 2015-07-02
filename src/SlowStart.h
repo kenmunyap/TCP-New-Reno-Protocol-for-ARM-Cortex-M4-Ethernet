@@ -8,6 +8,7 @@
 
 uint8_t Buffer[1000];
 extern uint8_t *Block;
+extern uint8_t *receiveData;
 extern uint32_t returnSlowStartflag;
 
 typedef enum{
@@ -37,8 +38,6 @@ typedef struct{
 
 void cwndInitWindow(Cwnd *cwnd);
 void initTCPState(TCP_state *state);
-uint32_t TxData(TCP_state *state, Cwnd *cwnd);
-uint32_t TxTCP2(TCP_state *state, Cwnd *cwnd);
-uint32_t TxTCP(TCP_state *state, Cwnd *cwnd);
-
+void initPacket(Packet *packet);
+uint32_t TxData(TCP_state *state, Cwnd *cwnd, Packet *packet);
 #endif // SlowStart_H
