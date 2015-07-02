@@ -4,6 +4,7 @@
 #include "mock_Packet.h"
 void setUp(void){}
 void tearDown(void){}
+
 /*
       Sender                Reciever
       0 | -------------------> |
@@ -14,7 +15,7 @@ void test_get_and_send_1_segment_of_data_to_receiver_after_return_ack_increment_
 	Cwnd cwnd;
 	TCP_state state;
 	uint32_t size;
-  // Packet packet = {.srcIpAddr = 12};
+  Packet packet = {.srcIpAddr = 12};
   
   // initialize window and state;
 	cwndInitWindow(&cwnd);
@@ -26,12 +27,12 @@ void test_get_and_send_1_segment_of_data_to_receiver_after_return_ack_increment_
 
   cwndGetBeginningOffset_ExpectAndReturn(&cwnd,0);
   cwndGetDataBlock_ExpectAndReturn(&cwnd,0,50,&Block,50);
-  // sendDataPacket_Expect(&packet,0);
+  sendDataPacket_Expect(&packet,&Block,0);
   TxData(&state,&cwnd);
   TEST_ASSERT_EQUAL(SlowStartWaitACK,state.state);
   
-  cwndGetDataBlock_ExpectAndReturn(&cwnd,50,100,&Block,0);
-  TxData(&state,&cwnd);
+  // cwndGetDataBlock_ExpectAndReturn(&cwnd,50,100,&Block,0);
+  // TxData(&state,&cwnd);
   
 }
 

@@ -26,7 +26,7 @@ void test_get_and_send_1_segment_of_data_to_receiver_after_return_ack_increment_
 
  uint32_t size;
 
-
+  Packet packet = {.srcIpAddr = 12};
 
 
 
@@ -50,7 +50,7 @@ void test_get_and_send_1_segment_of_data_to_receiver_after_return_ack_increment_
 
   cwndGetDataBlock_CMockExpectAndReturn(28, &cwnd, 0, 50, &Block, 50);
 
-
+  sendDataPacket_CMockExpect(29, &packet, &Block, 0);
 
   TxData(&state,&cwnd);
 
@@ -58,9 +58,9 @@ void test_get_and_send_1_segment_of_data_to_receiver_after_return_ack_increment_
 
 
 
-  cwndGetDataBlock_CMockExpectAndReturn(33, &cwnd, 50, 100, &Block, 0);
 
-  TxData(&state,&cwnd);
+
+
 
 
 

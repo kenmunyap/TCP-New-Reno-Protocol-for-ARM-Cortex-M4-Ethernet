@@ -37,7 +37,7 @@ uint32_t TxData(TCP_state *state, Cwnd *cwnd){
         offset = availableSize;
           here:
         if(availableSize != 0){
-          // sendDataPacket(packet,availableSize);
+          sendDataPacket(packet,&Block,availableSize);
           availableSize--;
           goto here;
         }else{
