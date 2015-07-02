@@ -25,17 +25,13 @@ void test_get_and_send_1_segment_of_data_to_receiver_after_return_ack_increment_
 	TEST_ASSERT_EQUAL(SlowStart,state.state);
 
   cwndGetBeginningOffset_ExpectAndReturn(&cwnd,0);
-  cwndGetDataBlock_ExpectAndReturn(&cwnd,0,50,*(&Block),50);
+  cwndGetDataBlock_ExpectAndReturn(&cwnd,0,50,&Block,50);
   // sendDataPacket_Expect(&packet,0);
   TxData(&state,&cwnd);
   TEST_ASSERT_EQUAL(SlowStartWaitACK,state.state);
   
-  cwndGetDataBlock_ExpectAndReturn(&cwnd,50,100,*(&Block),0);
+  cwndGetDataBlock_ExpectAndReturn(&cwnd,50,100,&Block,0);
   TxData(&state,&cwnd);
-  
-  
-  
-  
   
 }
 

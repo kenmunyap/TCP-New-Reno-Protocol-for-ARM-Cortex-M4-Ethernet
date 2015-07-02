@@ -4,7 +4,7 @@
 #include "congestionWindow.h"
 #include "Packet.h"
 
-uint8_t **Block;
+uint8_t *Block;
 uint32_t returnSlowStartflag = 0;
 
 void cwndInitWindow(Cwnd *cwnd){
@@ -32,7 +32,7 @@ uint32_t TxData(TCP_state *state, Cwnd *cwnd){
 		case SlowStart:
       offset = cwndGetBeginningOffset(cwnd);
       requestedSize = offset + MSS;
-      availableSize = cwndGetDataBlock(cwnd,offset,requestedSize,Block); 
+      availableSize = cwndGetDataBlock(cwnd,offset,requestedSize,&Block); 
       if(availableSize != 0){
         offset = availableSize;
           here:
@@ -51,21 +51,21 @@ uint32_t TxData(TCP_state *state, Cwnd *cwnd){
     
     case SlowStartWaitACK:
       requestedSize = offset + MSS;
-      availableSize = cwndGetDataBlock(cwnd,offset,requestedSize,Block);
+      availableSize = cwndGetDataBlock(cwnd,offset,requestedSize,&Block);
       tempSize = cwnd->offset + MSS;
       printf("tempSize: %d");
       if(availableSize != 0){
         // sendDataPacket(packet,availableSize);
         availableSize--;
       }else{
-        sequenceNumber = getDataPacket();
-        if(sequenceNumber == tempSize){
-          cwnd->size = cwndIncrementWindow(cwnd,requestedSize);
-          cwnd->offset = sequenceNumber;
-          state->state = SlowStartWaitACK;
-        }else{
-          printf("goes to fast retransmit");
-        }
+        // sequenceNumber = getDataPacket();
+        // if(sequenceNumber == tempSize){
+          // cwnd->size = cwndIncrementWindow(cwnd,requestedSize);
+          // cwnd->offset = sequenceNumber;
+          // state->state = SlowStartWaitACK;
+        // }else{
+          // printf("goes to fast retransmit");
+        // }
       }
     break;
 	}
