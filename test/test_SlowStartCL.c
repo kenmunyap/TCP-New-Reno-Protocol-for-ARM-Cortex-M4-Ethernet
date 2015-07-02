@@ -367,10 +367,29 @@ void test_TxTCP_should_return_0_if_the_availableSize_not_enough_case_3(void){
 
 // NEW fucntion test
 
-void test_TxData(void){
+void xtest_TxData(void){
+  Packet packet = {.srcIpAddr = 12};
+  Cwnd Window;
+  TCP_state state;
   
+  cwndInitWindow(&Window);
+  initTCPState(&state);
   
+  TEST_ASSERT_EQUAL(0,Window.offset);
+  TEST_ASSERT_EQUAL(50,Window.size);
+  TEST_ASSERT_EQUAL(SlowStart,state.state);
+
+  cwndGetBeginningOffset_ExpectAndReturn(&Window,0);
+  cwndGetDataBlock_ExpectAndReturn(&Window,0,50,&Block,50);
+  sendDataPacket_Expect(&packet,&Block,0);
+  TxData(&state,&Window);
+  TEST_ASSERT_EQUAL(SlowStartWaitACK,state.state);
+  
+  TEST_ASSERT_EQUAL(50,Window.offset);
+  TEST_ASSERT_EQUAL(50,Window.size);
+  TEST_ASSERT_EQUAL(50,Block);
 }
+
 
 
 

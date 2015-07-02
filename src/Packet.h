@@ -3,7 +3,7 @@
 
 #include "SlowStart.h"
 
-// int getDataPacket();
-void sendDataPacket(Packet *packet,uint8_t **block,int size);
+uint32_t getDataPacket();
+void sendDataPacket(Packet *packet, uint8_t **block, int size);
 
 #endif // Packet_H
