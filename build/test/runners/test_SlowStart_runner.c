@@ -26,8 +26,8 @@
 #include "cmock.h"
 #include <setjmp.h>
 #include <stdio.h>
+#include "mock_Packet.h"
 #include "mock_congestionWindow.h"
-#include "mock_returnACK.h"
 
 int GlobalExpectCount;
 int GlobalVerifyOrder;
@@ -37,9 +37,6 @@ char* GlobalOrderError;
 extern void setUp(void);
 extern void tearDown(void);
 extern void test_get_and_send_1_segment_of_data_to_receiver_after_return_ack_increment_size_and_offset(void);
-extern void test_get_and_send_3_segment_of_data_to_receiver_after_return_ack_increment_size_and_offset(void);
-extern void test_cwndInitWindow_should_init_a_window_with_default_data(void);
-extern void test_initTCPState_should_go_to_the_slow_start_state(void);
 
 
 //=======Mock Management=====
@@ -48,18 +45,18 @@ static void CMock_Init(void)
   GlobalExpectCount = 0;
   GlobalVerifyOrder = 0;
   GlobalOrderError = NULL;
+  mock_Packet_Init();
   mock_congestionWindow_Init();
-  mock_returnACK_Init();
 }
 static void CMock_Verify(void)
 {
+  mock_Packet_Verify();
   mock_congestionWindow_Verify();
-  mock_returnACK_Verify();
 }
 static void CMock_Destroy(void)
 {
+  mock_Packet_Destroy();
   mock_congestionWindow_Destroy();
-  mock_returnACK_Destroy();
 }
 
 //=======Test Reset Option=====
@@ -78,10 +75,7 @@ int main(void)
 {
   Unity.TestFile = "test_SlowStart.c";
   UnityBegin();
-  RUN_TEST(test_get_and_send_1_segment_of_data_to_receiver_after_return_ack_increment_size_and_offset, 9);
-  RUN_TEST(test_get_and_send_3_segment_of_data_to_receiver_after_return_ack_increment_size_and_offset, 37);
-  RUN_TEST(test_cwndInitWindow_should_init_a_window_with_default_data, 81);
-  RUN_TEST(test_initTCPState_should_go_to_the_slow_start_state, 90);
+  RUN_TEST(test_get_and_send_1_segment_of_data_to_receiver_after_return_ack_increment_size_and_offset, 12);
 
   return (UnityEnd());
 }

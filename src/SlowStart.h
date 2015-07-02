@@ -29,14 +29,15 @@ typedef struct{
 
 typedef struct{
   uint32_t srcIpAddr;
-  uint32_t destIpAddr;
-  uint32_t seqNum;
-  uint32_t AckNum;
-  uint8_t data;
+  // uint32_t destIpAddr;
+  // uint32_t seqNum;
+  // uint32_t AckNum;
+  // uint8_t data;
 }Packet;
 
 void cwndInitWindow(Cwnd *cwnd);
 void initTCPState(TCP_state *state);
+uint32_t TxData(TCP_state *state, Cwnd *cwnd);
 uint32_t TxTCP2(TCP_state *state, Cwnd *cwnd);
 uint32_t TxTCP(TCP_state *state, Cwnd *cwnd);
 
