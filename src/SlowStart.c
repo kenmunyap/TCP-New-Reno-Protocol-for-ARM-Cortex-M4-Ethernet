@@ -18,9 +18,6 @@ void initTCPState(TCP_state *state){
 }
 
 
-
-
-// Merging
 uint32_t TxData(TCP_state *state, Cwnd *cwnd, Packet *packet){
   static uint32_t offset;
   uint32_t requestedSize;
@@ -54,8 +51,14 @@ uint32_t TxData(TCP_state *state, Cwnd *cwnd, Packet *packet){
       requestedSize = offset;
       availableSize = cwndGetDataBlock(cwnd,offset,requestedSize,&Block);
       if(availableSize != 0){
-        sendDataPacket(packet,&Block,offset);
-        availableSize--;
+        go:
+        if(offset != availableSize){
+          sendDataPacket(packet,&Block,offset);
+          offset++;
+          goto go;
+        }else{
+          state->state = SlowStartWaitACK;
+        }
       }else{
         sequenceNumber = getDataPacket(packet,&receiveData);
         nextSeqNo = cwnd->offset+MSS;

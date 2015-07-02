@@ -37,6 +37,7 @@ char* GlobalOrderError;
 extern void setUp(void);
 extern void tearDown(void);
 extern void test_get_and_send_1_segment_of_data_to_receiver_after_return_ack_increment_size_and_offset(void);
+extern void test_get_and_send_3_segment_of_data_to_receiver_after_return_ack_increment_size_and_offset(void);
 
 
 //=======Mock Management=====
@@ -75,7 +76,8 @@ int main(void)
 {
   Unity.TestFile = "test_SlowStart.c";
   UnityBegin();
-  RUN_TEST(test_get_and_send_1_segment_of_data_to_receiver_after_return_ack_increment_size_and_offset, 13);
+  RUN_TEST(test_get_and_send_1_segment_of_data_to_receiver_after_return_ack_increment_size_and_offset, 15);
+  RUN_TEST(test_get_and_send_3_segment_of_data_to_receiver_after_return_ack_increment_size_and_offset, 63);
 
   return (UnityEnd());
 }
