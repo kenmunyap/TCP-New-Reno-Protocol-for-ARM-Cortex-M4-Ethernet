@@ -5,8 +5,12 @@
 void setUp(void){}
 void tearDown(void){}
 
+<<<<<<< HEAD
 
 void test_get_and_send_1_segment_of_data_to_receiver_after_return_ack_increment_size_and_offset(void){
+=======
+void test_module_generator_needs_to_be_implemented(void){
+>>>>>>> 86e7e64a1629c35e607d9c1371214099e52d601e
 
 	Cwnd cwnd;
 	TCP_state state;
@@ -64,6 +68,7 @@ void test_get_and_send_3_segment_of_data_to_receiver_after_return_ack_increment_
 	cwndGetDataBlock_ExpectAndReturn(&cwnd,50,100,&(*Block = 0),50);
 	TxTCP(&state,&cwnd);
 	
+<<<<<<< HEAD
 }
 
 
@@ -95,3 +100,6 @@ void test_initTCPState_should_go_to_the_slow_start_state(void){
   TEST_ASSERT_EQUAL(SlowStart,state.state);
 }
 
+=======
+}
+>>>>>>> 86e7e64a1629c35e607d9c1371214099e52d601e
