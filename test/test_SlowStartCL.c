@@ -367,8 +367,22 @@ void test_TxTCP_should_return_0_if_the_availableSize_not_enough_case_3(void){
 
 // NEW fucntion test
 
-void test_TxData(void){
-  Packet packet = {.srcIpAddr = 12};
+/**
+ *   0  _____      _____ 0
+ *  50 |____|     |////| 50
+ *     |    |  => |____| 100
+ *     |    |     |____| 150
+ *     |    |     |    |
+ *     |    |     |    |
+ *     |____|     |____|
+ *    
+ *   1st congestion Window
+ *   with size of 50 and offset 0
+ *   after the ACK increament the window size to 100
+ *   offset moved to 50
+ */
+void test_TxData_should_init_and_send_the_first_data_increase_WindowSize_after_ACK(void){
+  Packet packet;
   Cwnd Window;
   TCP_state state;
   uint32_t i;
@@ -389,12 +403,74 @@ void test_TxData(void){
   
   TEST_ASSERT_EQUAL(0,Window.offset);
   TEST_ASSERT_EQUAL(50,Window.size);
-  TEST_ASSERT_EQUAL(0,Block);
+  
+  cwndGetDataBlock_ExpectAndReturn(&Window,50,50,&Block,0);
+  getDataPacket_ExpectAndReturn(&packet,&receiveData,50);
+  cwndIncrementWindow_ExpectAndReturn(&Window,50,100);
+  TxData(&state,&Window,&packet);
+  
+  TEST_ASSERT_EQUAL(50,Window.offset);
+  TEST_ASSERT_EQUAL(100,Window.size);
 }
+/**
+ *   0 _____       _____ 0         _____  0
+ * 50 |____|      |////| 50       |////|
+ *    |    |      |____| 100      |////|  100
+ *    |    |      |____| 150      |____|  150
+ *    |    |      |    |          |____|  200
+ *    |    |  =>  |    |    =>    |____|  250
+ *    |    |      |    |          |    |
+ *    |    |      |    |          |    |
+ *    |____|      |____|          |____|
+ *    
+ *   1st congestion Window
+ *   with size of 50 and offset 0
+ *   after the ACK increament the window to 100
+ *   offset moved to 50, 2nd ACK comes and increase window size by 50, to 150
+ *   offset moved to 100
+ */
+void test_TxData_should_increase_WindowSize_after_ACK_and_offset_moved_to_100(void){
+  Packet packet;
+  uint32_t i;
+  
+  Cwnd Window;
+  cwndInitWindow(&Window);
+  
+  TCP_state state;
+  initTCPState(&state);
+  
+  TEST_ASSERT_EQUAL(0,Window.offset);
+  TEST_ASSERT_EQUAL(50,Window.size);
+  TEST_ASSERT_EQUAL(SlowStart,state.state);
 
-
-
-
-
+  cwndGetBeginningOffset_ExpectAndReturn(&Window,0);
+  cwndGetDataBlock_ExpectAndReturn(&Window,0,50,&Block,50);
+  for(i=0;i<50;i++){
+    sendDataPacket_Expect(&packet,&Block,i);
+  }
+  TxData(&state,&Window,&packet);
+  
+  TEST_ASSERT_EQUAL(0,Window.offset);
+  TEST_ASSERT_EQUAL(50,Window.size);
+  
+  cwndGetDataBlock_ExpectAndReturn(&Window,50,50,&Block,50);
+  getDataPacket_ExpectAndReturn(&packet,&receiveData,50);
+  cwndIncrementWindow_ExpectAndReturn(&Window,50,100);
+  TxData(&state,&Window,&packet);
+  
+  TEST_ASSERT_EQUAL(50,Window.offset);
+  TEST_ASSERT_EQUAL(100,Window.size);
+  
+  // cwndGetDataBlock_ExpectAndReturn(&Window,50,50,&Block,100);
+  // for(i=50;i<150;i++){
+    // sendDataPacket_Expect(&packet,&Block,i);
+  // }
+  // cwndIncrementWindow_ExpectAndReturn(&Window,50,100);
+  // TxData(&state,&Window,&packet);
+  
+  // TEST_ASSERT_EQUAL(50,Window.offset);
+  // TEST_ASSERT_EQUAL(100,Window.size);
+  
+}
 
 
