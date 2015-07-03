@@ -23,17 +23,14 @@ typedef struct{
 typedef struct{
 	uint32_t offset;
 	uint32_t size;
-	uint32_t maximumOffsetSize;
-	uint32_t lastByteSend;
-	uint32_t selectedOffSet;
 }Cwnd;
 
 typedef struct{
   uint32_t srcIpAddr;
-  // uint32_t destIpAddr;
-  // uint32_t seqNum;
-  // uint32_t AckNum;
-  // uint8_t data;
+  uint32_t destIpAddr;
+  uint32_t seqNum;
+  uint32_t AckNum;
+  uint8_t data;
 }Packet;
 
 void cwndInitWindow(Cwnd *cwnd);
