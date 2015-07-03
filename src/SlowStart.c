@@ -41,7 +41,7 @@ uint32_t TxData(TCP_state *state, Cwnd *cwnd, Packet *packet){
           state->state = SlowStartWaitACK;
         }
       }else{
-        printf("\nnot available");
+        printf("\n not available");
         state->state = SlowStart;
       }
     break;
@@ -68,13 +68,17 @@ uint32_t TxData(TCP_state *state, Cwnd *cwnd, Packet *packet){
           cwnd->offset = sequenceNumber;
           state->state = SlowStartWaitACK;
         }else{
-          cwnd->dupACKFlag = 1;
-          counter = counter+1;
-          if(counter == 3){ 
-            printf("\n goes to fast retransmit");
-            counter = 0;
+          if(sequenceNumber == cwnd->offset){
+            cwnd->dupACKFlag = 1;
+            counter = counter+1;
+            if(counter == 3){ 
+              printf("\n goes to fast retransmit");
+              counter = 0;
+            }else{
+              state->state = SlowStartWaitACK;
+            }
           }else{
-            state->state = SlowStartWaitACK;
+
           }
         }
       }
