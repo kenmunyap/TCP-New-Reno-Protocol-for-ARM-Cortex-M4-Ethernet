@@ -18,8 +18,9 @@ void initTCPState(TCP_state *state){
 }
 
 uint32_t TxData(TCP_state *state, Cwnd *cwnd, Packet *packet){
+  static uint32_t requestedSize;
+  static uint32_t currentWindowSize;
   static uint32_t offset;
-  uint32_t requestedSize;
   static uint32_t nextSeqNo;
   static uint32_t availableSize;
   static uint8_t *getAddress; 
@@ -40,26 +41,34 @@ uint32_t TxData(TCP_state *state, Cwnd *cwnd, Packet *packet){
           state->state = SlowStartWaitACK;
         }
       }else{
-        printf("not available");
+        printf("\nnot available");
         state->state = SlowStart;
       }
     break;
     
     case SlowStartWaitACK:
-      requestedSize = offset;
+      requestedSize = MSS;
       availableSize = cwndGetDataBlock(cwnd,offset,requestedSize,&Block);
       if(availableSize != 0){
-        sendDataPacket(packet,&Block,offset);
-        availableSize--;
+        availableSize = availableSize + offset;
+        go:
+        if(offset != availableSize){
+          sendDataPacket(packet,&Block,offset);
+          offset++;
+          goto go;
+        }else{
+          state->state = SlowStartWaitACK;
+        }
       }else{
         sequenceNumber = getDataPacket(packet,&receiveData);
         nextSeqNo = cwnd->offset+MSS;
+        currentWindowSize = cwnd->offset+MSS;
         if(sequenceNumber == nextSeqNo){
-          cwnd->size = cwndIncrementWindow(cwnd,requestedSize);
+          cwnd->size = cwndIncrementWindow(cwnd,currentWindowSize);
           cwnd->offset = sequenceNumber;
           state->state = SlowStartWaitACK;
         }else{
-          printf("goes to fast retransmit");
+          printf("\ngoes to fast retransmit");
         }
       }
     break;
