@@ -69,6 +69,7 @@ uint32_t TxData(TCP_state *state, Cwnd *cwnd, Packet *packet){
           cwnd->offset = sequenceNumber;
           state->state = SlowStartWaitACK;
         }else{
+          cwnd->dupACKFlag = 1;
           counter = counter+1;
           if(counter == 3){ 
             printf("\ngoes to fast retransmit");

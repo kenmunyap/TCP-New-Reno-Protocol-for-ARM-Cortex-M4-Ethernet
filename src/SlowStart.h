@@ -23,6 +23,7 @@ typedef struct{
 typedef struct{
 	uint32_t offset;
 	uint32_t size;
+  uint32_t dupACKFlag;
 }Cwnd;
 
 typedef struct{
