@@ -7,7 +7,6 @@
 uint8_t *Block;
 uint8_t *receiveData;
 
-
 void cwndInitWindow(Cwnd *cwnd){
 	cwnd->offset = 0;
 	cwnd->size = MSS;
