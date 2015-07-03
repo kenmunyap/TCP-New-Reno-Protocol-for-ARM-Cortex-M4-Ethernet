@@ -6,7 +6,7 @@
 
 uint8_t *Block;
 uint8_t *receiveData;
-uint32_t returnSlowStartflag = 0;
+
 
 void cwndInitWindow(Cwnd *cwnd){
 	cwnd->offset = 0;
