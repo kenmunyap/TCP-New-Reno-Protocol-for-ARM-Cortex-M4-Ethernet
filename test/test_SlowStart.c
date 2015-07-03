@@ -2,6 +2,7 @@
 #include "SlowStart.h"
 #include "mock_congestionWindow.h"
 #include "mock_Packet.h"
+
 void setUp(void){}
 void tearDown(void){}
 
@@ -227,7 +228,6 @@ void test_get_and_send_3_segment_but_2nd_packet_fail_to_ACK(void){
         | <------------------  | 50(sequenceNumber) ACKed
       50| -------------------> | 
      100| -------------------> |
-        |     x--------------- |100(sequenceNumber) ACKed
         | <------------------  | 50(sequenceNumber) dupACKed
         | <------------------  | 50(sequenceNumber) dupACKed
         | <------------------  |100(sequenceNumber) ACKed
@@ -316,7 +316,6 @@ void test_get_and_send_3_segment_but_2nd_packet_fail_with_2_dup_ACK_3rd_receive_
      300| -------------------> |
  */
 
- 
  
  
 
