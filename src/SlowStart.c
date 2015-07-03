@@ -18,13 +18,14 @@ void initTCPState(TCP_state *state){
 }
 
 uint32_t TxData(TCP_state *state, Cwnd *cwnd, Packet *packet){
-  static uint32_t requestedSize;
-  static uint32_t currentWindowSize;
   static uint32_t offset;
+  static uint32_t currentWindowSize;
+  static uint32_t requestedSize;
   static uint32_t nextSeqNo;
   static uint32_t availableSize;
   static uint8_t *getAddress; 
   static uint32_t sequenceNumber;
+  static uint32_t counter = 0;
 
   switch(state->state){
 		case SlowStart:
@@ -68,7 +69,13 @@ uint32_t TxData(TCP_state *state, Cwnd *cwnd, Packet *packet){
           cwnd->offset = sequenceNumber;
           state->state = SlowStartWaitACK;
         }else{
-          printf("\ngoes to fast retransmit");
+          counter = counter+1;
+          if(counter == 3){ 
+            printf("\ngoes to fast retransmit");
+            counter = 0;
+          }else{
+            state->state = SlowStartWaitACK;
+          }
         }
       }
     break;
