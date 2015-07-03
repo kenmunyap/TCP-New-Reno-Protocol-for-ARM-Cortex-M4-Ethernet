@@ -422,3 +422,67 @@ void test_TxData_should_return_if_the_availableSize_not_enough_case_3(void){
 ///////////////////////////////////////
 // Test for multiple 
 ///////////////////////////////////////
+void test_TxData_should_return_if_2_ACK_received(void){
+  Cwnd Window;
+  cwndInitWindow(&Window);
+  
+  TCP_state state;
+  initTCPState(&state);
+  
+  TEST_ASSERT_EQUAL(0,Window.offset);
+  TEST_ASSERT_EQUAL(50,Window.size);
+  TEST_ASSERT_EQUAL(SlowStart,state.state);
+  printf("\n=====================================");
+  cwndGetBeginningOffset_ExpectAndReturn(&Window,0);
+  cwndGetDataBlock_ExpectAndReturn(&Window,0,50,&Block,50);
+  sendPacketTimes(0,50);
+  TxData(&state,&Window,&packet);
+  
+  TEST_ASSERT_EQUAL(0,Window.offset);
+  TEST_ASSERT_EQUAL(50,Window.size);
+  
+  cwndGetDataBlock_ExpectAndReturn(&Window,50,50,&Block,0);
+  getDataPacket_ExpectAndReturn(&packet,&receiveData,50);
+  cwndIncrementWindow_ExpectAndReturn(&Window,50,100);
+  TxData(&state,&Window,&packet);
+  TEST_ASSERT_EQUAL(50,Window.offset);
+  TEST_ASSERT_EQUAL(100,Window.size);
+  
+  cwndGetDataBlock_ExpectAndReturn(&Window,50,50,&Block,50);
+  sendPacketTimes(50,100);
+  TxData(&state,&Window,&packet);
+  TEST_ASSERT_EQUAL(50,Window.offset);
+  TEST_ASSERT_EQUAL(100,Window.size);
+  
+  cwndGetDataBlock_ExpectAndReturn(&Window,100,50,&Block,50);
+  sendPacketTimes(100,150);
+  TxData(&state,&Window,&packet);
+  TEST_ASSERT_EQUAL(50,Window.offset);
+  TEST_ASSERT_EQUAL(100,Window.size);
+  
+  cwndGetDataBlock_ExpectAndReturn(&Window,150,50,&Block,0);
+  getDataPacket_ExpectAndReturn(&packet,&receiveData,50);
+  // Duplicate ACK Thus WindowSize no increase
+  TxData(&state,&Window,&packet);
+  TEST_ASSERT_EQUAL(50,Window.offset);
+  TEST_ASSERT_EQUAL(100,Window.size); // The Window size still 100
+  
+  cwndGetDataBlock_ExpectAndReturn(&Window,150,50,&Block,50);
+  sendPacketTimes(150,200);
+  TxData(&state,&Window,&packet);
+  TEST_ASSERT_EQUAL(50,Window.offset);
+  TEST_ASSERT_EQUAL(100,Window.size);
+  
+  cwndGetDataBlock_ExpectAndReturn(&Window,200,50,&Block,50);
+  sendPacketTimes(200,250);
+  TxData(&state,&Window,&packet);
+  TEST_ASSERT_EQUAL(50,Window.offset);
+  TEST_ASSERT_EQUAL(100,Window.size);
+  
+  cwndGetDataBlock_ExpectAndReturn(&Window,250,50,&Block,0);
+  getDataPacket_ExpectAndReturn(&packet,&receiveData,50);
+  //cwndIncrementWindow_ExpectAndReturn(&Window,100,150);
+  TxData(&state,&Window,&packet);
+  TEST_ASSERT_EQUAL(50,Window.offset);
+  TEST_ASSERT_EQUAL(100,Window.size);
+}
