@@ -265,12 +265,12 @@ void test_txTcpSM_for_ACK_out_of_order_case(void){
   TEST_ASSERT_EQUAL(150,Window.offset);
   TEST_ASSERT_EQUAL(150,Window.size);
   
-  //cwndGetDataBlock_ExpectAndReturn(&Window,250,50,&Block,0);
-  //getDataPacket_ExpectAndReturn(&packet,&receiveData,200);
-  //cwndIncrementWindow_ExpectAndReturn(&Window,150,200);
-  //txTcpSM(&state,&Window,&packet);
-  //TEST_ASSERT_EQUAL(200,Window.offset);
-  //TEST_ASSERT_EQUAL(200,Window.size);
+  cwndGetDataBlock_ExpectAndReturn(&Window,250,50,&Block,0);
+  getDataPacket_ExpectAndReturn(&packet,&receiveData,200);
+  cwndIncrementWindow_ExpectAndReturn(&Window,200,200);//
+  txTcpSM(&state,&Window,&packet);
+  TEST_ASSERT_EQUAL(200,Window.offset);
+  TEST_ASSERT_EQUAL(200,Window.size);
   //printf("\n END TEST");
 }
 
