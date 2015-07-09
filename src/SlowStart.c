@@ -53,7 +53,7 @@ uint32_t txTcpSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
         sequenceNumber = getDataPacket(packet,&receiveData);
         ackNo = cwnd->offset+MSS;
         currentWindowSize = cwnd->offset+MSS;
-        if(sequenceNumber == ackNo){
+        if(sequenceNumber == ackNo || sequenceNumber == ackNo+MSS){
           cwnd->size = cwndIncrementWindow(cwnd,currentWindowSize);
           cwnd->offset = sequenceNumber;
           state->state = SlowStartWaitACK;
