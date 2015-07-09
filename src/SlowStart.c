@@ -16,7 +16,7 @@ void initTCPState(TCP_state *state){
 	state->state = SlowStart;
 }
 
-uint32_t TxData(TCP_state *state, Cwnd *cwnd, Packet *packet){
+uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
   static uint32_t offset;
   static uint32_t currentWindowSize;
   static uint32_t requestedSize;
@@ -60,15 +60,14 @@ uint32_t TxData(TCP_state *state, Cwnd *cwnd, Packet *packet){
         }else{
           if(sequenceNumber == cwnd->offset){
             cwnd->dupACKFlag = 1;
-            counter = counter+1;
+            counter = counter+1;  
             if(counter >= 3){ 
               printf("\n goes to fast retransmit");
               counter = 0;
             }else{
+              printf("\n goes to fast retransmit");
               state->state = SlowStartWaitACK;
             }
-          }else{
-            
           }
         }
       }
