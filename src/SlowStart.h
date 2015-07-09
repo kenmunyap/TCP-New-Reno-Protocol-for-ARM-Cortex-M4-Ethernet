@@ -36,5 +36,7 @@ typedef struct{
 void cwndInitWindow(Cwnd *cwnd);
 void initTCPState(TCP_state *state);
 void initPacket(Packet *packet);
-uint32_t TxData(TCP_state *state, Cwnd *cwnd, Packet *packet);
+uint32_t txTcpSM(TCP_state *state, Cwnd *cwnd, Packet *packet);
+void fastRetransmit(Cwnd *cwnd, Packet *packet, uint32_t size);
+
 #endif // SlowStart_H

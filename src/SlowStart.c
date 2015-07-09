@@ -16,7 +16,7 @@ void initTCPState(TCP_state *state){
 	state->state = SlowStart;
 }
 
-uint32_t TxData(TCP_state *state, Cwnd *cwnd, Packet *packet){
+uint32_t txTcpSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
   static uint32_t offset;
   static uint32_t currentWindowSize;
   static uint32_t requestedSize;
@@ -24,7 +24,7 @@ uint32_t TxData(TCP_state *state, Cwnd *cwnd, Packet *packet){
   static uint32_t availableSize;
   static uint8_t *getAddress; 
   static uint32_t sequenceNumber;
-  static uint32_t counter = 0;
+  static uint32_t counter;
 
   switch(state->state){
 		case SlowStart:
@@ -57,13 +57,16 @@ uint32_t TxData(TCP_state *state, Cwnd *cwnd, Packet *packet){
           cwnd->size = cwndIncrementWindow(cwnd,currentWindowSize);
           cwnd->offset = sequenceNumber;
           state->state = SlowStartWaitACK;
-        }else{
+        }
+        else{
           if(sequenceNumber == cwnd->offset){
             cwnd->dupACKFlag = 1;
             counter = counter+1;
-            if(counter >= 3){ 
-              printf("\n goes to fast retransmit");
+            if(counter > 3){
+              sequenceNumber = sequenceNumber + MSS;
+              fastRetransmit(cwnd,packet,sequenceNumber);
               counter = 0;
+              //state->state = SlowStart;
             }else{
               state->state = SlowStartWaitACK;
             }
@@ -75,3 +78,13 @@ uint32_t TxData(TCP_state *state, Cwnd *cwnd, Packet *packet){
     break;
 	}
 }
+
+void fastRetransmit(Cwnd *cwnd, Packet *packet, uint32_t size){
+  printf("\n fast retransmit");
+  sendDataPacket(packet,&Block,size);
+
+  cwnd->size = MSS;
+}
+
+
+
