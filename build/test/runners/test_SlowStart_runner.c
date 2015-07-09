@@ -36,7 +36,6 @@ char* GlobalOrderError;
 //=======External Functions This Runner Calls=====
 extern void setUp(void);
 extern void tearDown(void);
-extern void test_get_and_send_1_segment_of_data_to_receiver_after_return_ack_increment_size_and_offset(void);
 extern void test_get_and_send_3_segment_of_data_to_receiver_after_return_ack_increment_size_and_offset(void);
 extern void test_get_and_send_3_segment_but_2nd_packet_fail_to_ACK(void);
 extern void test_get_and_send_3_segment_but_2nd_packet_fail_with_2_dup_ACK_3rd_receive_100ACK(void);
@@ -78,10 +77,9 @@ int main(void)
 {
   Unity.TestFile = "test_SlowStart.c";
   UnityBegin();
-  RUN_TEST(test_get_and_send_1_segment_of_data_to_receiver_after_return_ack_increment_size_and_offset, 15);
-  RUN_TEST(test_get_and_send_3_segment_of_data_to_receiver_after_return_ack_increment_size_and_offset, 64);
-  RUN_TEST(test_get_and_send_3_segment_but_2nd_packet_fail_to_ACK, 160);
-  RUN_TEST(test_get_and_send_3_segment_but_2nd_packet_fail_with_2_dup_ACK_3rd_receive_100ACK, 236);
+  RUN_TEST(test_get_and_send_3_segment_of_data_to_receiver_after_return_ack_increment_size_and_offset, 22);
+  RUN_TEST(test_get_and_send_3_segment_but_2nd_packet_fail_to_ACK, 111);
+  RUN_TEST(test_get_and_send_3_segment_but_2nd_packet_fail_with_2_dup_ACK_3rd_receive_100ACK, 185);
 
   return (UnityEnd());
 }

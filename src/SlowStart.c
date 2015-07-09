@@ -20,7 +20,7 @@ uint32_t TxData(TCP_state *state, Cwnd *cwnd, Packet *packet){
   static uint32_t offset;
   static uint32_t currentWindowSize;
   static uint32_t requestedSize;
-  static uint32_t nextSeqNo;
+  static uint32_t ackNo;
   static uint32_t availableSize;
   static uint8_t *getAddress; 
   static uint32_t sequenceNumber;
@@ -32,14 +32,9 @@ uint32_t TxData(TCP_state *state, Cwnd *cwnd, Packet *packet){
       requestedSize = offset + MSS;
       availableSize = cwndGetDataBlock(cwnd,offset,requestedSize,&Block); 
       if(availableSize != 0){
-          here:
-        if(offset != availableSize){
-          sendDataPacket(packet,&Block,offset);
-          offset++;
-          goto here;
-        }else{
-          state->state = SlowStartWaitACK;
-        }
+        sendDataPacket(packet,&Block,availableSize);
+        state->state = SlowStartWaitACK;
+        offset = offset+MSS;
       }else{
         printf("\n not available");
         state->state = SlowStart;
@@ -50,20 +45,15 @@ uint32_t TxData(TCP_state *state, Cwnd *cwnd, Packet *packet){
       requestedSize = MSS;
       availableSize = cwndGetDataBlock(cwnd,offset,requestedSize,&Block);
       if(availableSize != 0){
-        availableSize = availableSize + offset;
-        go:
-        if(offset != availableSize){
-          sendDataPacket(packet,&Block,offset);
-          offset++;
-          goto go;
-        }else{
-          state->state = SlowStartWaitACK;
-        }
+        availableSize = offset + availableSize;
+        sendDataPacket(packet,&Block,availableSize);
+        state->state = SlowStartWaitACK;
+        offset = offset+MSS;
       }else{
         sequenceNumber = getDataPacket(packet,&receiveData);
-        nextSeqNo = cwnd->offset+MSS;
+        ackNo = cwnd->offset+MSS;
         currentWindowSize = cwnd->offset+MSS;
-        if(sequenceNumber == nextSeqNo){
+        if(sequenceNumber == ackNo){
           cwnd->size = cwndIncrementWindow(cwnd,currentWindowSize);
           cwnd->offset = sequenceNumber;
           state->state = SlowStartWaitACK;
@@ -71,14 +61,14 @@ uint32_t TxData(TCP_state *state, Cwnd *cwnd, Packet *packet){
           if(sequenceNumber == cwnd->offset){
             cwnd->dupACKFlag = 1;
             counter = counter+1;
-            if(counter == 3){ 
+            if(counter >= 3){ 
               printf("\n goes to fast retransmit");
               counter = 0;
             }else{
               state->state = SlowStartWaitACK;
             }
           }else{
-
+            
           }
         }
       }
