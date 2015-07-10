@@ -7,16 +7,17 @@
 #define ssthres 20000
 
 uint8_t Buffer[1000];
-extern uint8_t *Block;
 extern uint8_t *receiveData;
 
 typedef enum{
 	SlowStart,
 	SlowStartWaitACK,
+  CongestionAvoidance,
 }State;
 
 typedef struct{
 	State state;
+  uint8_t *ptrBlock;
 }TCP_state;
 
 typedef struct{

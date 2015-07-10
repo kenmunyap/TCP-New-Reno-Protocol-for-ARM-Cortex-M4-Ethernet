@@ -79,9 +79,9 @@ int main(void)
   Unity.TestFile = "test_SlowStart.c";
   UnityBegin();
   RUN_TEST(test_get_and_send_3_segment_of_data_to_receiver_after_return_ack_increment_size_and_offset, 22);
-  RUN_TEST(test_get_and_send_3_segment_but_2nd_packet_fail_to_ACK, 112);
-  RUN_TEST(test_get_and_send_3_segment_but_2nd_packet_fail_with_2_dup_ACK_3rd_receive_100ACK, 183);
-  RUN_TEST(test_gepacket_fail_with_2_dup_ACK_3rd_receive_100ACK, 259);
+  RUN_TEST(test_get_and_send_3_segment_but_2nd_packet_fail_to_ACK, 111);
+  RUN_TEST(test_get_and_send_3_segment_but_2nd_packet_fail_with_2_dup_ACK_3rd_receive_100ACK, 182);
+  RUN_TEST(test_gepacket_fail_with_2_dup_ACK_3rd_receive_100ACK, 258);
 
   return (UnityEnd());
 }

@@ -4,7 +4,6 @@
 #include "congestionWindow.h"
 #include "Packet.h"
 
-uint8_t *Block;
 uint8_t *receiveData;
 
 void cwndInitWindow(Cwnd *cwnd){
@@ -14,6 +13,7 @@ void cwndInitWindow(Cwnd *cwnd){
 
 void initTCPState(TCP_state *state){
 	state->state = SlowStart;
+  state->ptrBlock = NULL;
 }
 
 uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
@@ -30,9 +30,9 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
 		case SlowStart:
       offset = cwndGetBeginningOffset(cwnd);
       requestedSize = offset + MSS;
-      availableSize = cwndGetDataBlock(cwnd,offset,requestedSize,&Block); 
+      availableSize = cwndGetDataBlock(cwnd,offset,requestedSize,&state->ptrBlock); 
       if(availableSize != 0){
-        sendDataPacket(packet,&Block,availableSize);
+        sendDataPacket(packet,&state->ptrBlock,availableSize);
         state->state = SlowStartWaitACK;
         offset = offset+MSS;
       }else{
@@ -43,10 +43,10 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
     
     case SlowStartWaitACK:
       requestedSize = MSS;
-      availableSize = cwndGetDataBlock(cwnd,offset,requestedSize,&Block);
+      availableSize = cwndGetDataBlock(cwnd,offset,requestedSize,&state->ptrBlock);
       if(availableSize != 0){
         availableSize = offset + availableSize;
-        sendDataPacket(packet,&Block,availableSize);
+        sendDataPacket(packet,&state->ptrBlock,availableSize);
         state->state = SlowStartWaitACK;
         offset = offset+MSS;
       }else{
@@ -59,17 +59,7 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
           state->state = SlowStartWaitACK;
           counter = 0;
         }else{
-          if(sequenceNumber == cwnd->offset){
-            cwnd->dupACKFlag = 1;
-            counter = counter+1;  
-            if(counter >= 3){ 
-              printf("\n goes to fast retransmit \n");
-              counter = 0;
-            }else{
-              printf("\n goes to fast retransmit");
-              state->state = SlowStartWaitACK;
-            }
-          }
+          state->state = CongestionAvoidance;
         }
       }
     break;
