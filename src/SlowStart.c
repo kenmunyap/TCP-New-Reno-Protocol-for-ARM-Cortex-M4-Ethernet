@@ -63,6 +63,27 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
         }
       }
     break;
+    
+    case CongestionAvoidance: printf("CongestionAvoidance \n");
+      if(sequenceNumber == cwnd->offset){
+        cwnd->dupACKFlag = 1;
+        counter = counter+1;
+         printf("counter %d \n",counter);
+        if(counter >= 3){
+          counter = 0;
+          state->state = FastRetransmit;
+        }else{
+          state->state = SlowStartWaitACK;
+        }
+      }
+    break;
+      
+    case FastRetransmit: printf("FastRetransmit \n");
+      sequenceNumber = sequenceNumber + MSS;
+      sendDataPacket(packet,&state->ptrBlock,sequenceNumber);
+      cwnd->size = MSS;
+    break;
+    
     }
 }
 // else{
