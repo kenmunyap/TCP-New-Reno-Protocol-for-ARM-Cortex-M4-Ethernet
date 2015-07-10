@@ -121,26 +121,20 @@ void test_get_and_send_3_segment_but_2nd_packet_fail_to_ACK(void){
 //=================================================
   // initialize window and state;
 	cwndInitWindow(&cwnd);
-	TEST_ASSERT_EQUAL(0,cwnd.offset);
-	TEST_ASSERT_EQUAL(50,cwnd.size);
-	
-	initTCPState(&state);
-	TEST_ASSERT_EQUAL(SlowStart,state.state);
-
+  initTCPState(&state);
+  
   //start sending
   cwndGetBeginningOffset_ExpectAndReturn(&cwnd,0);
   cwndGetDataBlock_ExpectAndReturn(&cwnd,0,50,&state.ptrBlock,50);
   sendDataPacket_Expect(&packet,&state.ptrBlock,50);
   TxTCPSM(&state,&cwnd,&packet);
-  TEST_ASSERT_EQUAL(SlowStartWaitACK,state.state);
+  
   //wait ACK and Receive ACK
   cwndGetDataBlock_ExpectAndReturn(&cwnd,50,50,&state.ptrBlock,0);
   getDataPacket_ExpectAndReturn(&packet,&receiveData,50);
   cwndIncrementWindow_ExpectAndReturn(&cwnd,50,100);
   TxTCPSM(&state,&cwnd,&packet);
-  TEST_ASSERT_EQUAL(50,cwnd.offset);
-  TEST_ASSERT_EQUAL(100,cwnd.size);
-  TEST_ASSERT_EQUAL(SlowStartWaitACK,state.state);
+  
 //================================================================
 // 2nd and 3rd Pack Send And Fail to return 2nd ACK
 //================================================================
@@ -148,12 +142,11 @@ void test_get_and_send_3_segment_but_2nd_packet_fail_to_ACK(void){
   cwndGetDataBlock_ExpectAndReturn(&cwnd,50,50,&state.ptrBlock,50);
   sendDataPacket_Expect(&packet,&state.ptrBlock,100);
   TxTCPSM(&state,&cwnd,&packet);
+
   TEST_ASSERT_EQUAL(SlowStartWaitACK,state.state);
-  
   cwndGetDataBlock_ExpectAndReturn(&cwnd,100,50,&state.ptrBlock,50);
   sendDataPacket_Expect(&packet,&state.ptrBlock,150);
   TxTCPSM(&state,&cwnd,&packet);
-  TEST_ASSERT_EQUAL(SlowStartWaitACK,state.state);
   
   // cwndGetDataBlock_ExpectAndReturn(&cwnd,150,50,&state.ptrBlock,0);
   // getDataPacket_ExpectAndReturn(&packet,&receiveData,50);

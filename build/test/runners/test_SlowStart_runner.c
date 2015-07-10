@@ -80,8 +80,8 @@ int main(void)
   UnityBegin();
   RUN_TEST(test_get_and_send_3_segment_of_data_to_receiver_after_return_ack_increment_size_and_offset, 22);
   RUN_TEST(test_get_and_send_3_segment_but_2nd_packet_fail_to_ACK, 111);
-  RUN_TEST(test_get_and_send_3_segment_but_2nd_packet_fail_with_2_dup_ACK_3rd_receive_100ACK, 182);
-  RUN_TEST(test_gepacket_fail_with_2_dup_ACK_3rd_receive_100ACK, 258);
+  RUN_TEST(test_get_and_send_3_segment_but_2nd_packet_fail_with_2_dup_ACK_3rd_receive_100ACK, 175);
+  RUN_TEST(test_gepacket_fail_with_2_dup_ACK_3rd_receive_100ACK, 251);
 
   return (UnityEnd());
 }
