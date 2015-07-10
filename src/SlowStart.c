@@ -4,7 +4,6 @@
 #include "congestionWindow.h"
 #include "Packet.h"
 
-uint8_t *Block;
 uint8_t *receiveData;
 
 void cwndInitWindow(Cwnd *cwnd){
@@ -14,9 +13,10 @@ void cwndInitWindow(Cwnd *cwnd){
 
 void initTCPState(TCP_state *state){
 	state->state = SlowStart;
+  state->ptrBlock = NULL;
 }
 
-uint32_t txTcpSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
+uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
   static uint32_t offset;
   static uint32_t currentWindowSize;
   static uint32_t requestedSize;
@@ -27,12 +27,12 @@ uint32_t txTcpSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
   static uint32_t counter;
 
   switch(state->state){
-		case SlowStart:
+    case SlowStart:
       offset = cwndGetBeginningOffset(cwnd);
       requestedSize = offset + MSS;
-      availableSize = cwndGetDataBlock(cwnd,offset,requestedSize,&Block); 
+      availableSize = cwndGetDataBlock(cwnd,offset,requestedSize,&state->ptrBlock); 
       if(availableSize != 0){
-        sendDataPacket(packet,&Block,availableSize);
+        sendDataPacket(packet,&state->ptrBlock,availableSize);
         state->state = SlowStartWaitACK;
         offset = offset+MSS;
       }else{
@@ -43,10 +43,10 @@ uint32_t txTcpSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
     
     case SlowStartWaitACK:
       requestedSize = MSS;
-      availableSize = cwndGetDataBlock(cwnd,offset,requestedSize,&Block);
+      availableSize = cwndGetDataBlock(cwnd,offset,requestedSize,&state->ptrBlock);
       if(availableSize != 0){
         availableSize = offset + availableSize;
-        sendDataPacket(packet,&Block,availableSize);
+        sendDataPacket(packet,&state->ptrBlock,availableSize);
         state->state = SlowStartWaitACK;
         offset = offset+MSS;
       }else{
@@ -62,11 +62,9 @@ uint32_t txTcpSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
           if(sequenceNumber == cwnd->offset){
             cwnd->dupACKFlag = 1;
             counter = counter+1;
-            if(counter > 3){
-              sequenceNumber = sequenceNumber + MSS;
-              fastRetransmit(cwnd,packet,sequenceNumber);
+            if(counter >= 3){
               counter = 0;
-              //state->state = SlowStart;
+              state->state = FastRetransmit;
             }else{
               state->state = SlowStartWaitACK;
             }
@@ -74,16 +72,16 @@ uint32_t txTcpSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
             
           }
         }
+
       }
     break;
+    
+    case FastRetransmit:
+      sequenceNumber = sequenceNumber + MSS;
+      sendDataPacket(packet,&state->ptrBlock,sequenceNumber);
+      cwnd->size = MSS;
+      
 	}
-}
-
-void fastRetransmit(Cwnd *cwnd, Packet *packet, uint32_t size){
-  printf("\n fast retransmit");
-  sendDataPacket(packet,&Block,size);
-
-  cwnd->size = MSS;
 }
 
 

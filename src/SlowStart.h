@@ -7,16 +7,17 @@
 #define ssthres 20000
 
 uint8_t Buffer[1000];
-extern uint8_t *Block;
 extern uint8_t *receiveData;
 
 typedef enum{
 	SlowStart,
 	SlowStartWaitACK,
+	FastRetransmit,
 }State;
 
 typedef struct{
 	State state;
+  uint8_t *ptrBlock;
 }TCP_state;
 
 typedef struct{
@@ -36,7 +37,5 @@ typedef struct{
 void cwndInitWindow(Cwnd *cwnd);
 void initTCPState(TCP_state *state);
 void initPacket(Packet *packet);
-uint32_t txTcpSM(TCP_state *state, Cwnd *cwnd, Packet *packet);
-void fastRetransmit(Cwnd *cwnd, Packet *packet, uint32_t size);
-
+uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet);
 #endif // SlowStart_H
