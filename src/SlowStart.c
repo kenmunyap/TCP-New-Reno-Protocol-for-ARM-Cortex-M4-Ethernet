@@ -57,32 +57,32 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
           cwnd->size = cwndIncrementWindow(cwnd,currentWindowSize);
           cwnd->offset = sequenceNumber;
           state->state = SlowStartWaitACK;
-        }
-        else{
-          if(sequenceNumber == cwnd->offset){
-            cwnd->dupACKFlag = 1;
-            counter = counter+1;
-            if(counter >= 3){
-              counter = 0;
-              state->state = FastRetransmit;
-            }else{
-              state->state = SlowStartWaitACK;
-            }
-          }else{
-            
-          }
-        }
 
+        }else{
+          state->state = CongestionAvoidance;
+        }
       }
     break;
-    
-    case FastRetransmit:
-      sequenceNumber = sequenceNumber + MSS;
-      sendDataPacket(packet,&state->ptrBlock,sequenceNumber);
-      cwnd->size = MSS;
-      
-	}
+    }
 }
+// else{
+          // if(sequenceNumber == cwnd->offset){
+            // cwnd->dupACKFlag = 1;
+            // counter = counter+1;
+            // if(counter >= 3){
+              // counter = 0;
+              // state->state = FastRetransmit;
+            // }else{
+              // state->state = SlowStartWaitACK;
+            // }
+          // }else{
+            
+          // }
+        // }
 
-
-
+      // }
+    // break;
+// case FastRetransmit:
+      // sequenceNumber = sequenceNumber + MSS;
+      // sendDataPacket(packet,&state->ptrBlock,sequenceNumber);
+      // cwnd->size = MSS;

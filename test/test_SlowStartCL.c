@@ -55,6 +55,7 @@ void test_TxTCPSM_should_init_and_send_the_first_data_increase_WindowSize_after_
 
   cwndGetBeginningOffset_ExpectAndReturn(&Window,0);
   cwndGetDataBlock_ExpectAndReturn(&Window,0,50,&state.ptrBlock,50);
+
   sendDataPacket_Expect(&packet,&state.ptrBlock,50);
   TxTCPSM(&state,&Window,&packet);
   
@@ -95,6 +96,7 @@ void test_TxTCPSM_should_increase_WindowSize_after_ACK_and_offset_moved_to_100(v
 
   cwndGetBeginningOffset_ExpectAndReturn(&Window,0);
   cwndGetDataBlock_ExpectAndReturn(&Window,0,50,&state.ptrBlock,50);
+
   sendDataPacket_Expect(&packet,&state.ptrBlock,50);
   TxTCPSM(&state,&Window,&packet);
   
@@ -109,14 +111,17 @@ void test_TxTCPSM_should_increase_WindowSize_after_ACK_and_offset_moved_to_100(v
   TEST_ASSERT_EQUAL(100,Window.size);
   
   cwndGetDataBlock_ExpectAndReturn(&Window,50,50,&state.ptrBlock,50);
+
   sendDataPacket_Expect(&packet,&state.ptrBlock,100);
   TxTCPSM(&state,&Window,&packet);
+
   TEST_ASSERT_EQUAL(50,Window.offset);
   TEST_ASSERT_EQUAL(100,Window.size);
   
   cwndGetDataBlock_ExpectAndReturn(&Window,100,50,&state.ptrBlock,50);
   sendDataPacket_Expect(&packet,&state.ptrBlock,150);
   TxTCPSM(&state,&Window,&packet);
+
   TEST_ASSERT_EQUAL(50,Window.offset);
   TEST_ASSERT_EQUAL(100,Window.size);
   
@@ -157,6 +162,7 @@ void test_TxTCPSM_should_increase_WindowSize_after_third_ACK_and_offset_moved_to
 
   cwndGetBeginningOffset_ExpectAndReturn(&Window,0);
   cwndGetDataBlock_ExpectAndReturn(&Window,0,50,&state.ptrBlock,50);
+
   sendDataPacket_Expect(&packet,&state.ptrBlock,50);
   TxTCPSM(&state,&Window,&packet);
   
@@ -173,12 +179,15 @@ void test_TxTCPSM_should_increase_WindowSize_after_third_ACK_and_offset_moved_to
   cwndGetDataBlock_ExpectAndReturn(&Window,50,50,&state.ptrBlock,50);
   sendDataPacket_Expect(&packet,&state.ptrBlock,100);
   TxTCPSM(&state,&Window,&packet);
+
   TEST_ASSERT_EQUAL(50,Window.offset);
   TEST_ASSERT_EQUAL(100,Window.size);
   
   cwndGetDataBlock_ExpectAndReturn(&Window,100,50,&state.ptrBlock,50);
+
   sendDataPacket_Expect(&packet,&state.ptrBlock,150);
   TxTCPSM(&state,&Window,&packet);
+
   TEST_ASSERT_EQUAL(50,Window.offset);
   TEST_ASSERT_EQUAL(100,Window.size);
   
@@ -192,12 +201,14 @@ void test_TxTCPSM_should_increase_WindowSize_after_third_ACK_and_offset_moved_to
   cwndGetDataBlock_ExpectAndReturn(&Window,150,50,&state.ptrBlock,50);
   sendDataPacket_Expect(&packet,&state.ptrBlock,200);
   TxTCPSM(&state,&Window,&packet);
+
   TEST_ASSERT_EQUAL(100,Window.offset);
   TEST_ASSERT_EQUAL(150,Window.size);
   
   cwndGetDataBlock_ExpectAndReturn(&Window,200,50,&state.ptrBlock,50);
   sendDataPacket_Expect(&packet,&state.ptrBlock,250);
   TxTCPSM(&state,&Window,&packet);
+
   TEST_ASSERT_EQUAL(100,Window.offset);
   TEST_ASSERT_EQUAL(150,Window.size);
   
@@ -331,6 +342,7 @@ void xtest_TxTCPSM_should_return_if_the_availableSize_not_enough_case_2(void){
     
   cwndGetBeginningOffset_ExpectAndReturn(&Window,0);
   cwndGetDataBlock_ExpectAndReturn(&Window,0,50,&state.ptrBlock,50);
+
   sendDataPacket_Expect(&packet,&state.ptrBlock,50);
   TxTCPSM(&state,&Window,&packet);
   
@@ -347,12 +359,14 @@ void xtest_TxTCPSM_should_return_if_the_availableSize_not_enough_case_2(void){
   cwndGetDataBlock_ExpectAndReturn(&Window,50,50,&state.ptrBlock,50);
   sendDataPacket_Expect(&packet,&state.ptrBlock,100);
   TxTCPSM(&state,&Window,&packet);
+
   TEST_ASSERT_EQUAL(50,Window.offset);
   TEST_ASSERT_EQUAL(100,Window.size);
   
   cwndGetDataBlock_ExpectAndReturn(&Window,100,50,&state.ptrBlock,50);
   sendDataPacket_Expect(&packet,&state.ptrBlock,150);
   TxTCPSM(&state,&Window,&packet);
+
   TEST_ASSERT_EQUAL(50,Window.offset);
   TEST_ASSERT_EQUAL(100,Window.size);
   
@@ -395,6 +409,7 @@ void xtest_TxTCPSM_should_return_if_the_availableSize_not_enough_case_3(void){
 
   cwndGetBeginningOffset_ExpectAndReturn(&Window,0);
   cwndGetDataBlock_ExpectAndReturn(&Window,0,50,&state.ptrBlock,50);
+
   sendDataPacket_Expect(&packet,&state.ptrBlock,50);
   TxTCPSM(&state,&Window,&packet);
   
@@ -411,6 +426,7 @@ void xtest_TxTCPSM_should_return_if_the_availableSize_not_enough_case_3(void){
   cwndGetDataBlock_ExpectAndReturn(&Window,50,50,&state.ptrBlock,50);
   sendDataPacket_Expect(&packet,&state.ptrBlock,100);
   TxTCPSM(&state,&Window,&packet);
+
   TEST_ASSERT_EQUAL(50,Window.offset);
   TEST_ASSERT_EQUAL(100,Window.size);
   
@@ -460,11 +476,12 @@ void test_TxTCPSM_should_return_if_3_ACK_received_case(void){
   
   cwndGetBeginningOffset_ExpectAndReturn(&Window,0);
   cwndGetDataBlock_ExpectAndReturn(&Window,0,50,&state.ptrBlock,50);
+
   sendDataPacket_Expect(&packet,&state.ptrBlock,50);
   TxTCPSM(&state,&Window,&packet);
   TEST_ASSERT_EQUAL(0,Window.offset);
   TEST_ASSERT_EQUAL(50,Window.size);
-    
+
   cwndGetDataBlock_ExpectAndReturn(&Window,50,50,&state.ptrBlock,0);
   getDataPacket_ExpectAndReturn(&packet,&receiveData,50);
   cwndIncrementWindow_ExpectAndReturn(&Window,50,100);

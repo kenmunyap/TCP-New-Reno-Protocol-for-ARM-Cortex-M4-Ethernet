@@ -18,8 +18,6 @@ void test_get_and_send_3_segment_of_data_to_receiver_after_return_ack_increment_
 
   Packet packet = {.srcIpAddr = 1};
 
-  int i;
-
 
 
 
@@ -32,127 +30,127 @@ void test_get_and_send_3_segment_of_data_to_receiver_after_return_ack_increment_
 
  cwndInitWindow(&cwnd);
 
- UnityAssertEqualNumber((_U_SINT)((0)), (_U_SINT)((cwnd.offset)), (((void *)0)), (_U_UINT)36, UNITY_DISPLAY_STYLE_INT);
+ UnityAssertEqualNumber((_U_SINT)((0)), (_U_SINT)((cwnd.offset)), (((void *)0)), (_U_UINT)34, UNITY_DISPLAY_STYLE_INT);
 
- UnityAssertEqualNumber((_U_SINT)((50)), (_U_SINT)((cwnd.size)), (((void *)0)), (_U_UINT)37, UNITY_DISPLAY_STYLE_INT);
+ UnityAssertEqualNumber((_U_SINT)((50)), (_U_SINT)((cwnd.size)), (((void *)0)), (_U_UINT)35, UNITY_DISPLAY_STYLE_INT);
 
 
 
  initTCPState(&state);
 
- UnityAssertEqualNumber((_U_SINT)((SlowStart)), (_U_SINT)((state.state)), (((void *)0)), (_U_UINT)40, UNITY_DISPLAY_STYLE_INT);
+ UnityAssertEqualNumber((_U_SINT)((SlowStart)), (_U_SINT)((state.state)), (((void *)0)), (_U_UINT)38, UNITY_DISPLAY_STYLE_INT);
 
 
 
 
 
-  cwndGetBeginningOffset_CMockExpectAndReturn(43, &cwnd, 0);
+  cwndGetBeginningOffset_CMockExpectAndReturn(41, &cwnd, 0);
 
-  cwndGetDataBlock_CMockExpectAndReturn(44, &cwnd, 0, 50, &state.ptrBlock, 50);
+  cwndGetDataBlock_CMockExpectAndReturn(42, &cwnd, 0, 50, &state.ptrBlock, 50);
 
-  sendDataPacket_CMockExpect(45, &packet, &state.ptrBlock, 50);
-
-  TxTCPSM(&state,&cwnd,&packet);
-
-  UnityAssertEqualNumber((_U_SINT)((SlowStartWaitACK)), (_U_SINT)((state.state)), (((void *)0)), (_U_UINT)47, UNITY_DISPLAY_STYLE_INT);
-
-
-
-
-
-  cwndGetDataBlock_CMockExpectAndReturn(50, &cwnd, 50, 50, &state.ptrBlock, 0);
-
-  getDataPacket_CMockExpectAndReturn(51, &packet, &receiveData, 50);
-
-  cwndIncrementWindow_CMockExpectAndReturn(52, &cwnd, 50, 100);
+  sendDataPacket_CMockExpect(43, &packet, &state.ptrBlock, 50);
 
   TxTCPSM(&state,&cwnd,&packet);
 
-  UnityAssertEqualNumber((_U_SINT)((50)), (_U_SINT)((cwnd.offset)), (((void *)0)), (_U_UINT)54, UNITY_DISPLAY_STYLE_INT);
-
-  UnityAssertEqualNumber((_U_SINT)((100)), (_U_SINT)((cwnd.size)), (((void *)0)), (_U_UINT)55, UNITY_DISPLAY_STYLE_INT);
-
-  UnityAssertEqualNumber((_U_SINT)((SlowStartWaitACK)), (_U_SINT)((state.state)), (((void *)0)), (_U_UINT)56, UNITY_DISPLAY_STYLE_INT);
+  UnityAssertEqualNumber((_U_SINT)((SlowStartWaitACK)), (_U_SINT)((state.state)), (((void *)0)), (_U_UINT)45, UNITY_DISPLAY_STYLE_INT);
 
 
 
 
 
+  cwndGetDataBlock_CMockExpectAndReturn(48, &cwnd, 50, 50, &state.ptrBlock, 0);
 
+  getDataPacket_CMockExpectAndReturn(49, &packet, &receiveData, 50);
 
-
-
-  cwndGetDataBlock_CMockExpectAndReturn(61, &cwnd, 50, 50, &state.ptrBlock, 50);
-
-  sendDataPacket_CMockExpect(62, &packet, &state.ptrBlock, 100);
+  cwndIncrementWindow_CMockExpectAndReturn(50, &cwnd, 50, 100);
 
   TxTCPSM(&state,&cwnd,&packet);
 
-  UnityAssertEqualNumber((_U_SINT)((SlowStartWaitACK)), (_U_SINT)((state.state)), (((void *)0)), (_U_UINT)64, UNITY_DISPLAY_STYLE_INT);
+  UnityAssertEqualNumber((_U_SINT)((50)), (_U_SINT)((cwnd.offset)), (((void *)0)), (_U_UINT)52, UNITY_DISPLAY_STYLE_INT);
+
+  UnityAssertEqualNumber((_U_SINT)((100)), (_U_SINT)((cwnd.size)), (((void *)0)), (_U_UINT)53, UNITY_DISPLAY_STYLE_INT);
+
+  UnityAssertEqualNumber((_U_SINT)((SlowStartWaitACK)), (_U_SINT)((state.state)), (((void *)0)), (_U_UINT)54, UNITY_DISPLAY_STYLE_INT);
 
 
 
-  cwndGetDataBlock_CMockExpectAndReturn(66, &cwnd, 100, 50, &state.ptrBlock, 50);
-
-  sendDataPacket_CMockExpect(67, &packet, &state.ptrBlock, 150);
-
-  TxTCPSM(&state,&cwnd,&packet);
-
-  UnityAssertEqualNumber((_U_SINT)((SlowStartWaitACK)), (_U_SINT)((state.state)), (((void *)0)), (_U_UINT)69, UNITY_DISPLAY_STYLE_INT);
 
 
 
-  cwndGetDataBlock_CMockExpectAndReturn(71, &cwnd, 150, 50, &state.ptrBlock, 0);
 
-  getDataPacket_CMockExpectAndReturn(72, &packet, &receiveData, 100);
 
-  cwndIncrementWindow_CMockExpectAndReturn(73, &cwnd, 100, 150);
+
+  cwndGetDataBlock_CMockExpectAndReturn(59, &cwnd, 50, 50, &state.ptrBlock, 50);
+
+  sendDataPacket_CMockExpect(60, &packet, &state.ptrBlock, 100);
 
   TxTCPSM(&state,&cwnd,&packet);
 
-  UnityAssertEqualNumber((_U_SINT)((100)), (_U_SINT)((cwnd.offset)), (((void *)0)), (_U_UINT)75, UNITY_DISPLAY_STYLE_INT);
-
-  UnityAssertEqualNumber((_U_SINT)((150)), (_U_SINT)((cwnd.size)), (((void *)0)), (_U_UINT)76, UNITY_DISPLAY_STYLE_INT);
-
-  UnityAssertEqualNumber((_U_SINT)((SlowStartWaitACK)), (_U_SINT)((state.state)), (((void *)0)), (_U_UINT)77, UNITY_DISPLAY_STYLE_INT);
+  UnityAssertEqualNumber((_U_SINT)((SlowStartWaitACK)), (_U_SINT)((state.state)), (((void *)0)), (_U_UINT)62, UNITY_DISPLAY_STYLE_INT);
 
 
 
+  cwndGetDataBlock_CMockExpectAndReturn(64, &cwnd, 100, 50, &state.ptrBlock, 50);
 
-
-
-
-
-
-
-
-  cwndGetDataBlock_CMockExpectAndReturn(83, &cwnd, 150, 50, &state.ptrBlock, 50);
-
-  sendDataPacket_CMockExpect(84, &packet, &state.ptrBlock, 200);
+  sendDataPacket_CMockExpect(65, &packet, &state.ptrBlock, 150);
 
   TxTCPSM(&state,&cwnd,&packet);
 
-
-
-  cwndGetDataBlock_CMockExpectAndReturn(87, &cwnd, 200, 50, &state.ptrBlock, 50);
+  UnityAssertEqualNumber((_U_SINT)((SlowStartWaitACK)), (_U_SINT)((state.state)), (((void *)0)), (_U_UINT)67, UNITY_DISPLAY_STYLE_INT);
 
 
 
-  sendDataPacket_CMockExpect(89, &packet, &state.ptrBlock, 250);
+  cwndGetDataBlock_CMockExpectAndReturn(69, &cwnd, 150, 50, &state.ptrBlock, 0);
+
+  getDataPacket_CMockExpectAndReturn(70, &packet, &receiveData, 100);
+
+  cwndIncrementWindow_CMockExpectAndReturn(71, &cwnd, 100, 150);
+
+  TxTCPSM(&state,&cwnd,&packet);
+
+  UnityAssertEqualNumber((_U_SINT)((100)), (_U_SINT)((cwnd.offset)), (((void *)0)), (_U_UINT)73, UNITY_DISPLAY_STYLE_INT);
+
+  UnityAssertEqualNumber((_U_SINT)((150)), (_U_SINT)((cwnd.size)), (((void *)0)), (_U_UINT)74, UNITY_DISPLAY_STYLE_INT);
+
+  UnityAssertEqualNumber((_U_SINT)((SlowStartWaitACK)), (_U_SINT)((state.state)), (((void *)0)), (_U_UINT)75, UNITY_DISPLAY_STYLE_INT);
+
+
+
+
+
+
+
+
+
+
+
+  cwndGetDataBlock_CMockExpectAndReturn(81, &cwnd, 150, 50, &state.ptrBlock, 50);
+
+  sendDataPacket_CMockExpect(82, &packet, &state.ptrBlock, 200);
 
   TxTCPSM(&state,&cwnd,&packet);
 
 
 
-  cwndGetDataBlock_CMockExpectAndReturn(92, &cwnd, 250, 50, &state.ptrBlock, 0);
+  cwndGetDataBlock_CMockExpectAndReturn(85, &cwnd, 200, 50, &state.ptrBlock, 50);
 
-  getDataPacket_CMockExpectAndReturn(93, &packet, &receiveData, 150);
 
-  cwndIncrementWindow_CMockExpectAndReturn(94, &cwnd, 150, 200);
+
+  sendDataPacket_CMockExpect(87, &packet, &state.ptrBlock, 250);
 
   TxTCPSM(&state,&cwnd,&packet);
 
-  UnityAssertEqualNumber((_U_SINT)((200)), (_U_SINT)((cwnd.size)), (((void *)0)), (_U_UINT)96, UNITY_DISPLAY_STYLE_INT);
+
+
+  cwndGetDataBlock_CMockExpectAndReturn(90, &cwnd, 250, 50, &state.ptrBlock, 0);
+
+  getDataPacket_CMockExpectAndReturn(91, &packet, &receiveData, 150);
+
+  cwndIncrementWindow_CMockExpectAndReturn(92, &cwnd, 150, 200);
+
+  TxTCPSM(&state,&cwnd,&packet);
+
+  UnityAssertEqualNumber((_U_SINT)((200)), (_U_SINT)((cwnd.size)), (((void *)0)), (_U_UINT)94, UNITY_DISPLAY_STYLE_INT);
 
 }
 
@@ -188,23 +186,11 @@ void test_get_and_send_3_segment_but_2nd_packet_fail_to_ACK(void){
 
 
 
-  cwndGetBeginningOffset_CMockExpectAndReturn(128, &cwnd, 0);
+  cwndGetBeginningOffset_CMockExpectAndReturn(127, &cwnd, 0);
 
-  cwndGetDataBlock_CMockExpectAndReturn(129, &cwnd, 0, 50, &state.ptrBlock, 50);
+  cwndGetDataBlock_CMockExpectAndReturn(128, &cwnd, 0, 50, &state.ptrBlock, 50);
 
-  sendDataPacket_CMockExpect(130, &packet, &state.ptrBlock, 50);
-
-  TxTCPSM(&state,&cwnd,&packet);
-
-
-
-
-
-  cwndGetDataBlock_CMockExpectAndReturn(134, &cwnd, 50, 50, &state.ptrBlock, 0);
-
-  getDataPacket_CMockExpectAndReturn(135, &packet, &receiveData, 50);
-
-  cwndIncrementWindow_CMockExpectAndReturn(136, &cwnd, 50, 100);
+  sendDataPacket_CMockExpect(129, &packet, &state.ptrBlock, 50);
 
   TxTCPSM(&state,&cwnd,&packet);
 
@@ -212,43 +198,37 @@ void test_get_and_send_3_segment_but_2nd_packet_fail_to_ACK(void){
 
 
 
+  cwndGetDataBlock_CMockExpectAndReturn(133, &cwnd, 50, 50, &state.ptrBlock, 0);
 
+  getDataPacket_CMockExpectAndReturn(134, &packet, &receiveData, 50);
 
-
-
-
-
-  cwndGetDataBlock_CMockExpectAndReturn(143, &cwnd, 50, 50, &state.ptrBlock, 50);
-
-  sendDataPacket_CMockExpect(144, &packet, &state.ptrBlock, 100);
+  cwndIncrementWindow_CMockExpectAndReturn(135, &cwnd, 50, 100);
 
   TxTCPSM(&state,&cwnd,&packet);
 
 
+
+
+
+
+
+
+
+
+
+  cwndGetDataBlock_CMockExpectAndReturn(142, &cwnd, 50, 50, &state.ptrBlock, 50);
+
+  sendDataPacket_CMockExpect(143, &packet, &state.ptrBlock, 100);
+
+  TxTCPSM(&state,&cwnd,&packet);
+
+
+
+  UnityAssertEqualNumber((_U_SINT)((SlowStartWaitACK)), (_U_SINT)((state.state)), (((void *)0)), (_U_UINT)146, UNITY_DISPLAY_STYLE_INT);
 
   cwndGetDataBlock_CMockExpectAndReturn(147, &cwnd, 100, 50, &state.ptrBlock, 50);
 
   sendDataPacket_CMockExpect(148, &packet, &state.ptrBlock, 150);
-
-  TxTCPSM(&state,&cwnd,&packet);
-
-
-
-  cwndGetDataBlock_CMockExpectAndReturn(151, &cwnd, 150, 50, &state.ptrBlock, 0);
-
-  getDataPacket_CMockExpectAndReturn(152, &packet, &receiveData, 50);
-
-  TxTCPSM(&state,&cwnd,&packet);
-
-  cwndGetDataBlock_CMockExpectAndReturn(154, &cwnd, 150, 50, &state.ptrBlock, 0);
-
-  getDataPacket_CMockExpectAndReturn(155, &packet, &receiveData, 50);
-
-  TxTCPSM(&state,&cwnd,&packet);
-
-  cwndGetDataBlock_CMockExpectAndReturn(157, &cwnd, 150, 50, &state.ptrBlock, 0);
-
-  getDataPacket_CMockExpectAndReturn(158, &packet, &receiveData, 50);
 
   TxTCPSM(&state,&cwnd,&packet);
 
@@ -343,5 +323,111 @@ void test_get_and_send_3_segment_but_2nd_packet_fail_with_2_dup_ACK_3rd_receive_
   TxTCPSM(&state,&cwnd,&packet);
 
   UnityAssertEqualNumber((_U_SINT)((SlowStartWaitACK)), (_U_SINT)((state.state)), (((void *)0)), (_U_UINT)219, UNITY_DISPLAY_STYLE_INT);
+
+}
+
+void test_gepacket_fail_with_2_dup_ACK_3rd_receive_100ACK(void){
+
+
+
+ Cwnd cwnd;
+
+ TCP_state state;
+
+ uint32_t size;
+
+  Packet packet;
+
+
+
+
+
+
+
+
+
+
+
+ cwndInitWindow(&cwnd);
+
+ UnityAssertEqualNumber((_U_SINT)((0)), (_U_SINT)((cwnd.offset)), (((void *)0)), (_U_UINT)263, UNITY_DISPLAY_STYLE_INT);
+
+ UnityAssertEqualNumber((_U_SINT)((50)), (_U_SINT)((cwnd.size)), (((void *)0)), (_U_UINT)264, UNITY_DISPLAY_STYLE_INT);
+
+
+
+ initTCPState(&state);
+
+ UnityAssertEqualNumber((_U_SINT)((SlowStart)), (_U_SINT)((state.state)), (((void *)0)), (_U_UINT)267, UNITY_DISPLAY_STYLE_INT);
+
+
+
+
+
+  cwndGetBeginningOffset_CMockExpectAndReturn(270, &cwnd, 0);
+
+  cwndGetDataBlock_CMockExpectAndReturn(271, &cwnd, 0, 50, &state.ptrBlock, 50);
+
+  sendDataPacket_CMockExpect(272, &packet, &state.ptrBlock, 50);
+
+  TxTCPSM(&state,&cwnd,&packet);
+
+  UnityAssertEqualNumber((_U_SINT)((SlowStartWaitACK)), (_U_SINT)((state.state)), (((void *)0)), (_U_UINT)274, UNITY_DISPLAY_STYLE_INT);
+
+
+
+  cwndGetDataBlock_CMockExpectAndReturn(276, &cwnd, 50, 50, &state.ptrBlock, 0);
+
+  getDataPacket_CMockExpectAndReturn(277, &packet, &receiveData, 50);
+
+  cwndIncrementWindow_CMockExpectAndReturn(278, &cwnd, 50, 100);
+
+  TxTCPSM(&state,&cwnd,&packet);
+
+  UnityAssertEqualNumber((_U_SINT)((50)), (_U_SINT)((cwnd.offset)), (((void *)0)), (_U_UINT)280, UNITY_DISPLAY_STYLE_INT);
+
+  UnityAssertEqualNumber((_U_SINT)((100)), (_U_SINT)((cwnd.size)), (((void *)0)), (_U_UINT)281, UNITY_DISPLAY_STYLE_INT);
+
+  UnityAssertEqualNumber((_U_SINT)((SlowStartWaitACK)), (_U_SINT)((state.state)), (((void *)0)), (_U_UINT)282, UNITY_DISPLAY_STYLE_INT);
+
+
+
+
+
+
+
+
+
+  cwndGetDataBlock_CMockExpectAndReturn(287, &cwnd, 50, 50, &state.ptrBlock, 50);
+
+  sendDataPacket_CMockExpect(288, &packet, &state.ptrBlock, 100);
+
+  TxTCPSM(&state,&cwnd,&packet);
+
+  UnityAssertEqualNumber((_U_SINT)((SlowStartWaitACK)), (_U_SINT)((state.state)), (((void *)0)), (_U_UINT)290, UNITY_DISPLAY_STYLE_INT);
+
+
+
+  cwndGetDataBlock_CMockExpectAndReturn(292, &cwnd, 100, 50, &state.ptrBlock, 50);
+
+  sendDataPacket_CMockExpect(293, &packet, &state.ptrBlock, 150);
+
+  TxTCPSM(&state,&cwnd,&packet);
+
+  UnityAssertEqualNumber((_U_SINT)((SlowStartWaitACK)), (_U_SINT)((state.state)), (((void *)0)), (_U_UINT)295, UNITY_DISPLAY_STYLE_INT);
+
+
+
+  cwndGetDataBlock_CMockExpectAndReturn(297, &cwnd, 150, 50, &state.ptrBlock, 0);
+
+  getDataPacket_CMockExpectAndReturn(298, &packet, &receiveData, 150);
+
+  cwndIncrementWindow_CMockExpectAndReturn(299, &cwnd, 100, 200);
+
+  TxTCPSM(&state,&cwnd,&packet);
+
+ UnityAssertEqualNumber((_U_SINT)((150)), (_U_SINT)((cwnd.offset)), (((void *)0)), (_U_UINT)301, UNITY_DISPLAY_STYLE_INT);
+
+ UnityAssertEqualNumber((_U_SINT)((200)), (_U_SINT)((cwnd.size)), (((void *)0)), (_U_UINT)302, UNITY_DISPLAY_STYLE_INT);
 
 }

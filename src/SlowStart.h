@@ -13,6 +13,7 @@ typedef enum{
 	SlowStart,
 	SlowStartWaitACK,
 	FastRetransmit,
+  CongestionAvoidance,
 }State;
 
 typedef struct{
