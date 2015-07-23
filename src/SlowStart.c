@@ -25,7 +25,7 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
   static uint8_t *getAddress; 
   static uint32_t sequenceNumber;
   static uint32_t counter;
-
+  static uint32_t thresholdValue;
   switch(state->state){
     case SlowStart:
       offset = cwndGetBeginningOffset(cwnd);
@@ -42,47 +42,68 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
     break;
     
     case SlowStartWaitACK:
-      requestedSize = MSS;
+      if(cwnd->size <= ssthres){
+        requestedSize = MSS;
+        availableSize = cwndGetDataBlock(cwnd,offset,requestedSize,&state->ptrBlock);
+          if(availableSize != 0){
+            availableSize = offset + availableSize;
+            sendDataPacket(packet,&state->ptrBlock,availableSize);
+            state->state = SlowStartWaitACK;
+            offset = offset+MSS;
+          }else{
+            sequenceNumber = getDataPacket(packet,&receiveData);
+            ackNo = cwnd->offset+MSS;
+            currentWindowSize = cwnd->offset+MSS;
+            if(sequenceNumber >= ackNo){
+              cwnd->size = cwndIncrementWindow(cwnd,currentWindowSize);
+              cwnd->offset = sequenceNumber;
+              state->state = SlowStartWaitACK;
+            }else{
+              state->state = CongestionAvoidance;
+            }
+          }
+      }else{
+        state->state = CongestionAvoidance;
+      }
+    break;
+    
+    case CongestionAvoidance:
       availableSize = cwndGetDataBlock(cwnd,offset,requestedSize,&state->ptrBlock);
       if(availableSize != 0){
-        availableSize = offset + availableSize;
         sendDataPacket(packet,&state->ptrBlock,availableSize);
-        state->state = SlowStartWaitACK;
+        state->state = CongestionAvoidance;
         offset = offset+MSS;
       }else{
         sequenceNumber = getDataPacket(packet,&receiveData);
-        ackNo = cwnd->offset+MSS;
+        ackNo = cwnd->offset+cwnd->size;
         currentWindowSize = cwnd->offset+MSS;
-        if(sequenceNumber >= ackNo){
-          cwnd->size = cwndIncrementWindow(cwnd,currentWindowSize);
-          cwnd->offset = sequenceNumber;
-          state->state = SlowStartWaitACK;
-
-        }else{
-          state->state = CongestionAvoidance;
-        }
+          if(sequenceNumber == ackNo){
+            cwnd->size = cwndIncrementWindow(cwnd,currentWindowSize);
+            cwnd->offset = sequenceNumber;
+            state->state = CongestionAvoidance;
+          }else if(sequenceNumber == cwnd->offset){
+            counter = counter+1;
+            if(counter >= 3){
+              counter = 0;
+              state->state = FastRetransmit;
+            }else{
+              
+            }
+          }else{
+            state->state = CongestionAvoidance;
+          }
       }
     break;
-    }
-}
-// else{
-          // if(sequenceNumber == cwnd->offset){
-            // cwnd->dupACKFlag = 1;
-            // counter = counter+1;
-            // if(counter >= 3){
-              // counter = 0;
-              // state->state = FastRetransmit;
-            // }else{
-              // state->state = SlowStartWaitACK;
-            // }
-          // }else{
-            
-          // }
-        // }
 
-      // }
-    // break;
-// case FastRetransmit:
-      // sequenceNumber = sequenceNumber + MSS;
-      // sendDataPacket(packet,&state->ptrBlock,sequenceNumber);
-      // cwnd->size = MSS;
+    case FastRetransmit:
+      sequenceNumber = sequenceNumber + MSS;
+      sendDataPacket(packet,&state->ptrBlock,sequenceNumber);
+      cwnd->size = MSS;
+    break;
+}
+}
+
+after CA -> cwnd->size/2
+cwnd->size +=  (MSS*MSS)/cwnd->size if(MSS = 50), size = 100   mean 0 - 100 range
+
+
