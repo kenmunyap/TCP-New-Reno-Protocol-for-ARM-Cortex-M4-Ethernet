@@ -105,4 +105,3 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
 //after CA -> cwnd->size/2
 //cwnd->size +=  (MSS*MSS)/cwnd->size if(MSS = 50), size = 100   mean 0 - 100 range
 
-
