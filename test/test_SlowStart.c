@@ -19,7 +19,7 @@ void tearDown(void){}
      250| ------------------>  | 
      300| ------------------>  |     
  */
- 
+ /*
 void test_get_and_send_3_segment_of_data_to_receiver_after_return_ack_increment_size_and_offset(void){
 
 	Cwnd cwnd;
@@ -90,7 +90,7 @@ void test_get_and_send_3_segment_of_data_to_receiver_after_return_ack_increment_
   TxTCPSM(&state,&cwnd,&packet);
   TEST_ASSERT_EQUAL(200,cwnd.size); 
 }
-
+*/
 
 /*
       Sender                Reciever
@@ -100,6 +100,7 @@ void test_get_and_send_3_segment_of_data_to_receiver_after_return_ack_increment_
     100 | -------------------> | 
         | <------------------  | ack 100 
  */
+ /*
 void test_rement_size_and_offset(void){
 
 	Cwnd cwnd = {.size = 1150, .offset = 1150};
@@ -150,7 +151,7 @@ void test_rement_size_and_offset(void){
   TxTCPSM(&state,&cwnd,&packet);
   
 }
-
+*/
 
 void test_rement_size_and_offsetqwq(void){
 
@@ -199,7 +200,15 @@ void test_rement_size_and_offsetqwq(void){
   
   cwndGetDataBlock_ExpectAndReturn(&cwnd,150,50,&state.ptrBlock,0);
   getDataPacket_ExpectAndReturn(&packet,&receiveData,100);
-  cwndIncrementWindow_ExpectAndReturn(&cwnd,100,50);
+  TxTCPSM(&state,&cwnd,&packet);
+  
+  cwndGetDataBlock_ExpectAndReturn(&cwnd,150,50,&state.ptrBlock,50);
+  sendDataPacket_Expect(&packet,&state.ptrBlock,200);
+  TxTCPSM(&state,&cwnd,&packet);
+
+  cwndGetDataBlock_ExpectAndReturn(&cwnd,200,50,&state.ptrBlock,0);
+  getDataPacket_ExpectAndReturn(&packet,&receiveData,150);
+  cwndIncrementWindow_ExpectAndReturn(&cwnd,100,150);
   TxTCPSM(&state,&cwnd,&packet);
   
   

@@ -26,6 +26,7 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
   static uint32_t sequenceNumber;
   static uint32_t dupAckCounter;
   static uint32_t thresholdValue;
+  static uint32_t lostPacket;
   
   switch(state->state){
     case SlowStart:
@@ -36,8 +37,6 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
         sendDataPacket(packet,&state->ptrBlock,availableSize);
         state->state = SlowStartWaitACK;
         offset = offset+MSS;
-      }else{
-        state->state = SlowStart;
       }
     break;
     
@@ -60,6 +59,7 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
               state->state = SlowStartWaitACK;
             }else{
               dupAckCounter = 1;
+              lostPacket = ackNo;
               state->state = CongestionAvoidance;
             }
           }
@@ -81,9 +81,14 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
           currentWindowSize = cwnd->size;
           if(ackNo == sequenceNumber){
             dupAckCounter = 0;
-            cwnd->size = cwndIncrementWindow(cwnd,currentWindowSize);
-            cwnd->offset = ackNo;
-            state->state = SlowStartWaitACK;
+            if(cwnd->size == cwnd->offset){
+              cwnd->size = cwndIncrementWindow(cwnd,currentWindowSize);
+              cwnd->offset = ackNo;
+              state->state = CongestionAvoidance;
+            }else{
+              cwnd->offset = ackNo;
+              state->state = CongestionAvoidance;
+            }
           }else if(ackNo == cwnd->offset){
             dupAckCounter += 1;
             if(dupAckCounter >= 3){
@@ -95,9 +100,13 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
     break;
 
     case FastRetransmit:
-      sequenceNumber = sequenceNumber + MSS;
-      sendDataPacket(packet,&state->ptrBlock,sequenceNumber);
+      sendDataPacket(packet,&state->ptrBlock,lostPacket);
       cwnd->size = MSS;
+      state->state = SlowStartWaitACK;
+    break;
+    
+    case FastRecovery:
+    
     break;
 }
 }
