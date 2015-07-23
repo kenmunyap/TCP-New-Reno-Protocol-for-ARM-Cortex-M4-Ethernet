@@ -29,5 +29,11 @@ void cwndGetDataBlock_CMockIgnoreAndReturn(UNITY_LINE_TYPE cmock_line, uint32_t 
 void cwndGetDataBlock_CMockExpectAndReturn(UNITY_LINE_TYPE cmock_line, Cwnd* cwnd, uint32_t offset, uint32_t requestedSize, uint8_t** block, uint32_t cmock_to_return);
 typedef uint32_t (* CMOCK_cwndGetDataBlock_CALLBACK)(Cwnd* cwnd, uint32_t offset, uint32_t requestedSize, uint8_t** block, int cmock_num_calls);
 void cwndGetDataBlock_StubWithCallback(CMOCK_cwndGetDataBlock_CALLBACK Callback);
+#define cwndGetSSthresh_IgnoreAndReturn(cmock_retval) cwndGetSSthresh_CMockIgnoreAndReturn(__LINE__, cmock_retval)
+void cwndGetSSthresh_CMockIgnoreAndReturn(UNITY_LINE_TYPE cmock_line, uint32_t cmock_to_return);
+#define cwndGetSSthresh_ExpectAndReturn(cwnd, cmock_retval) cwndGetSSthresh_CMockExpectAndReturn(__LINE__, cwnd, cmock_retval)
+void cwndGetSSthresh_CMockExpectAndReturn(UNITY_LINE_TYPE cmock_line, Cwnd* cwnd, uint32_t cmock_to_return);
+typedef uint32_t (* CMOCK_cwndGetSSthresh_CALLBACK)(Cwnd* cwnd, int cmock_num_calls);
+void cwndGetSSthresh_StubWithCallback(CMOCK_cwndGetSSthresh_CALLBACK Callback);
 
 #endif

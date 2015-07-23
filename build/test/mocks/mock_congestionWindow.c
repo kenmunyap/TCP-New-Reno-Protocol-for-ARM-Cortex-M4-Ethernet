@@ -37,6 +37,15 @@ typedef struct _CMOCK_cwndGetDataBlock_CALL_INSTANCE
 
 } CMOCK_cwndGetDataBlock_CALL_INSTANCE;
 
+typedef struct _CMOCK_cwndGetSSthresh_CALL_INSTANCE
+{
+  UNITY_LINE_TYPE LineNumber;
+  uint32_t ReturnVal;
+  int CallOrder;
+  Cwnd* Expected_cwnd;
+
+} CMOCK_cwndGetSSthresh_CALL_INSTANCE;
+
 static struct mock_congestionWindowInstance
 {
   int cwndGetBeginningOffset_IgnoreBool;
@@ -54,6 +63,11 @@ static struct mock_congestionWindowInstance
   CMOCK_cwndGetDataBlock_CALLBACK cwndGetDataBlock_CallbackFunctionPointer;
   int cwndGetDataBlock_CallbackCalls;
   CMOCK_MEM_INDEX_TYPE cwndGetDataBlock_CallInstance;
+  int cwndGetSSthresh_IgnoreBool;
+  uint32_t cwndGetSSthresh_FinalReturn;
+  CMOCK_cwndGetSSthresh_CALLBACK cwndGetSSthresh_CallbackFunctionPointer;
+  int cwndGetSSthresh_CallbackCalls;
+  CMOCK_MEM_INDEX_TYPE cwndGetSSthresh_CallInstance;
 } Mock;
 
 extern jmp_buf AbortFrame;
@@ -78,6 +92,11 @@ void mock_congestionWindow_Verify(void)
   UNITY_TEST_ASSERT(CMOCK_GUTS_NONE == Mock.cwndGetDataBlock_CallInstance, cmock_line, "Function 'cwndGetDataBlock' called less times than expected.");
   if (Mock.cwndGetDataBlock_CallbackFunctionPointer != NULL)
     Mock.cwndGetDataBlock_CallInstance = CMOCK_GUTS_NONE;
+  if (Mock.cwndGetSSthresh_IgnoreBool)
+    Mock.cwndGetSSthresh_CallInstance = CMOCK_GUTS_NONE;
+  UNITY_TEST_ASSERT(CMOCK_GUTS_NONE == Mock.cwndGetSSthresh_CallInstance, cmock_line, "Function 'cwndGetSSthresh' called less times than expected.");
+  if (Mock.cwndGetSSthresh_CallbackFunctionPointer != NULL)
+    Mock.cwndGetSSthresh_CallInstance = CMOCK_GUTS_NONE;
 }
 
 void mock_congestionWindow_Init(void)
@@ -95,6 +114,8 @@ void mock_congestionWindow_Destroy(void)
   Mock.cwndIncrementWindow_CallbackCalls = 0;
   Mock.cwndGetDataBlock_CallbackFunctionPointer = NULL;
   Mock.cwndGetDataBlock_CallbackCalls = 0;
+  Mock.cwndGetSSthresh_CallbackFunctionPointer = NULL;
+  Mock.cwndGetSSthresh_CallbackCalls = 0;
   GlobalExpectCount = 0;
   GlobalVerifyOrder = 0;
 }
@@ -282,5 +303,64 @@ void cwndGetDataBlock_CMockExpectAndReturn(UNITY_LINE_TYPE cmock_line, Cwnd* cwn
 void cwndGetDataBlock_StubWithCallback(CMOCK_cwndGetDataBlock_CALLBACK Callback)
 {
   Mock.cwndGetDataBlock_CallbackFunctionPointer = Callback;
+}
+
+uint32_t cwndGetSSthresh(Cwnd* cwnd)
+{
+  UNITY_LINE_TYPE cmock_line = TEST_LINE_NUM;
+  CMOCK_cwndGetSSthresh_CALL_INSTANCE* cmock_call_instance = (CMOCK_cwndGetSSthresh_CALL_INSTANCE*)CMock_Guts_GetAddressFor(Mock.cwndGetSSthresh_CallInstance);
+  Mock.cwndGetSSthresh_CallInstance = CMock_Guts_MemNext(Mock.cwndGetSSthresh_CallInstance);
+  if (Mock.cwndGetSSthresh_IgnoreBool)
+  {
+    if (cmock_call_instance == NULL)
+      return Mock.cwndGetSSthresh_FinalReturn;
+    Mock.cwndGetSSthresh_FinalReturn = cmock_call_instance->ReturnVal;
+    return cmock_call_instance->ReturnVal;
+  }
+  if (Mock.cwndGetSSthresh_CallbackFunctionPointer != NULL)
+  {
+    return Mock.cwndGetSSthresh_CallbackFunctionPointer(cwnd, Mock.cwndGetSSthresh_CallbackCalls++);
+  }
+  UNITY_TEST_ASSERT_NOT_NULL(cmock_call_instance, cmock_line, "Function 'cwndGetSSthresh' called more times than expected.");
+  cmock_line = cmock_call_instance->LineNumber;
+  if (cmock_call_instance->CallOrder > ++GlobalVerifyOrder)
+    UNITY_TEST_FAIL(cmock_line, "Function 'cwndGetSSthresh' called earlier than expected.");
+  if (cmock_call_instance->CallOrder < GlobalVerifyOrder)
+    UNITY_TEST_FAIL(cmock_line, "Function 'cwndGetSSthresh' called later than expected.");
+  UNITY_TEST_ASSERT_EQUAL_MEMORY((void*)(cmock_call_instance->Expected_cwnd), (void*)(cwnd), sizeof(Cwnd), cmock_line, "Function 'cwndGetSSthresh' called with unexpected value for argument 'cwnd'.");
+  return cmock_call_instance->ReturnVal;
+}
+
+void CMockExpectParameters_cwndGetSSthresh(CMOCK_cwndGetSSthresh_CALL_INSTANCE* cmock_call_instance, Cwnd* cwnd)
+{
+  cmock_call_instance->Expected_cwnd = cwnd;
+}
+
+void cwndGetSSthresh_CMockIgnoreAndReturn(UNITY_LINE_TYPE cmock_line, uint32_t cmock_to_return)
+{
+  CMOCK_MEM_INDEX_TYPE cmock_guts_index = CMock_Guts_MemNew(sizeof(CMOCK_cwndGetSSthresh_CALL_INSTANCE));
+  CMOCK_cwndGetSSthresh_CALL_INSTANCE* cmock_call_instance = (CMOCK_cwndGetSSthresh_CALL_INSTANCE*)CMock_Guts_GetAddressFor(cmock_guts_index);
+  UNITY_TEST_ASSERT_NOT_NULL(cmock_call_instance, cmock_line, "CMock has run out of memory. Please allocate more.");
+  Mock.cwndGetSSthresh_CallInstance = CMock_Guts_MemChain(Mock.cwndGetSSthresh_CallInstance, cmock_guts_index);
+  cmock_call_instance->LineNumber = cmock_line;
+  cmock_call_instance->ReturnVal = cmock_to_return;
+  Mock.cwndGetSSthresh_IgnoreBool = (int)1;
+}
+
+void cwndGetSSthresh_CMockExpectAndReturn(UNITY_LINE_TYPE cmock_line, Cwnd* cwnd, uint32_t cmock_to_return)
+{
+  CMOCK_MEM_INDEX_TYPE cmock_guts_index = CMock_Guts_MemNew(sizeof(CMOCK_cwndGetSSthresh_CALL_INSTANCE));
+  CMOCK_cwndGetSSthresh_CALL_INSTANCE* cmock_call_instance = (CMOCK_cwndGetSSthresh_CALL_INSTANCE*)CMock_Guts_GetAddressFor(cmock_guts_index);
+  UNITY_TEST_ASSERT_NOT_NULL(cmock_call_instance, cmock_line, "CMock has run out of memory. Please allocate more.");
+  Mock.cwndGetSSthresh_CallInstance = CMock_Guts_MemChain(Mock.cwndGetSSthresh_CallInstance, cmock_guts_index);
+  cmock_call_instance->LineNumber = cmock_line;
+  cmock_call_instance->CallOrder = ++GlobalExpectCount;
+  CMockExpectParameters_cwndGetSSthresh(cmock_call_instance, cwnd);
+  cmock_call_instance->ReturnVal = cmock_to_return;
+}
+
+void cwndGetSSthresh_StubWithCallback(CMOCK_cwndGetSSthresh_CALLBACK Callback)
+{
+  Mock.cwndGetSSthresh_CallbackFunctionPointer = Callback;
 }
 

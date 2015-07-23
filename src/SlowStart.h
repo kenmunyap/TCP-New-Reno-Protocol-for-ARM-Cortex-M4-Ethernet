@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 #define MSS 50
-#define ssthres 20000
+#define ssthres 220
 
 uint8_t Buffer[1000];
 extern uint8_t *receiveData;
@@ -25,6 +25,7 @@ typedef struct{
 	uint32_t offset;
 	uint32_t size;
   uint32_t dupACKFlag;
+  uint32_t ssthresh;
 }Cwnd;
 
 typedef struct{
