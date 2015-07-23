@@ -333,7 +333,7 @@ void test_TxTCPSM_should_return_if_the_availableSize_not_enough(void){
  *   offset moved to 100
  *    * First time able to increase window size, but second time not
  */
-void xtest_TxTCPSM_should_return_if_the_availableSize_not_enough_case_2(void){
+void test_TxTCPSM_should_return_if_the_availableSize_not_enough_case_2(void){
   Cwnd Window;
   cwndInitWindow(&Window);
   
@@ -470,7 +470,7 @@ void xtest_TxTCPSM_should_return_if_the_availableSize_not_enough_case_3(void){
 void test_TxTCPSM_should_return_if_3_ACK_received_case(void){
   Cwnd Window;
   cwndInitWindow(&Window);
-  
+  printf("TEST START \n");
   TCP_state state;
   initTCPState(&state);
   
@@ -507,20 +507,22 @@ void test_TxTCPSM_should_return_if_3_ACK_received_case(void){
   TEST_ASSERT_EQUAL(50,Window.offset);
   TEST_ASSERT_EQUAL(100,Window.size);
   
-  cwndGetDataBlock_ExpectAndReturn(&Window,150,50,&state.ptrBlock,0);
-  getDataPacket_ExpectAndReturn(&packet,&receiveData,50);
-  TxTCPSM(&state,&Window,&packet);
-  TEST_ASSERT_EQUAL(50,Window.offset);
-  TEST_ASSERT_EQUAL(100,Window.size);
+  // cwndGetDataBlock_ExpectAndReturn(&Window,150,50,&state.ptrBlock,0);
+  // getDataPacket_ExpectAndReturn(&packet,&receiveData,50);
+  // TxTCPSM(&state,&Window,&packet);
+  // TEST_ASSERT_EQUAL(50,Window.offset);
+  // TEST_ASSERT_EQUAL(100,Window.size);
   
-  cwndGetDataBlock_ExpectAndReturn(&Window,150,50,&state.ptrBlock,0);
-  getDataPacket_ExpectAndReturn(&packet,&receiveData,50);
-  TxTCPSM(&state,&Window,&packet);
-  TEST_ASSERT_EQUAL(50,Window.offset);
-  TEST_ASSERT_EQUAL(100,Window.size);
+  // cwndGetDataBlock_ExpectAndReturn(&Window,150,50,&state.ptrBlock,0);
+  // getDataPacket_ExpectAndReturn(&packet,&receiveData,50);
+  // TxTCPSM(&state,&Window,&packet);
+  // TEST_ASSERT_EQUAL(50,Window.offset);
+  // TEST_ASSERT_EQUAL(100,Window.size);
+
+  // sendDataPacket_Expect(&packet,&state.ptrBlock,100); // resend packet 100 (fast retransmit)
+  // TxTCPSM(&state,&Window,&packet);
+  // TEST_ASSERT_EQUAL(50,Window.offset);
+  // TEST_ASSERT_EQUAL(50,Window.size);
   
-  sendDataPacket_Expect(&packet,&state.ptrBlock,100); // resend packet 100 (fast retransmit)
-  TxTCPSM(&state,&Window,&packet);
-  TEST_ASSERT_EQUAL(50,Window.offset);
-  TEST_ASSERT_EQUAL(50,Window.size);
+  printf("TEST END \n");
 }
