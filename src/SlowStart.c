@@ -94,34 +94,6 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
           }
       }
     break;
-    
-    case CongestionAvoidance:
-      availableSize = cwndGetDataBlock(cwnd,offset,requestedSize,&state->ptrBlock);
-      if(availableSize != 0){
-        sendDataPacket(packet,&state->ptrBlock,availableSize);
-        state->state = CongestionAvoidance;
-        offset = offset+MSS;
-      }else{
-        sequenceNumber = getDataPacket(packet,&receiveData);
-        ackNo = cwnd->offset+cwnd->size;
-        currentWindowSize = cwnd->offset+MSS;
-          if(sequenceNumber == ackNo){
-            cwnd->size = cwndIncrementWindow(cwnd,currentWindowSize);
-            cwnd->offset = sequenceNumber;
-            state->state = CongestionAvoidance;
-          }else if(sequenceNumber == cwnd->offset){
-            counter = counter+1;
-            if(counter >= 3){
-              counter = 0;
-              state->state = FastRetransmit;
-            }else{
-              
-            }
-          }else{
-            state->state = CongestionAvoidance;
-          }
-      }
-    break;
 
     case FastRetransmit:
       sequenceNumber = sequenceNumber + MSS;
