@@ -36,8 +36,6 @@ char* GlobalOrderError;
 //=======External Functions This Runner Calls=====
 extern void setUp(void);
 extern void tearDown(void);
-extern void test_get_and_send_3_segment_of_data_to_receiver_after_return_ack_increment_size_and_offset(void);
-extern void test_rement_size_and_offset(void);
 extern void test_rement_size_and_offsetqwq(void);
 
 
@@ -77,13 +75,7 @@ int main(void)
 {
   Unity.TestFile = "test_SlowStart.c";
   UnityBegin();
-  RUN_TEST(test_get_and_send_3_segment_of_data_to_receiver_after_return_ack_increment_size_and_offset, 23);
-<<<<<<< HEAD
-  RUN_TEST(test_rement_size_and_offset, 103);
-  RUN_TEST(test_rement_size_and_offsetqwq, 155);
-=======
-  RUN_TEST(test_rement_size_and_offset, 106);
->>>>>>> 1e239bba04b69153fb30f2293d286086d15bd4d8
+  RUN_TEST(test_rement_size_and_offsetqwq, 156);
 
   return (UnityEnd());
 }

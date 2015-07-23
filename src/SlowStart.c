@@ -36,8 +36,6 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
         sendDataPacket(packet,&state->ptrBlock,availableSize);
         state->state = SlowStartWaitACK;
         offset = offset+MSS;
-      }else{
-        state->state = SlowStart;
       }
     break;
     
@@ -81,9 +79,14 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
           currentWindowSize = cwnd->size;
           if(ackNo == sequenceNumber){
             dupAckCounter = 0;
-            cwnd->size = cwndIncrementWindow(cwnd,currentWindowSize);
-            cwnd->offset = ackNo;
-            state->state = SlowStartWaitACK;
+            if(cwnd->size == cwnd->offset){
+              cwnd->size = cwndIncrementWindow(cwnd,currentWindowSize);
+              cwnd->offset = ackNo;
+              state->state = CongestionAvoidance;
+            }else{
+              cwnd->offset = ackNo;
+              state->state = CongestionAvoidance;
+            }
           }else if(ackNo == cwnd->offset){
             dupAckCounter += 1;
             if(dupAckCounter >= 3){
