@@ -3,6 +3,7 @@
 #include "SlowStart.h"
 #include "congestionWindow.h"
 #include "Packet.h"
+#include "Timer.h"
 
 uint8_t *receiveData;
 
@@ -33,9 +34,9 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
       requestedSize = offset + MSS;
       availableSize = cwndGetDataBlock(cwnd,offset,requestedSize,&state->ptrBlock); 
       if(availableSize != 0){
-        sendDataPacket(packet,&state->ptrBlock,availableSize);
-        state->state = SlowStartWaitACK;
-        offset = offset+MSS;
+          sendDataPacket(packet,&state->ptrBlock,availableSize);
+          state->state = SlowStartWaitACK;
+          offset = offset+MSS;
       }
     break;
     
