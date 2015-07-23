@@ -27,6 +27,7 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
   static uint32_t sequenceNumber;
   static uint32_t dupAckCounter;
   static uint32_t thresholdValue;
+  static uint32_t lostPacket;
   
   switch(state->state){
     case SlowStart:
@@ -59,6 +60,7 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
               state->state = SlowStartWaitACK;
             }else{
               dupAckCounter = 1;
+              lostPacket = ackNo;
               state->state = CongestionAvoidance;
             }
           }
@@ -99,9 +101,13 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
     break;
 
     case FastRetransmit:
-      sequenceNumber = sequenceNumber + MSS;
-      sendDataPacket(packet,&state->ptrBlock,sequenceNumber);
+      sendDataPacket(packet,&state->ptrBlock,lostPacket);
       cwnd->size = MSS;
+      state->state = SlowStartWaitACK;
+    break;
+    
+    case FastRecovery:
+    
     break;
 }
 }

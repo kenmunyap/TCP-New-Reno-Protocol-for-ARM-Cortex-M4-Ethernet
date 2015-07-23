@@ -14,6 +14,7 @@ typedef enum{
 	SlowStartWaitACK,
 	FastRetransmit,
   CongestionAvoidance,
+  FastRecovery
 }State;
 
 typedef struct{
