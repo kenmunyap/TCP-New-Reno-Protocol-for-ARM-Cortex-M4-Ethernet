@@ -33,4 +33,10 @@ uint32_t cwndGetDataBlocks(Cwnd *cwnd, uint32_t offset, uint32_t requestedSize, 
   return 0;
 }
 
+uint32_t min(uint32_t valueA, uint32_t valueB){
+  return valueA < valueB ? valueA : valueB; 
+}
+uint32_t max(uint32_t valueA, uint32_t valueB){
+  return valueA > valueB ? valueA : valueB;
+}
 
