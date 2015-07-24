@@ -685,7 +685,15 @@ void test_TxTCPSM_Congestion_Avoidance_with_not_exited_RoundTripTime_but_with_2_
 
   cwndGetDataBlock_CMockExpectAndReturn(427, &cwnd, 250, 50, &state.ptrBlock, 0);
 
-  getDataPacket_CMockExpectAndReturn(428, &packet, &receiveData, 100);
+  getDataPacket_CMockExpectAndReturn(428, &packet, &receiveData, 150);
+
+  TxTCPSM(&state,&cwnd,&packet);
+
+
+
+  cwndGetDataBlock_CMockExpectAndReturn(431, &cwnd, 250, 50, &state.ptrBlock, 50);
+
+  sendDataPacket_CMockExpect(432, &packet, &state.ptrBlock, 300);
 
   TxTCPSM(&state,&cwnd,&packet);
 

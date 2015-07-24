@@ -28,6 +28,8 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
   static uint32_t dupAckCounter;
   static uint32_t thresholdValue;
   static uint32_t lostPacket;
+  static uint32_t counterTime;
+  static uint32_t counter = 0;
   
   switch(state->state){
     case SlowStart:
@@ -83,9 +85,11 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
           ackNo = getDataPacket(packet,&receiveData);
           sequenceNumber = cwnd->offset+MSS;
           currentWindowSize = cwnd->size;
+          if (!counter) counter  = cwnd->size/MSS;
           if(ackNo == sequenceNumber){
             dupAckCounter = 0;
-            if(cwnd->size == cwnd->offset){
+            counter --; 
+            if(counter == 0){
               cwnd->size = cwndIncrementWindow(cwnd,currentWindowSize);
               cwnd->offset = ackNo;
               state->state = CongestionAvoidance;
@@ -101,9 +105,6 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
               }
             }
           }
-        // }else{
-          // state->state = FastRetransmit;
-        // }
     break;
 
     case FastRetransmit:
