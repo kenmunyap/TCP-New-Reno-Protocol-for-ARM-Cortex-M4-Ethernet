@@ -69,16 +69,19 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
                 }
               }else{
                 dupAckCounter = 1;
+                lostPacket = ackNo;
                 state->state = CongestionAvoidance;
               }
             }
     break;
-     
+    
+    // counter = cwnd
     case CongestionAvoidance:
         availableSize = cwndGetDataBlock(cwnd,offset,requestedSize,&state->ptrBlock);
         if(availableSize != 0){
           availableSize = offset + availableSize;
           sendDataPacket(packet,&state->ptrBlock,availableSize);
+          
           state->state = CongestionAvoidance;
           offset = offset+MSS;
         }else{
@@ -109,12 +112,22 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
 
     case FastRetransmit:
       sendDataPacket(packet,&state->ptrBlock,lostPacket);
-      cwnd->size = MSS;
+      cwnd->size = MSS; //x
       state->state = SlowStartWaitACK;
     break;
     
     case FastRecovery:
-    
+      cwnd->ssthresh = cwnd->size / 2;
+      cwnd->size = cwnd->ssthresh + 3*MSS;
+      
+      // if 1st non dupAck > cwnd = cwnd/2;
+      // send packet;
+      
+      // continue of ACK...no lostPacket > cwnd = cwnd +1;
+      // send packet;
+      
     break;
+    
+    // if all cases timeout > resend packet and go back to fast retransmit to resend missing packet
 }
 }

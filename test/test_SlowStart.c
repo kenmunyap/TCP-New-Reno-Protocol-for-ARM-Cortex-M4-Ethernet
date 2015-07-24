@@ -6,8 +6,6 @@
 void setUp(void){}
 void tearDown(void){}
 
-
-
 void test_InitWindow_offset_and_size(){
     Cwnd cwnd;
   	cwndInitWindow(&cwnd);
