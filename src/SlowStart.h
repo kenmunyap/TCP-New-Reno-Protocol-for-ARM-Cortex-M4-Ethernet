@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 #define MSS 50
-#define ssthres 220
+#define ssthres 250
 
 uint8_t Buffer[1000];
 extern uint8_t *receiveData;
