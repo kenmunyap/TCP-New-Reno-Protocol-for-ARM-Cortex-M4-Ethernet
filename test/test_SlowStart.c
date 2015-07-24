@@ -366,7 +366,7 @@ void test_TxTCPSM_Congestion_Avoidance_with_not_exited_RoundTripTime_but_with_3_
      200| -------------------> | 
         | <------------------  | dup ack 100
         | <------------------  | dup ack 100
-        | <------------------  | dup ack 100
+        | <------------------  | ack 150
         |    Fast Retransmit   |
 */
 void test_TxTCPSM_Congestion_Avoidance_with_not_exited_RoundTripTime_but_with_2_dup_ack(){
@@ -423,22 +423,26 @@ void test_TxTCPSM_Congestion_Avoidance_with_not_exited_RoundTripTime_but_with_2_
   TxTCPSM(&state,&cwnd,&packet);
   
   cwndGetDataBlock_ExpectAndReturn(&cwnd,250,50,&state.ptrBlock,0);
-  getDataPacket_ExpectAndReturn(&packet,&receiveData,100);
+  getDataPacket_ExpectAndReturn(&packet,&receiveData,150);
   TxTCPSM(&state,&cwnd,&packet);
+  
+  cwndGetDataBlock_ExpectAndReturn(&cwnd,250,50,&state.ptrBlock,50);
+  sendDataPacket_Expect(&packet,&state.ptrBlock,300);
+  TxTCPSM(&state,&cwnd,&packet); 
   
 
 }
 
 /*
-      Sender                Reciever
+  326    Sender                Reciever
       0 | -------------------> |
-        | <------------------  | 50(sequenceNumber) ACKed
+        | <------------------  | 50(sequenc033eNumber) 33333333333333333333333333333333333333333333333333330A26CKed
       50| -------------------> | 
      100| ----------x          |
         | <------------------- |100(sequenceNumber) ACKed
         | <------------------  | 50(sequenceNumber) dupACKed
         | <------------------  | 50(sequenceNumber) dupACKed
-        | <------------------  | 50(sequenceNumber) dupACKed
+        | <------------------  | 50(sequenceNumber) dupACKed/z
         |    fast retransmit   | 
  */
 
