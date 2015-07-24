@@ -71,36 +71,7 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
               }
             }
     break;
-    
-    case CongestionAvoidance:
-        requestedSize = MSS;
-        availableSize = cwndGetDataBlock(cwnd,offset,requestedSize,&state->ptrBlock);
-        // if(roundTT() < 50){
-          if(availableSize != 0){
-            availableSize = offset + availableSize;
-            sendDataPacket(packet,&state->ptrBlock,availableSize);
-            state->state = CongestionAvoidance;
-            offset = offset+MSS;
-          }else{
-            ackNo = getDataPacket(packet,&receiveData);
-            sequenceNumber = cwnd->offset+MSS;
-            currentWindowSize = cwnd->size;
-
-            if(ackNo >= sequenceNumber){
-              cwnd->size = cwndIncrementWindow(cwnd,currentWindowSize);
-              cwnd->offset = ackNo;
-              state->state = SlowStartWaitACK;
-            }else{
-              dupAckCounter = 1;
-              lostPacket = ackNo;
-              state->state = CongestionAvoidance;
-            }
-          }
-      }else{
-        state->state = CongestionAvoidance;
-      }
-    break;
-    
+     
     case CongestionAvoidance:
         availableSize = cwndGetDataBlock(cwnd,offset,requestedSize,&state->ptrBlock);
         if(availableSize != 0){
@@ -123,18 +94,6 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
               state->state = CongestionAvoidance;
             }
           }else if(ackNo == cwnd->offset){
-            dupAckCounter += 1;
-            if(dupAckCounter >= 3){
-              dupAckCounter = 0;
-              if(cwnd->size == cwnd->offset){
-                cwnd->offset = ackNo;
-                cwnd->size = cwndIncrementWindow(cwnd,currentWindowSize);
-                state->state = CongestionAvoidance;
-              }else{
-                cwnd->offset = ackNo;
-                state->state = CongestionAvoidance;
-              }
-            }else if(ackNo == cwnd->offset){
               dupAckCounter += 1;
               if(dupAckCounter >= 3){
                 dupAckCounter = 0;

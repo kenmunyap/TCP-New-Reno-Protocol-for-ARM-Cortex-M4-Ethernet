@@ -576,3 +576,121 @@ void test_TxTCPSM_Congestion_Avoidance_with_not_exited_RoundTripTime_but_with_3_
   UnityAssertEqualNumber((_U_SINT)((FastRetransmit)), (_U_SINT)((state.state)), (((void *)0)), (_U_UINT)357, UNITY_DISPLAY_STYLE_INT);
 
 }
+
+void test_TxTCPSM_Congestion_Avoidance_with_not_exited_RoundTripTime_but_with_2_dup_ack(){
+
+  Cwnd cwnd;
+
+ TCP_state state;
+
+ uint32_t size;
+
+  Packet packet = {.srcIpAddr = 1};
+
+
+
+  cwndInitWindow(&cwnd);
+
+ initTCPState(&state);
+
+
+
+  cwndGetBeginningOffset_CMockExpectAndReturn(383, &cwnd, 0);
+
+  cwndGetDataBlock_CMockExpectAndReturn(384, &cwnd, 0, 50, &state.ptrBlock, 50);
+
+  sendDataPacket_CMockExpect(385, &packet, &state.ptrBlock, 50);
+
+  TxTCPSM(&state,&cwnd,&packet);
+
+
+
+  cwndGetDataBlock_CMockExpectAndReturn(388, &cwnd, 50, 50, &state.ptrBlock, 0);
+
+  getDataPacket_CMockExpectAndReturn(389, &packet, &receiveData, 50);
+
+  cwndIncrementWindow_CMockExpectAndReturn(390, &cwnd, 50, 100);
+
+  TxTCPSM(&state,&cwnd,&packet);
+
+  UnityAssertEqualNumber((_U_SINT)((50)), (_U_SINT)((cwnd.offset)), (((void *)0)), (_U_UINT)392, UNITY_DISPLAY_STYLE_INT);
+
+  UnityAssertEqualNumber((_U_SINT)((100)), (_U_SINT)((cwnd.size)), (((void *)0)), (_U_UINT)393, UNITY_DISPLAY_STYLE_INT);
+
+  UnityAssertEqualNumber((_U_SINT)((SlowStartWaitACK)), (_U_SINT)((state.state)), (((void *)0)), (_U_UINT)394, UNITY_DISPLAY_STYLE_INT);
+
+
+
+  cwndGetDataBlock_CMockExpectAndReturn(396, &cwnd, 50, 50, &state.ptrBlock, 50);
+
+  sendDataPacket_CMockExpect(397, &packet, &state.ptrBlock, 100);
+
+  TxTCPSM(&state,&cwnd,&packet);
+
+  cwndGetDataBlock_CMockExpectAndReturn(399, &cwnd, 100, 50, &state.ptrBlock, 50);
+
+  sendDataPacket_CMockExpect(400, &packet, &state.ptrBlock, 150);
+
+  TxTCPSM(&state,&cwnd,&packet);
+
+
+
+  cwndGetDataBlock_CMockExpectAndReturn(403, &cwnd, 150, 50, &state.ptrBlock, 0);
+
+  getDataPacket_CMockExpectAndReturn(404, &packet, &receiveData, 100);
+
+  cwndIncrementWindow_CMockExpectAndReturn(405, &cwnd, 100, 150);
+
+  TxTCPSM(&state,&cwnd,&packet);
+
+
+
+  cwndGetDataBlock_CMockExpectAndReturn(408, &cwnd, 150, 50, &state.ptrBlock, 50);
+
+  sendDataPacket_CMockExpect(409, &packet, &state.ptrBlock, 200);
+
+  TxTCPSM(&state,&cwnd,&packet);
+
+  cwndGetDataBlock_CMockExpectAndReturn(411, &cwnd, 200, 50, &state.ptrBlock, 50);
+
+  sendDataPacket_CMockExpect(412, &packet, &state.ptrBlock, 250);
+
+  TxTCPSM(&state,&cwnd,&packet);
+
+
+
+
+
+  cwndGetDataBlock_CMockExpectAndReturn(416, &cwnd, 250, 50, &state.ptrBlock, 0);
+
+  getDataPacket_CMockExpectAndReturn(417, &packet, &receiveData, 100);
+
+  TxTCPSM(&state,&cwnd,&packet);
+
+  UnityAssertEqualNumber((_U_SINT)((100)), (_U_SINT)((cwnd.offset)), (((void *)0)), (_U_UINT)419, UNITY_DISPLAY_STYLE_INT);
+
+  UnityAssertEqualNumber((_U_SINT)((150)), (_U_SINT)((cwnd.size)), (((void *)0)), (_U_UINT)420, UNITY_DISPLAY_STYLE_INT);
+
+  UnityAssertEqualNumber((_U_SINT)((CongestionAvoidance)), (_U_SINT)((state.state)), (((void *)0)), (_U_UINT)421, UNITY_DISPLAY_STYLE_INT);
+
+
+
+  cwndGetDataBlock_CMockExpectAndReturn(423, &cwnd, 250, 50, &state.ptrBlock, 0);
+
+  getDataPacket_CMockExpectAndReturn(424, &packet, &receiveData, 100);
+
+  TxTCPSM(&state,&cwnd,&packet);
+
+
+
+  cwndGetDataBlock_CMockExpectAndReturn(427, &cwnd, 250, 50, &state.ptrBlock, 0);
+
+  getDataPacket_CMockExpectAndReturn(428, &packet, &receiveData, 100);
+
+  TxTCPSM(&state,&cwnd,&packet);
+
+
+
+
+
+}

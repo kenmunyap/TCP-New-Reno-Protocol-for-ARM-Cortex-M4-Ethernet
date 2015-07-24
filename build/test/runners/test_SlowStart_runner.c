@@ -43,6 +43,7 @@ extern void test_TxTCPSM_SlowStart_with_not_exited_RoundTripTime_and_in_sequence
 extern void test_TxTCPSM_SlowStart_with_not_exited_RoundTripTime_but_dup_ack(void);
 extern void test_TxTCPSM_SlowStart_with_not_exited_RoundTripTime_but_over_ssthress(void);
 extern void test_TxTCPSM_Congestion_Avoidance_with_not_exited_RoundTripTime_but_with_3_dup_ack(void);
+extern void test_TxTCPSM_Congestion_Avoidance_with_not_exited_RoundTripTime_but_with_2_dup_ack(void);
 
 
 //=======Mock Management=====
@@ -90,6 +91,7 @@ int main(void)
   RUN_TEST(test_TxTCPSM_SlowStart_with_not_exited_RoundTripTime_but_dup_ack, 129);
   RUN_TEST(test_TxTCPSM_SlowStart_with_not_exited_RoundTripTime_but_over_ssthress, 197);
   RUN_TEST(test_TxTCPSM_Congestion_Avoidance_with_not_exited_RoundTripTime_but_with_3_dup_ack, 299);
+  RUN_TEST(test_TxTCPSM_Congestion_Avoidance_with_not_exited_RoundTripTime_but_with_2_dup_ack, 374);
 
   return (UnityEnd());
 }
