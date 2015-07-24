@@ -9,7 +9,7 @@ uint8_t *receiveData;
 
 void cwndInitWindow(Cwnd *cwnd){
 	cwnd->offset = 0;
-	cwnd->size = MSS;
+	cwnd->size = SMSS;
 }
 
 void initTCPState(TCP_state *state){
@@ -34,13 +34,13 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
   switch(state->state){
     case SlowStart:
       offset = cwndGetBeginningOffset(cwnd);
-      requestedSize = offset + MSS;
+      requestedSize = offset + SMSS;
       availableSize = cwndGetDataBlock(cwnd,offset,requestedSize,&state->ptrBlock); 
       if(availableSize != 0){
         // if(roundTT() < 50){
           sendDataPacket(packet,&state->ptrBlock,availableSize);
           state->state = SlowStartWaitACK;
-          offset = offset+MSS;
+          offset = offset+SMSS;
         // }else{
           // state->state = FastRetransmit;
         // }
@@ -48,16 +48,16 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
     break;
     
     case SlowStartWaitACK:
-      requestedSize = MSS;
+      requestedSize = SMSS;
       availableSize = cwndGetDataBlock(cwnd,offset,requestedSize,&state->ptrBlock);
         if(availableSize != 0){
           availableSize = offset + availableSize;
           sendDataPacket(packet,&state->ptrBlock,availableSize);
           state->state = SlowStartWaitACK;
-          offset = offset+MSS;
+          offset = offset+SMSS;
         }else{
           ackNo = getDataPacket(packet,&receiveData);
-          sequenceNumber = cwnd->offset+MSS;
+          sequenceNumber = cwnd->offset+SMSS;
           currentWindowSize = cwnd->size;
           if(ackNo >= sequenceNumber){
             cwnd->offset = ackNo;
@@ -83,12 +83,12 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
         sendDataPacket(packet,&state->ptrBlock,availableSize);
         
         state->state = CongestionAvoidance;
-        offset = offset+MSS;
+        offset = offset+SMSS;
       }else{
         ackNo = getDataPacket(packet,&receiveData);
-        sequenceNumber = cwnd->offset+MSS;
+        sequenceNumber = cwnd->offset+SMSS;
         currentWindowSize = cwnd->size;
-        if (!counter) counter  = cwnd->size/MSS;
+        if (!counter) counter  = cwnd->size/SMSS;
         if(ackNo == sequenceNumber){
           dupAckCounter = 0;
           counter --; 
@@ -112,13 +112,13 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
 
     case FastRetransmit:
       sendDataPacket(packet,&state->ptrBlock,lostPacket);
-      //cwnd->size = MSS; //x
+      cwnd->size = SMSS; //x
       state->state = SlowStartWaitACK;
     break;
     
     case FastRecovery:
       cwnd->ssthresh = cwnd->size / 2;
-      cwnd->size = cwnd->ssthresh + 3*MSS;
+      cwnd->size = cwnd->ssthresh + 3*SMSS;
       
       // if 1st non dupAck > cwnd = cwnd/2;
       // send packet;

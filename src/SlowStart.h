@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#define MSS 50
+#define SMSS 50
 #define ssthres 250
 
 uint8_t Buffer[1000];
