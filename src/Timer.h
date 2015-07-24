@@ -1,7 +1,7 @@
-#ifndef SlowStart_H
-#define SlowStart_H
+#ifndef Timer_H
+#define Timer_H
 
 #include <stdint.h>
 
 int roundTT();
-#endif // SlowStart_H
+#endif // Timer_H
