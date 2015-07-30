@@ -111,16 +111,17 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
 
     case FastRetransmit:
       sendDataPacket(packet,&state->ptrBlock,lostPacket);
-      //cwnd->size = SMSS; //x
       state->state = FastRecovery;
     break;
     
     case FastRecovery:
+      printf("Window size : %d\n", cwnd->size);
       cwnd->ssthresh = cwnd->size / 2;
       cwnd->size = cwnd->ssthresh + 3*SMSS;
-      offset  = cwnd->offset;  // temp
-      requestedSize = SMSS;    // temp
-
+      printf("Window size2 : %d\n", cwnd->size);
+      printf("Window offset : %d\n", cwnd->offset);
+      printf("sequenceNumber : %d\n", sequenceNumber);
+      
       availableSize = cwndGetDataBlock(cwnd,offset,requestedSize,&state->ptrBlock);
       if(availableSize != 0){
         availableSize = offset + availableSize;
@@ -135,6 +136,7 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
         if(ackNo == sequenceNumber){  // non-dupAck case
           printf("non-dupACK case\n");
           cwnd->size = cwnd->ssthresh;
+          cwnd->offset = ackNo;
           state->state = CongestionAvoidance; // exit fast recovery
         }
         else if(ackNo == cwnd->offset){ // dupAck case
@@ -143,7 +145,6 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
           state->state = FastRecovery;
         }
       }
-      
       // 4. Each time another duplicate ACK arrives, set cwnd = cwnd + 1. 
       // Then, send a new data segment if allowed by the value of cwnd.
 
@@ -153,6 +154,11 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
       
     break;
     
+    default: // Timeout cases
+      cwnd->ssthresh = cwnd->size / 2;
+      cwnd->size = SMSS;
+      state->state = SlowStart;
+    break;
     // if all cases timeout > resend packet and go back to fast retransmit to resend missing packet
   }
 }
