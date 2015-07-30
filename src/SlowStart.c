@@ -81,7 +81,6 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
       if(availableSize != 0){
         availableSize = offset + availableSize;
         sendDataPacket(packet,&state->ptrBlock,availableSize);
-        
         state->state = CongestionAvoidance;
         offset = offset+SMSS;
       }else{
@@ -112,22 +111,59 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
 
     case FastRetransmit:
       sendDataPacket(packet,&state->ptrBlock,lostPacket);
-      cwnd->size = SMSS; //x
-      state->state = SlowStartWaitACK;
+      //cwnd->size = SMSS; //x
+      state->state = FastRecovery;
     break;
     
     case FastRecovery:
       cwnd->ssthresh = cwnd->size / 2;
       cwnd->size = cwnd->ssthresh + 3*SMSS;
+      offset  = cwnd->offset;  // temp
+      requestedSize = SMSS;    // temp
+
+      availableSize = cwndGetDataBlock(cwnd,offset,requestedSize,&state->ptrBlock);
+      if(availableSize != 0){
+        availableSize = offset + availableSize;
+        sendDataPacket(packet,&state->ptrBlock,availableSize);
+        state->state = FastRecovery;
+        offset = offset+SMSS;
+      }else{
+        ackNo = getDataPacket(packet,&receiveData);
+        sequenceNumber = cwnd->offset+SMSS;
+        currentWindowSize = cwnd->size;
+        
+        if(ackNo == sequenceNumber){  // non-dupAck case
+          printf("non-dupACK case\n");
+          cwnd->size = cwnd->ssthresh;
+          state->state = CongestionAvoidance; // exit fast recovery
+        }
+        else if(ackNo == cwnd->offset){ // dupAck case
+          printf("dupACK case\n");
+          cwnd->size += SMSS;
+          state->state = FastRecovery;
+        }
+      }
       
-      // if 1st non dupAck > cwnd = cwnd/2;
-      // send packet;
-      
-      // continue of ACK...no lostPacket > cwnd = cwnd +1;
-      // send packet;
+      // 4. Each time another duplicate ACK arrives, set cwnd = cwnd + 1. 
+      // Then, send a new data segment if allowed by the value of cwnd.
+
+      // 5. Once receive a new ACK (an ACK which acknowledges all intermediate segments sent between the lost
+      // packet and the receipt of the first duplicate ACK), exit fast recovery. This causes setting cwnd to 
+      // ssthresh (the ssthresh in step 1). Then, continue with linear increasing due to congestion avoidance algorithm.
       
     break;
     
     // if all cases timeout > resend packet and go back to fast retransmit to resend missing packet
   }
 }
+
+
+
+
+
+
+
+
+
+
+
