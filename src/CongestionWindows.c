@@ -12,7 +12,7 @@ uint32_t cwndIncrementWindows(Cwnd *cwnd, uint32_t size){
   
   uint32_t windowSize;
   
-  windowSize = cwnd->size + MSS;
+  windowSize = cwnd->size + SMSS;
   
   return windowSize;
 }
