@@ -9,7 +9,7 @@ uint8_t *receiveData;
 
 void cwndInitWindow(Cwnd *cwnd){
 	cwnd->offset = 0;
-	cwnd->size = MSS;
+	cwnd->size = SMSS;
 }
 
 void initTCPState(TCP_state *state){
@@ -34,7 +34,7 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
   switch(state->state){
     case SlowStart:
       offset = cwndGetBeginningOffset(cwnd);
-      requestedSize = offset + MSS;
+      requestedSize = offset + SMSS;
       availableSize = cwndGetDataBlock(cwnd,offset,requestedSize,&state->ptrBlock); 
       if(availableSize != 0){
           sendDataPacket(packet,&state->ptrBlock,availableSize);
@@ -72,45 +72,44 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
     break;
     
     case CongestionAvoidance:
-        availableSize = cwndGetDataBlock(cwnd,offset,requestedSize,&state->ptrBlock);
-        if(availableSize != 0){
-          availableSize = offset + availableSize;
-          sendDataPacket(packet,&state->ptrBlock,availableSize);
-          state->state = CongestionAvoidance;
-          offset = offset+MSS;
-        }else{
-          ackNo = getDataPacket(packet,&receiveData);
-          sequenceNumber = cwnd->offset+MSS;
-          currentWindowSize = cwnd->size;
-          if (!counter) counter  = cwnd->size/MSS;
-          if(ackNo == sequenceNumber){
-            dupAckCounter = 0;
-            counter --; 
-            if(counter == 0){
-              cwnd->size = cwndIncrementWindow(cwnd,currentWindowSize);
-              cwnd->offset = ackNo;
-              state->state = CongestionAvoidance;
-            }else{
-              cwnd->offset = ackNo;
-              state->state = CongestionAvoidance;
-            }
-          }else if(ackNo == cwnd->offset){
-              dupAckCounter += 1;
-              if(dupAckCounter >= 3){
-                dupAckCounter = 0;
-                state->state = FastRetransmit;
-              }
+      availableSize = cwndGetDataBlock(cwnd,offset,requestedSize,&state->ptrBlock);
+      if(availableSize != 0){
+        availableSize = offset + availableSize;
+        sendDataPacket(packet,&state->ptrBlock,availableSize);
+        state->state = CongestionAvoidance;
+        offset = offset+SMSS;
+      }else{
+        ackNo = getDataPacket(packet,&receiveData);
+        sequenceNumber = cwnd->offset+SMSS;
+        currentWindowSize = cwnd->size;
+        if (!counter) counter  = cwnd->size/SMSS;
+        if(ackNo == sequenceNumber){
+          dupAckCounter = 0;
+          counter --; 
+          if(counter == 0){
+            cwnd->size = cwndIncrementWindow(cwnd,currentWindowSize);
+            cwnd->offset = ackNo;
+            state->state = CongestionAvoidance;
+          }else{
+            cwnd->offset = ackNo;
+            state->state = CongestionAvoidance;
+          }
+        }else if(ackNo == cwnd->offset){
+            dupAckCounter += 1;
+            if(dupAckCounter >= 3){
+              dupAckCounter = 0;
+              state->state = FastRetransmit;
             }
           }
+        }
     break;
     
     case FastRetransmit:
       sendDataPacket(packet,&state->ptrBlock,lostPacket);
-     // cwnd->size = MSS; //x
-      state->state = SlowStartWaitACK;
+      state->state = FastRecovery;
     break;
     
-     case FastRecovery:
+    case FastRecovery:
       cwnd->ssthresh = cwnd->size / 2;
       cwnd->size = cwnd->ssthresh + 3*SMSS;
       offset  = cwnd->offset;  // temp
@@ -138,7 +137,27 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
           state->state = FastRecovery;
         }
       }
-    
+
+      
+      // 4. Each time another duplicate ACK arrives, set cwnd = cwnd + 1. 
+      // Then, send a new data segment if allowed by the value of cwnd.
+
+      // 5. Once receive a new ACK (an ACK which acknowledges all intermediate segments sent between the lost
+      // packet and the receipt of the first duplicate ACK), exit fast recovery. This causes setting cwnd to 
+      // ssthresh (the ssthresh in step 1). Then, continue with linear increasing due to congestion avoidance algorithm.
+      
+    break;
     // if all cases timeout > resend packet and go back to fast retransmit to resend missing packet
+  }
 }
-}
+
+
+
+
+
+
+
+
+
+
+
