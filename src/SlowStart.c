@@ -37,13 +37,9 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
       requestedSize = offset + MSS;
       availableSize = cwndGetDataBlock(cwnd,offset,requestedSize,&state->ptrBlock); 
       if(availableSize != 0){
-        // if(roundTT() < 50){
           sendDataPacket(packet,&state->ptrBlock,availableSize);
           state->state = SlowStartWaitACK;
           offset = offset+MSS;
-        // }else{
-          // state->state = FastRetransmit;
-        // }
       }
     break;
     
@@ -75,13 +71,11 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
             }
     break;
     
-    // counter = cwnd
     case CongestionAvoidance:
         availableSize = cwndGetDataBlock(cwnd,offset,requestedSize,&state->ptrBlock);
         if(availableSize != 0){
           availableSize = offset + availableSize;
           sendDataPacket(packet,&state->ptrBlock,availableSize);
-          
           state->state = CongestionAvoidance;
           offset = offset+MSS;
         }else{
@@ -109,24 +103,41 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
             }
           }
     break;
-
+    
     case FastRetransmit:
       sendDataPacket(packet,&state->ptrBlock,lostPacket);
-      cwnd->size = MSS; //x
+     // cwnd->size = MSS; //x
       state->state = SlowStartWaitACK;
     break;
     
-    case FastRecovery:
+     case FastRecovery:
       cwnd->ssthresh = cwnd->size / 2;
-      cwnd->size = cwnd->ssthresh + 3*MSS;
-      
-      // if 1st non dupAck > cwnd = cwnd/2;
-      // send packet;
-      
-      // continue of ACK...no lostPacket > cwnd = cwnd +1;
-      // send packet;
-      
-    break;
+      cwnd->size = cwnd->ssthresh + 3*SMSS;
+      offset  = cwnd->offset;  // temp
+      requestedSize = SMSS;    // temp
+
+      availableSize = cwndGetDataBlock(cwnd,offset,requestedSize,&state->ptrBlock);
+      if(availableSize != 0){
+        availableSize = offset + availableSize;
+        sendDataPacket(packet,&state->ptrBlock,availableSize);
+        state->state = FastRecovery;
+        offset = offset+SMSS;
+      }else{
+        ackNo = getDataPacket(packet,&receiveData);
+        sequenceNumber = cwnd->offset+SMSS;
+        currentWindowSize = cwnd->size;
+        
+        if(ackNo == sequenceNumber){  // non-dupAck case
+          printf("non-dupACK case\n");
+          cwnd->size = cwnd->ssthresh;
+          state->state = CongestionAvoidance; // exit fast recovery
+        }
+        else if(ackNo == cwnd->offset){ // dupAck case
+          printf("dupACK case\n");
+          cwnd->size += SMSS;
+          state->state = FastRecovery;
+        }
+      }
     
     // if all cases timeout > resend packet and go back to fast retransmit to resend missing packet
 }
