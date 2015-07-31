@@ -78,14 +78,14 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
         if(ackNo >= sequenceNumber){
           dupAckCounter = 0;
           counter --; 
-          if(counter == 0){
-            cwnd->size = cwndIncrementWindow(cwnd,currentWindowSize);
-            cwnd->offset = ackNo;
-            state->state = CongestionAvoidance;
-          }else{
-            cwnd->offset = ackNo;
-            state->state = CongestionAvoidance;
-          }
+          // if(counter == 0){
+            // cwnd->size = cwndIncrementWindow(cwnd,currentWindowSize);
+            // cwnd->offset = ackNo;
+            // state->state = CongestionAvoidance;
+          // }else{
+            // cwnd->offset = ackNo;
+            // state->state = CongestionAvoidance;
+          // }
         }else if(ackNo == cwnd->offset){
             dupAckCounter = duplicatePacketCount(state,dupAckCounter);
           }
