@@ -38,9 +38,8 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
       requestedSize = offset + SMSS;
       availableSize = cwndGetDataBlock(cwnd,offset,requestedSize,&state->ptrBlock); 
       if(availableSize != 0){
-          sendDataPacket(packet,&state->ptrBlock,availableSize);
+          offset = sendPacket(state,packet,availableSize,offset);
           state->state = SlowStartWaitACK;
-          offset = offset+SMSS;
       }
     break;
     
@@ -57,11 +56,7 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
           if(ackNo >= sequenceNumber){
             cwnd->offset = ackNo;
             cwnd->size = cwndIncrementWindow(cwnd,currentWindowSize);
-            if(cwnd->size <= (cwnd->ssthresh = ssthres)){
-              state->state = SlowStartWaitACK;
-            }else{
-              state->state = CongestionAvoidance;
-            }
+            checkSSthresh(state,cwnd);
           }else{
             dupAckCounter = 1;
             lostPacket = ackNo;
@@ -114,13 +109,13 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
         currentWindowSize = cwnd->size;
         tempCwndSize = cwnd->size;
         
-        if(ackNo == sequenceNumber){  // non-dupAck case
+        if(ackNo == sequenceNumber){
           printf("non-dupACK case\n");
           cwnd->size = cwnd->ssthresh;
           cwnd->offset = ackNo;
-          state->state = FastRecovery; // exit fast recovery
+          state->state = FastRecovery;
         }
-        else if(ackNo == cwnd->offset){ // dupAck case
+        else if(ackNo == cwnd->offset){
           printf("dupACK case\n");
           cwnd->size += SMSS;
           tempCwndSize += SMSS;
@@ -129,22 +124,28 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
       }
     break;
     
-    default: // Timeout cases
+    default:
       cwnd->ssthresh = cwnd->size / 2;
       cwnd->size = SMSS;
       state->state = SlowStart;
     break;
-    
-    // if all cases timeout > resend packet and go back to fast retransmit to resend missing packet
   }
 }
-
 
 uint32_t min(uint32_t valueA, uint32_t valueB){
   return valueA < valueB ? valueA : valueB; 
 }
+
 uint32_t max(uint32_t valueA, uint32_t valueB){
   return valueA > valueB ? valueA : valueB;
+}
+
+void checkSSthresh(TCP_state *state,Cwnd *cwnd){
+  if(cwnd->size <= (cwnd->ssthresh = ssthres)){
+    state->state = SlowStartWaitACK;
+  }else{
+    state->state = CongestionAvoidance;
+  } 
 }
 
 void retransmit(TCP_state *state, Cwnd *cwnd, Packet *packet, uint32_t lostPacket, uint32_t offset){
