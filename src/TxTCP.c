@@ -92,11 +92,7 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
             state->state = CongestionAvoidance;
           }
         }else if(ackNo == cwnd->offset){
-            dupAckCounter += 1;
-            if(dupAckCounter >= 3){
-              dupAckCounter = 0;
-              state->state = FastRetransmit;
-            }
+            dupAckCounter = duplicatePacketCount(state,dupAckCounter);
           }
         }
     break;
@@ -166,6 +162,15 @@ uint32_t sendPacket(TCP_state *state, Packet *packet, uint32_t availableSize , u
   offset = offset + SMSS;
   
   return offset;
+}
+
+uint32_t duplicatePacketCount(TCP_state *state, uint32_t dupAckCounter){
+  dupAckCounter += 1;
+  if(dupAckCounter >= 3){
+    dupAckCounter = 0;
+    state->state = FastRetransmit;
+  }
+  return dupAckCounter;
 }
 
 // SlowStart left timeout 
