@@ -100,12 +100,12 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
       }else{
         ackNo = getDataPacket(packet,&receiveData);
         sequenceNumber = cwnd->offset+SMSS;
-        
         if(ackNo == sequenceNumber){
           cwnd->size = cwnd->ssthresh;
           cwnd->offset = ackNo;
-          if(ackNo == recover)
-          state->state = CongestionAvoidance;
+          if(ackNo == recover){
+            state->state = CongestionAvoidance;
+          }
         }
         else if(ackNo == cwnd->offset){
           cwnd->size += SMSS;
