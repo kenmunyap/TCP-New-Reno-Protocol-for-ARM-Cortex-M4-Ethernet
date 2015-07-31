@@ -17,14 +17,6 @@ void initTCPState(TCP_state *state){
   state->ptrBlock = NULL;
 }
 
-uint32_t sendPacket(TCP_state *state, Packet *packet, uint32_t availableSize , uint32_t offset){
-  availableSize = offset + availableSize;
-  sendDataPacket(packet,&state->ptrBlock,availableSize);
-  offset = offset + SMSS;
-  
-  return offset;
-}
-
 uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
   static uint32_t offset;
   static uint32_t currentWindowSize;
@@ -156,6 +148,13 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
   }
 }
 
+uint32_t sendPacket(TCP_state *state, Packet *packet, uint32_t availableSize , uint32_t offset){
+  availableSize = offset + availableSize;
+  sendDataPacket(packet,&state->ptrBlock,availableSize);
+  offset = offset + SMSS;
+  
+  return offset;
+}
 
 uint32_t min(uint32_t valueA, uint32_t valueB){
   return valueA < valueB ? valueA : valueB; 
@@ -163,6 +162,8 @@ uint32_t min(uint32_t valueA, uint32_t valueB){
 uint32_t max(uint32_t valueA, uint32_t valueB){
   return valueA > valueB ? valueA : valueB;
 }
+
+
 // SlowStart left timeout 
 // Congestion Avoidance timeout
 // Fast Retransmit
