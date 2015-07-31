@@ -14,14 +14,24 @@ uint32_t max(uint32_t valueA, uint32_t valueB){
   return valueA > valueB ? valueA : valueB;
 }
 
-void checkSSthresh(TCP_state *state,Cwnd *cwnd){
+void checkCAorSSBySSTHRESH(TCP_state *state,Cwnd *cwnd){
   if(cwnd->size <= (cwnd->ssthresh = ssthres)){
     state->state = SlowStartWaitACK;
   }else{
     state->state = CongestionAvoidance;
   } 
 }
-
+void incCACounter(uint32_t counter,TCP_state *state,Cwnd *cwnd,uint32_t currentWindowSize,uint32_t ackNo){
+  if(counter == 0){
+    cwnd->size = cwndIncrementWindow(cwnd,currentWindowSize);
+    cwnd->offset = ackNo;
+    state->state = CongestionAvoidance;
+  }else{
+    cwnd->size = currentWindowSize;
+    cwnd->offset = ackNo;
+    state->state = CongestionAvoidance;
+  } 
+}
 void retransmit(TCP_state *state, Cwnd *cwnd, Packet *packet, uint32_t lostPacket, uint32_t offset){
   static uint32_t flightSize;
   flightSize = offset - cwnd->offset;
