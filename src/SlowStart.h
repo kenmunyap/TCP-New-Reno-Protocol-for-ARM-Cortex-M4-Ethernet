@@ -12,8 +12,8 @@ extern uint8_t *receiveData;
 typedef enum{
 	SlowStart,
 	SlowStartWaitACK,
-	FastRetransmit,
   CongestionAvoidance,
+	FastRetransmit,
   FastRecovery,
   TimeOut
 }State;

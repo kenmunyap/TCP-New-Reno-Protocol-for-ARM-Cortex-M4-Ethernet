@@ -3,5 +3,8 @@
 
 #include <stdint.h>
 
-int roundTT();
+uint32_t roundTT();
+uint32_t RTO();  // Retransmission time out
+
+
 #endif // Timer_H
