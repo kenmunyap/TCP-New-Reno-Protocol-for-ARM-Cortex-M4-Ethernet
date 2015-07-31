@@ -1,7 +1,7 @@
 #ifndef CONGESTION_WINDOW_H
 #define CONGESTION_WINDOW_H
 
-#include "SlowStart.h"
+#include "TxTCP.h"
 
 uint32_t cwndGetBeginningOffsets(Cwnd *cwnd);
 uint32_t cwndIncrementWindows(Cwnd *cwnd, uint32_t size);
