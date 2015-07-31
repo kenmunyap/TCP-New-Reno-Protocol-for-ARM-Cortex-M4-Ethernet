@@ -100,8 +100,7 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
         ackNo = getDataPacket(packet,&receiveData);
         sequenceNumber = cwnd->offset+SMSS;
         currentWindowSize = cwnd->size;
-        tempCwndSize = cwnd->size;
-        
+        tempCwndSize = cwnd->size;       
         if(ackNo == sequenceNumber){
           printf("non-dupACK case\n");
           cwnd->size = cwnd->ssthresh;
