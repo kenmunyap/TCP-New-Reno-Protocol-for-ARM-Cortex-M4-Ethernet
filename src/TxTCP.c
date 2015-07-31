@@ -87,11 +87,7 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
             state->state = CongestionAvoidance;
           }
         }else if(ackNo == cwnd->offset){
-            dupAckCounter += 1;
-            if(dupAckCounter >= 3){
-              dupAckCounter = 0;
-              state->state = FastRetransmit;
-            }
+            dupAckCounter = duplicatePacketCount(state,dupAckCounter);
           }
         }
     break;
@@ -139,6 +135,7 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
 uint32_t min(uint32_t valueA, uint32_t valueB){
   return valueA < valueB ? valueA : valueB; 
 }
+
 uint32_t max(uint32_t valueA, uint32_t valueB){
   return valueA > valueB ? valueA : valueB;
 }
@@ -150,7 +147,6 @@ void checkSSthresh(TCP_state *state,Cwnd *cwnd){
     state->state = CongestionAvoidance;
   } 
 }
-
 
 void retransmit(TCP_state *state, Cwnd *cwnd, Packet *packet, uint32_t lostPacket, uint32_t offset){
   static uint32_t flightSize;
@@ -169,26 +165,14 @@ uint32_t sendPacket(TCP_state *state, Packet *packet, uint32_t availableSize , u
   return offset;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+uint32_t duplicatePacketCount(TCP_state *state, uint32_t dupAckCounter){
+  dupAckCounter += 1;
+  if(dupAckCounter >= 3){
+    dupAckCounter = 0;
+    state->state = FastRetransmit;
+  }
+  return dupAckCounter;
+}
 
 // SlowStart left timeout 
 // Congestion Avoidance timeout
