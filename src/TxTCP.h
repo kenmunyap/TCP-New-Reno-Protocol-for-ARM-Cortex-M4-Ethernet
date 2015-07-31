@@ -42,4 +42,8 @@ void cwndInitWindow(Cwnd *cwnd);
 void initTCPState(TCP_state *state);
 void initPacket(Packet *packet);
 uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet);
+
+uint32_t min(uint32_t valueA, uint32_t valueB);
+uint32_t max(uint32_t valueA, uint32_t valueB);
+
 #endif // TXTCP_H

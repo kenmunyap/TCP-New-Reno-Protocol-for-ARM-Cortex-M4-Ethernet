@@ -30,6 +30,8 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
   static uint32_t lostPacket;
   static uint32_t counterTime;
   static uint32_t counter = 0;
+  static uint32_t flightSize;
+  static uint32_t tempCwndSize;
   
   switch(state->state){
     case SlowStart:
@@ -106,37 +108,37 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
     
     case FastRetransmit:
       sendDataPacket(packet,&state->ptrBlock,lostPacket);
+      flightSize = offset - cwnd->offset;
+      cwnd->ssthresh = max(flightSize/2, 2*SMSS);
+      cwnd->size = cwnd->ssthresh + 3*SMSS;
       state->state = FastRecovery;
     break;
     
     case FastRecovery:
-      printf("Window size : %d\n", cwnd->size);
-      cwnd->ssthresh = cwnd->size / 2;
-      cwnd->size = cwnd->ssthresh + 3*SMSS;
-      printf("Window size2 : %d\n", cwnd->size);
-      printf("Window offset : %d\n", cwnd->offset);
-      printf("sequenceNumber : %d\n", sequenceNumber);
-      
+       
       availableSize = cwndGetDataBlock(cwnd,offset,requestedSize,&state->ptrBlock);
       if(availableSize != 0){
         availableSize = offset + availableSize;
         sendDataPacket(packet,&state->ptrBlock,availableSize);
-        state->state = FastRecovery;
         offset = offset+SMSS;
+        tempCwndSize -= SMSS;
+        if(tempCwndSize == 0) state->state = CongestionAvoidance;
       }else{
         ackNo = getDataPacket(packet,&receiveData);
         sequenceNumber = cwnd->offset+SMSS;
         currentWindowSize = cwnd->size;
+        tempCwndSize = cwnd->size;
         
         if(ackNo == sequenceNumber){  // non-dupAck case
           printf("non-dupACK case\n");
           cwnd->size = cwnd->ssthresh;
           cwnd->offset = ackNo;
-          state->state = CongestionAvoidance; // exit fast recovery
+          state->state = FastRecovery; // exit fast recovery
         }
         else if(ackNo == cwnd->offset){ // dupAck case
           printf("dupACK case\n");
           cwnd->size += SMSS;
+          tempCwndSize += SMSS;
           state->state = FastRecovery;
         }
       }
@@ -152,6 +154,13 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
   }
 }
 
+
+uint32_t min(uint32_t valueA, uint32_t valueB){
+  return valueA < valueB ? valueA : valueB; 
+}
+uint32_t max(uint32_t valueA, uint32_t valueB){
+  return valueA > valueB ? valueA : valueB;
+}
 // SlowStart left timeout 
 // Congestion Avoidance timeout
 // Fast Retransmit
