@@ -17,6 +17,14 @@ void initTCPState(TCP_state *state){
   state->ptrBlock = NULL;
 }
 
+uint32_t sendPacket(TCP_state *state, Packet *packet, uint32_t availableSize , uint32_t offset){
+  availableSize = offset + availableSize;
+  sendDataPacket(packet,&state->ptrBlock,availableSize);
+  offset = offset + SMSS;
+  
+  return offset;
+}
+
 uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
   static uint32_t offset;
   static uint32_t currentWindowSize;
@@ -49,10 +57,8 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
         requestedSize = SMSS;
         availableSize = cwndGetDataBlock(cwnd,offset,requestedSize,&state->ptrBlock);
             if(availableSize != 0){
-              availableSize = offset + availableSize;
-              sendDataPacket(packet,&state->ptrBlock,availableSize);
+              offset = sendPacket(state,packet,availableSize,offset);
               state->state = SlowStartWaitACK;
-              offset = offset+SMSS;
             }else{
               ackNo = getDataPacket(packet,&receiveData);
               sequenceNumber = cwnd->offset+SMSS;
@@ -76,10 +82,8 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
     case CongestionAvoidance:
       availableSize = cwndGetDataBlock(cwnd,offset,requestedSize,&state->ptrBlock);
       if(availableSize != 0){
-        availableSize = offset + availableSize;
-        sendDataPacket(packet,&state->ptrBlock,availableSize);
+        offset = sendPacket(state,packet,availableSize,offset);
         state->state = CongestionAvoidance;
-        offset = offset+SMSS;
       }else{
         ackNo = getDataPacket(packet,&receiveData);
         sequenceNumber = cwnd->offset+SMSS;
@@ -107,9 +111,9 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
     break;
     
     case FastRetransmit:
-      sendDataPacket(packet,&state->ptrBlock,lostPacket);
       flightSize = offset - cwnd->offset;
       cwnd->ssthresh = max(flightSize/2, 2*SMSS);
+      sendDataPacket(packet,&state->ptrBlock,lostPacket);
       cwnd->size = cwnd->ssthresh + 3*SMSS;
       state->state = FastRecovery;
     break;
@@ -118,9 +122,7 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
        
       availableSize = cwndGetDataBlock(cwnd,offset,requestedSize,&state->ptrBlock);
       if(availableSize != 0){
-        availableSize = offset + availableSize;
-        sendDataPacket(packet,&state->ptrBlock,availableSize);
-        offset = offset+SMSS;
+        offset = sendPacket(state,packet,availableSize,offset);
         tempCwndSize -= SMSS;
         if(tempCwndSize == 0) state->state = CongestionAvoidance;
       }else{
