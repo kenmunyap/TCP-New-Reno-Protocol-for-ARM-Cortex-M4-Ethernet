@@ -1,12 +1,12 @@
-#ifndef SlowStart_H
-#define SlowStart_H
+#ifndef TXTCP_H
+#define TXTCP_H
 
 #include <stdint.h>
 
 #define SMSS 50
 #define ssthres 250
 
-uint8_t Buffer[1000];
+extern uint8_t Buffer[1000];
 extern uint8_t *receiveData;
 
 typedef enum{
@@ -41,4 +41,4 @@ void cwndInitWindow(Cwnd *cwnd);
 void initTCPState(TCP_state *state);
 void initPacket(Packet *packet);
 uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet);
-#endif // SlowStart_H
+#endif // TXTCP_H

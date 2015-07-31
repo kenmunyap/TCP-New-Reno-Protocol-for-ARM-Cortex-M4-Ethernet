@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdint.h>
-#include "SlowStart.h"
+#include "TxTCP.h"
 #include "congestionWindow.h"
 #include "Packet.h"
 #include "Timer.h"
@@ -39,21 +39,21 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
       if(availableSize != 0){
           sendDataPacket(packet,&state->ptrBlock,availableSize);
           state->state = SlowStartWaitACK;
-          offset = offset+MSS;
+          offset = offset+SMSS;
       }
     break;
     
     case SlowStartWaitACK:
-        requestedSize = MSS;
+        requestedSize = SMSS;
         availableSize = cwndGetDataBlock(cwnd,offset,requestedSize,&state->ptrBlock);
             if(availableSize != 0){
               availableSize = offset + availableSize;
               sendDataPacket(packet,&state->ptrBlock,availableSize);
               state->state = SlowStartWaitACK;
-              offset = offset+MSS;
+              offset = offset+SMSS;
             }else{
               ackNo = getDataPacket(packet,&receiveData);
-              sequenceNumber = cwnd->offset+MSS;
+              sequenceNumber = cwnd->offset+SMSS;
               currentWindowSize = cwnd->size;
               if(ackNo >= sequenceNumber){
                 cwnd->offset = ackNo;
@@ -83,7 +83,7 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
         sequenceNumber = cwnd->offset+SMSS;
         currentWindowSize = cwnd->size;
         if (!counter) counter  = cwnd->size/SMSS;
-        if(ackNo == sequenceNumber){
+        if(ackNo >= sequenceNumber){
           dupAckCounter = 0;
           counter --; 
           if(counter == 0){
@@ -137,7 +137,7 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
           state->state = FastRecovery;
         }
       }
-
+     // cwnd->size = ssthresh = (size/2)+(3*SMSS)
       
       // 4. Each time another duplicate ACK arrives, set cwnd = cwnd + 1. 
       // Then, send a new data segment if allowed by the value of cwnd.
@@ -151,12 +151,22 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
   }
 }
 
+// SlowStart left timeout 
+// Congestion Avoidance timeout
+// Fast Retransmit
+// Fast Recovery
+// Mock SendPacket
+// Increment
+// GetPacket
+// CwndGetPacket
+//if(timeout() == 50){
+//    ssthress = cwnd->size/2 
+//}
 
 
-
-
-
-
+// timeout then  ssthresh = cwndsize/2 then goes bak to slow start
+// duplicate 3 time = cwndsize/2 then goes to fast recover
+// program still can send after exceed offset using mock
 
 
 
