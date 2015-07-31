@@ -56,7 +56,7 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
           if(ackNo >= sequenceNumber){
             cwnd->offset = ackNo;
             cwnd->size = cwndIncrementWindow(cwnd,currentWindowSize);
-            checkSSthresh(state,cwnd);
+            checkCAorSSBySSTHRESH(state,cwnd);
           }else{
             dupAckCounter = 1;
             lostPacket = ackNo;
@@ -75,18 +75,11 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
         sequenceNumber = cwnd->offset+SMSS;
         currentWindowSize = cwnd->size;
         if (!counter) counter  = cwnd->size/SMSS;
-        if(ackNo >= sequenceNumber){
-          dupAckCounter = 0;
-          counter --; 
-          // if(counter == 0){
-            // cwnd->size = cwndIncrementWindow(cwnd,currentWindowSize);
-            // cwnd->offset = ackNo;
-            // state->state = CongestionAvoidance;
-          // }else{
-            // cwnd->offset = ackNo;
-            // state->state = CongestionAvoidance;
-          // }
-        }else if(ackNo == cwnd->offset){
+          if(ackNo >= sequenceNumber){
+            dupAckCounter = 0;
+            counter --; 
+            checkCACounter(counter,state,cwnd,currentWindowSize,ackNo);
+          }else if(ackNo == cwnd->offset){
             dupAckCounter = duplicatePacketCount(state,dupAckCounter);
           }
         }

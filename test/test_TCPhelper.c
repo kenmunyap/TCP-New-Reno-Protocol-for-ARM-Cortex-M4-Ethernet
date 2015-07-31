@@ -7,7 +7,60 @@
 void setUp(void){}
 void tearDown(void){}
 
-void test_module_generator_needs_to_be_implemented(void)
-{
+void test_checkCACounter_counter_equal_0_increment(void){
+  Cwnd cwnd;
+  TCP_state state;
+  uint32_t counter;
+  uint32_t currentWindowSize;
+  uint32_t ackNo;
   
+  counter = 0;
+  currentWindowSize = 100;
+  ackNo = 50;
+  cwndIncrementWindow_ExpectAndReturn(&cwnd,currentWindowSize,150);
+  checkCACounter(counter,&state,&cwnd,currentWindowSize,ackNo);
+  TEST_ASSERT_EQUAL(150,cwnd.size);
+  TEST_ASSERT_EQUAL(CongestionAvoidance,state.state);
+  TEST_ASSERT_EQUAL(50,cwnd.offset);
 }
+
+void test_checkCACounter_counter_equal_1_not_increment(void){
+  Cwnd cwnd;
+  TCP_state state;
+  uint32_t counter;
+  uint32_t currentWindowSize;
+  uint32_t ackNo;
+  
+  counter = 1;
+  currentWindowSize = 100;
+  ackNo = 50;
+  checkCACounter(counter,&state,&cwnd,currentWindowSize,ackNo);
+  TEST_ASSERT_EQUAL(100,cwnd.size);
+  TEST_ASSERT_EQUAL(CongestionAvoidance,state.state);
+  TEST_ASSERT_EQUAL(50,cwnd.offset);
+}
+
+void test_checkCAorSSBySSTHRESH_cwnd_size_smaller_than_ssthresh(void){
+  Cwnd cwnd;
+  TCP_state state;
+  cwnd.size = 200;
+  checkCAorSSBySSTHRESH(&state,&cwnd);
+  TEST_ASSERT_EQUAL(SlowStartWaitACK,state.state);
+}
+
+void test_checkCAorSSBySSTHRESH_cwnd_size_smaller_and_equal_than_ssthresh(void){
+  Cwnd cwnd;
+  TCP_state state;
+  cwnd.size = 250;
+  checkCAorSSBySSTHRESH(&state,&cwnd);
+  TEST_ASSERT_EQUAL(SlowStartWaitACK,state.state);
+}
+
+void test_checkCAorSSBySSTHRESH_cwnd_size_larger_than_ssthresh(void){
+  Cwnd cwnd;
+  TCP_state state;
+  cwnd.size = 300;
+  checkCAorSSBySSTHRESH(&state,&cwnd);
+  TEST_ASSERT_EQUAL(CongestionAvoidance,state.state);
+}
+
