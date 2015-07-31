@@ -110,11 +110,13 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
     break;
     
     case FastRecovery:
+      printf("Window size : %d\n", cwnd->size);
       cwnd->ssthresh = cwnd->size / 2;
       cwnd->size = cwnd->ssthresh + 3*SMSS;
-      offset  = cwnd->offset;  // temp
-      requestedSize = SMSS;    // temp
-
+      printf("Window size2 : %d\n", cwnd->size);
+      printf("Window offset : %d\n", cwnd->offset);
+      printf("sequenceNumber : %d\n", sequenceNumber);
+      
       availableSize = cwndGetDataBlock(cwnd,offset,requestedSize,&state->ptrBlock);
       if(availableSize != 0){
         availableSize = offset + availableSize;
@@ -129,6 +131,7 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
         if(ackNo == sequenceNumber){  // non-dupAck case
           printf("non-dupACK case\n");
           cwnd->size = cwnd->ssthresh;
+          cwnd->offset = ackNo;
           state->state = CongestionAvoidance; // exit fast recovery
         }
         else if(ackNo == cwnd->offset){ // dupAck case
@@ -137,16 +140,14 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
           state->state = FastRecovery;
         }
       }
-     // cwnd->size = ssthresh = (size/2)+(3*SMSS)
-      
-      // 4. Each time another duplicate ACK arrives, set cwnd = cwnd + 1. 
-      // Then, send a new data segment if allowed by the value of cwnd.
-
-      // 5. Once receive a new ACK (an ACK which acknowledges all intermediate segments sent between the lost
-      // packet and the receipt of the first duplicate ACK), exit fast recovery. This causes setting cwnd to 
-      // ssthresh (the ssthresh in step 1). Then, continue with linear increasing due to congestion avoidance algorithm.
-      
     break;
+    
+    default: // Timeout cases
+      cwnd->ssthresh = cwnd->size / 2;
+      cwnd->size = SMSS;
+      state->state = SlowStart;
+    break;
+    
     // if all cases timeout > resend packet and go back to fast retransmit to resend missing packet
   }
 }

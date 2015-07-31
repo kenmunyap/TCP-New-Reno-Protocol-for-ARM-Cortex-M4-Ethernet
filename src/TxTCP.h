@@ -3,8 +3,8 @@
 
 #include <stdint.h>
 
-#define SMSS 50
-#define ssthres 250
+#define SMSS 50  // (SMSS) SENDER MAXIMUM SEGMENT SIZE
+#define ssthres 250 // slow start threshold
 
 extern uint8_t Buffer[1000];
 extern uint8_t *receiveData;
@@ -12,9 +12,10 @@ extern uint8_t *receiveData;
 typedef enum{
 	SlowStart,
 	SlowStartWaitACK,
-	FastRetransmit,
   CongestionAvoidance,
-  FastRecovery
+	FastRetransmit,
+  FastRecovery,
+  TimeOut
 }State;
 
 typedef struct{
@@ -27,7 +28,7 @@ typedef struct{
 	uint32_t size;
   uint32_t dupACKFlag;
   uint32_t ssthresh;
-}Cwnd;
+}Cwnd; // CONGESTION WINDOW
 
 typedef struct{
   uint32_t srcIpAddr;
