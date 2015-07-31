@@ -89,7 +89,6 @@ void test_retransmit_should_change_the_cwnd_data_and_the_state(void)
   TEST_ASSERT_EQUAL(0,Window.offset);
   TEST_ASSERT_EQUAL(100,Window.ssthresh);
   TEST_ASSERT_EQUAL(250,Window.size);
-  TEST_ASSERT_EQUAL(FastRecovery,state.state);
 }
 
 void test_retransmit_should_change_the_cwnd_data_and_the_state_with_different_data(void)
@@ -106,7 +105,6 @@ void test_retransmit_should_change_the_cwnd_data_and_the_state_with_different_da
   TEST_ASSERT_EQUAL(100,Window.offset);
   TEST_ASSERT_EQUAL(100,Window.ssthresh);
   TEST_ASSERT_EQUAL(250,Window.size);
-  TEST_ASSERT_EQUAL(FastRecovery,state.state);
 }
 
 void test_incCACounter_counter_equal_0_increment(void){
