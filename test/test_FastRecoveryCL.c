@@ -160,14 +160,14 @@ void test_TxTCPSM_for_fast_recovery_start_from_begining_with_offset_0_and_conges
   sendDataPacket_Expect(&packet,&state.ptrBlock,100);      // Resend packet 100 (fast retransmit)
   TxTCPSM(&state,&Window,&packet);
   TEST_ASSERT_EQUAL(100,Window.offset);
-  TEST_ASSERT_EQUAL(150,Window.size);
+  TEST_ASSERT_EQUAL(250,Window.size);
   TEST_ASSERT_EQUAL(FastRecovery,state.state);
   
   cwndGetDataBlock_ExpectAndReturn(&Window,300,50,&state.ptrBlock,0);
   getDataPacket_ExpectAndReturn(&packet,&receiveData,100);  // ACK 150
   TxTCPSM(&state,&Window,&packet);
   TEST_ASSERT_EQUAL(100,Window.offset); //offset changed back after resend the lost packet
-  TEST_ASSERT_EQUAL(275,Window.size);   //windowSize 225 >> 150/2 + 150 then 225 += SMSS
+  TEST_ASSERT_EQUAL(300,Window.size);   //windowSize 225 >> 150/2 + 150 then 225 += SMSS
   TEST_ASSERT_EQUAL(FastRecovery,state.state);
   
   //================================================================
@@ -297,15 +297,15 @@ void test_TxTCPSM_for_fast_recovery_start_from_begining_with_offset_0_and_conges
   sendDataPacket_Expect(&packet,&state.ptrBlock,100);      // Resend packet 100 (fast retransmit)
   TxTCPSM(&state,&Window,&packet);
   TEST_ASSERT_EQUAL(100,Window.offset);
-  TEST_ASSERT_EQUAL(150,Window.size);
+  TEST_ASSERT_EQUAL(250,Window.size);
   TEST_ASSERT_EQUAL(FastRecovery,state.state);
   
   cwndGetDataBlock_ExpectAndReturn(&Window,300,50,&state.ptrBlock,0);
   getDataPacket_ExpectAndReturn(&packet,&receiveData,150);  // ACK 150
   TxTCPSM(&state,&Window,&packet);
   TEST_ASSERT_EQUAL(150,Window.offset); //offset changed back after resend the lost packet
-  TEST_ASSERT_EQUAL(75,Window.size);   //windowSize 225 >> 150/2 + 150 then 225 += SMSS
-  TEST_ASSERT_EQUAL(CongestionAvoidance,state.state);
+  TEST_ASSERT_EQUAL(100,Window.size);   //windowSize 225 >> 150/2 + 150 then 225 += SMSS
+  TEST_ASSERT_EQUAL(FastRecovery,state.state);
 }
 
 
