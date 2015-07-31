@@ -196,21 +196,21 @@ void test_TxTCPSM_Congestion_avoidance_should_remain_in_the_case_after_2nd_dupac
   cwndGetDataBlock_ExpectAndReturn(&Window,250,50,&state.ptrBlock,0);
   getDataPacket_ExpectAndReturn(&packet,&receiveData,250);   // succesfully receive 
   TxTCPSM(&state,&Window,&packet);
-  TEST_ASSERT_EQUAL(50,Window.offset);
+  TEST_ASSERT_EQUAL(250,Window.offset);
   TEST_ASSERT_EQUAL(100,Window.size);
   TEST_ASSERT_EQUAL(CongestionAvoidance,state.state);  
 
   cwndGetDataBlock_ExpectAndReturn(&Window,250,50,&state.ptrBlock,50);
   sendDataPacket_Expect(&packet,&state.ptrBlock,300);        // send 300 
   TxTCPSM(&state,&Window,&packet);
-  TEST_ASSERT_EQUAL(50,Window.offset);
+  TEST_ASSERT_EQUAL(250,Window.offset);
   TEST_ASSERT_EQUAL(100,Window.size);
   TEST_ASSERT_EQUAL(CongestionAvoidance,state.state);
   
   cwndGetDataBlock_ExpectAndReturn(&Window,300,50,&state.ptrBlock,50);
   sendDataPacket_Expect(&packet,&state.ptrBlock,350);        // send 350 
   TxTCPSM(&state,&Window,&packet);
-  TEST_ASSERT_EQUAL(50,Window.offset);
+  TEST_ASSERT_EQUAL(250,Window.offset);
   TEST_ASSERT_EQUAL(100,Window.size);
   TEST_ASSERT_EQUAL(CongestionAvoidance,state.state);
 
@@ -356,15 +356,15 @@ void test_TxTCPSM_Congestion_avoidance_should_increment_window_by1_when_inside_c
   
   cwndGetDataBlock_ExpectAndReturn(&Window,250,50,&state.ptrBlock,0);
   getDataPacket_ExpectAndReturn(&packet,&receiveData,100);
-  //cwndIncrementWindow_ExpectAndReturn(&Window,100,150); //no increment for 1st successful ack
+  cwndIncrementWindow_ExpectAndReturn(&Window,100,150); //no increment for 1st successful ack
   TxTCPSM(&state,&Window,&packet);
   TEST_ASSERT_EQUAL(100,Window.offset);
-  TEST_ASSERT_EQUAL(100,Window.size);
+  TEST_ASSERT_EQUAL(150,Window.size);
   TEST_ASSERT_EQUAL(CongestionAvoidance,state.state);
   
   cwndGetDataBlock_ExpectAndReturn(&Window,250,50,&state.ptrBlock,0);
   getDataPacket_ExpectAndReturn(&packet,&receiveData,150);
-  cwndIncrementWindow_ExpectAndReturn(&Window,100,150);   // another ack then only increment window
+  // cwndIncrementWindow_ExpectAndReturn(&Window,100,150);   // another ack then only increment window
   TxTCPSM(&state,&Window,&packet);
   TEST_ASSERT_EQUAL(150,Window.offset);
   TEST_ASSERT_EQUAL(150,Window.size);
