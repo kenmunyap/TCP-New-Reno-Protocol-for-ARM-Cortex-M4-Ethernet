@@ -68,7 +68,7 @@ void xtest_TxTCPSM_for_fast_recovery_for_non_duplicate_ack(void){
 }
 
 void test_TxTCPSM_for_fast_recovery_start_from_begining_with_offset_0_and_congestion_window_size_50_for_dupack_case(void){
-  printf("TEST START \n");
+  // printf("TEST START \n");
   
   Cwnd Window;
   cwndInitWindow(&Window);
@@ -167,8 +167,8 @@ void test_TxTCPSM_for_fast_recovery_start_from_begining_with_offset_0_and_conges
   cwndGetDataBlock_ExpectAndReturn(&Window,300,50,&state.ptrBlock,0);
   getDataPacket_ExpectAndReturn(&packet,&receiveData,100);  // ACK 150
   TxTCPSM(&state,&Window,&packet);
-  TEST_ASSERT_EQUAL(100,Window.offset); //offset changed back after resend the lost packet
-  TEST_ASSERT_EQUAL(300,Window.size);   //windowSize 225 >> 150/2 + 150 then 225 += SMSS
+  TEST_ASSERT_EQUAL(100,Window.offset);
+  TEST_ASSERT_EQUAL(300,Window.size);
   TEST_ASSERT_EQUAL(FastRecovery,state.state);
   
   //================================================================
@@ -205,7 +205,7 @@ void test_TxTCPSM_for_fast_recovery_start_from_begining_with_offset_0_and_conges
 }
 
 void test_TxTCPSM_for_fast_recovery_start_from_begining_with_offset_0_and_congestion_window_size_50_for_non_dupack_case(void){
-  printf("TEST START \n");
+  // printf("TEST START \n");
   
   Cwnd Window;
   cwndInitWindow(&Window);
@@ -304,15 +304,101 @@ void test_TxTCPSM_for_fast_recovery_start_from_begining_with_offset_0_and_conges
   cwndGetDataBlock_ExpectAndReturn(&Window,300,50,&state.ptrBlock,0);
   getDataPacket_ExpectAndReturn(&packet,&receiveData,150);  // ACK 150
   TxTCPSM(&state,&Window,&packet);
-  TEST_ASSERT_EQUAL(150,Window.offset); //offset changed back after resend the lost packet
-  TEST_ASSERT_EQUAL(100,Window.size);   //windowSize 225 >> 150/2 + 150 then 225 += SMSS
+  TEST_ASSERT_EQUAL(150,Window.offset);
+  TEST_ASSERT_EQUAL(100,Window.size);
   TEST_ASSERT_EQUAL(FastRecovery,state.state);
 }
 
-
-
-
-
-
+void test_fastReCovery_all_start_from_slow_start(void){
+  printf("TEST START \n");
+  
+  Cwnd Window;
+  cwndInitWindow(&Window);
+  TCP_state state;
+  initTCPState(&state);
+  
+  cwndGetBeginningOffset_ExpectAndReturn(&Window,0);
+  cwndGetDataBlock_ExpectAndReturn(&Window,0,50,&state.ptrBlock,50);
+  TEST_ASSERT_EQUAL(SlowStart,state.state);
+  
+  sendDataPacket_Expect(&packet,&state.ptrBlock,50);                // send 50
+  TxTCPSM(&state,&Window,&packet);
+  TEST_ASSERT_EQUAL(0,Window.offset);
+  TEST_ASSERT_EQUAL(50,Window.size);
+  TEST_ASSERT_EQUAL(SlowStartWaitACK,state.state);
+  
+  cwndGetDataBlock_ExpectAndReturn(&Window,50,50,&state.ptrBlock,0);
+  getDataPacket_ExpectAndReturn(&packet,&receiveData,50);           // ack 50
+  cwndIncrementWindow_ExpectAndReturn(&Window,50,100);
+  TxTCPSM(&state,&Window,&packet);
+  TEST_ASSERT_EQUAL(50,Window.offset);
+  TEST_ASSERT_EQUAL(100,Window.size);
+  TEST_ASSERT_EQUAL(SlowStartWaitACK,state.state);
+  
+  cwndGetDataBlock_ExpectAndReturn(&Window,50,50,&state.ptrBlock,50);
+  sendDataPacket_Expect(&packet,&state.ptrBlock,100);               // send 100
+  TxTCPSM(&state,&Window,&packet);
+  TEST_ASSERT_EQUAL(50,Window.offset);
+  TEST_ASSERT_EQUAL(100,Window.size);
+  TEST_ASSERT_EQUAL(SlowStartWaitACK,state.state);
+  
+  cwndGetDataBlock_ExpectAndReturn(&Window,100,50,&state.ptrBlock,50);
+  sendDataPacket_Expect(&packet,&state.ptrBlock,150);               // send 150
+  TxTCPSM(&state,&Window,&packet);
+  TEST_ASSERT_EQUAL(50,Window.offset);
+  TEST_ASSERT_EQUAL(100,Window.size);
+  TEST_ASSERT_EQUAL(SlowStartWaitACK,state.state);
+  
+  cwndGetDataBlock_ExpectAndReturn(&Window,150,50,&state.ptrBlock,0);
+  getDataPacket_ExpectAndReturn(&packet,&receiveData,100);          // ack 100
+  cwndIncrementWindow_ExpectAndReturn(&Window,100,150);
+  TxTCPSM(&state,&Window,&packet);
+  TEST_ASSERT_EQUAL(100,Window.offset);
+  TEST_ASSERT_EQUAL(150,Window.size);
+  TEST_ASSERT_EQUAL(SlowStartWaitACK,state.state);
+  
+  cwndGetDataBlock_ExpectAndReturn(&Window,150,50,&state.ptrBlock,0);
+  getDataPacket_ExpectAndReturn(&packet,&receiveData,100); // duplicate ACK 100 (first dupACK) no increment
+  TxTCPSM(&state,&Window,&packet);
+  TEST_ASSERT_EQUAL(100,Window.offset);
+  TEST_ASSERT_EQUAL(150,Window.size);
+  TEST_ASSERT_EQUAL(CongestionAvoidance,state.state);
+  
+  cwndGetDataBlock_ExpectAndReturn(&Window,150,50,&state.ptrBlock,0);
+  getDataPacket_ExpectAndReturn(&packet,&receiveData,100); // duplicate ACK 100 (second dupACK)
+  TxTCPSM(&state,&Window,&packet);
+  TEST_ASSERT_EQUAL(100,Window.offset);
+  TEST_ASSERT_EQUAL(150,Window.size);
+  TEST_ASSERT_EQUAL(CongestionAvoidance,state.state);
+  
+  cwndGetDataBlock_ExpectAndReturn(&Window,150,50,&state.ptrBlock,0);
+  getDataPacket_ExpectAndReturn(&packet,&receiveData,100); // duplicate ACK 100 (third dupACK)
+  TxTCPSM(&state,&Window,&packet);
+  TEST_ASSERT_EQUAL(100,Window.offset);
+  TEST_ASSERT_EQUAL(150,Window.size);
+  TEST_ASSERT_EQUAL(FastRetransmit,state.state);
+  
+  sendDataPacket_Expect(&packet,&state.ptrBlock,100);      // Resend packet 100 (fast retransmit)
+  TxTCPSM(&state,&Window,&packet);
+  TEST_ASSERT_EQUAL(100,Window.offset);
+  TEST_ASSERT_EQUAL(250,Window.size);
+  TEST_ASSERT_EQUAL(FastRecovery,state.state);
+  
+  cwndGetDataBlock_ExpectAndReturn(&Window,150,50,&state.ptrBlock,0);
+  getDataPacket_ExpectAndReturn(&packet,&receiveData,100);
+  TxTCPSM(&state,&Window,&packet);
+  TEST_ASSERT_EQUAL(100,Window.offset);
+  TEST_ASSERT_EQUAL(300,Window.size);
+  TEST_ASSERT_EQUAL(FastRecovery,state.state);
+  
+  cwndGetDataBlock_ExpectAndReturn(&Window,150,50,&state.ptrBlock,0);
+  getDataPacket_ExpectAndReturn(&packet,&receiveData,150);
+  TxTCPSM(&state,&Window,&packet);
+  TEST_ASSERT_EQUAL(150,Window.offset);
+  TEST_ASSERT_EQUAL(100,Window.size);
+  TEST_ASSERT_EQUAL(FastRecovery,state.state);
+  
+  printf("TEST END \n\n");
+}
 
 

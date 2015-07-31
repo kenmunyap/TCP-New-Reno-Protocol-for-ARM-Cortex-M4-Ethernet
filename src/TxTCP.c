@@ -31,6 +31,7 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
   static uint32_t counterTime;
   static uint32_t counter = 0;
   static uint32_t tempCwndSize;
+  static uint32_t recover;
   
   switch(state->state){
     case SlowStart:
@@ -81,35 +82,32 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
             incCACounter(counter,state,cwnd,currentWindowSize,ackNo);
           }else if(ackNo == cwnd->offset){
             dupAckCounter = duplicatePacketCount(state,dupAckCounter);
+            recover = cwnd->offset;
           }
         }
     break;
     
     case FastRetransmit:
       retransmit(state,cwnd,packet,lostPacket,offset);
+      recover = cwnd->offset + cwnd->size;
+      state->state = FastRecovery;
     break;
     
     case FastRecovery:
-       
       availableSize = cwndGetDataBlock(cwnd,offset,requestedSize,&state->ptrBlock);
       if(availableSize != 0){
         offset = sendPacket(state,packet,availableSize,offset);
-        tempCwndSize -= SMSS;
-        if(tempCwndSize == 0) state->state = CongestionAvoidance;
       }else{
         ackNo = getDataPacket(packet,&receiveData);
         sequenceNumber = cwnd->offset+SMSS;
-        currentWindowSize = cwnd->size;
-        tempCwndSize = cwnd->size;
         
         if(ackNo == sequenceNumber){
-          printf("non-dupACK case\n");
           cwnd->size = cwnd->ssthresh;
           cwnd->offset = ackNo;
-          state->state = FastRecovery;
+          if(ackNo == recover)
+          state->state = CongestionAvoidance;
         }
         else if(ackNo == cwnd->offset){
-          printf("dupACK case\n");
           cwnd->size += SMSS;
           tempCwndSize += SMSS;
           state->state = FastRecovery;

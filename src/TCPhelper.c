@@ -38,7 +38,6 @@ void retransmit(TCP_state *state, Cwnd *cwnd, Packet *packet, uint32_t lostPacke
   cwnd->ssthresh = max(flightSize/2, 2*SMSS);
   sendDataPacket(packet,&state->ptrBlock,lostPacket);
   cwnd->size = cwnd->ssthresh + 3*SMSS;
-  state->state = FastRecovery;
 }
 
 uint32_t sendPacket(TCP_state *state, Packet *packet, uint32_t availableSize , uint32_t offset){
