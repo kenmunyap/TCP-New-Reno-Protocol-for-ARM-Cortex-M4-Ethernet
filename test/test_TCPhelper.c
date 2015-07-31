@@ -7,7 +7,7 @@
 void setUp(void){}
 void tearDown(void){}
 
-void test_checkCACounter_counter_equal_0_increment(void){
+void test_incCACounter_counter_equal_0_increment(void){
   Cwnd cwnd;
   TCP_state state;
   uint32_t counter;
@@ -18,13 +18,13 @@ void test_checkCACounter_counter_equal_0_increment(void){
   currentWindowSize = 100;
   ackNo = 50;
   cwndIncrementWindow_ExpectAndReturn(&cwnd,currentWindowSize,150);
-  checkCACounter(counter,&state,&cwnd,currentWindowSize,ackNo);
+  incCACounter(counter,&state,&cwnd,currentWindowSize,ackNo);
   TEST_ASSERT_EQUAL(150,cwnd.size);
   TEST_ASSERT_EQUAL(CongestionAvoidance,state.state);
   TEST_ASSERT_EQUAL(50,cwnd.offset);
 }
 
-void test_checkCACounter_counter_equal_1_not_increment(void){
+void test_incCACounter_counter_equal_1_not_increment(void){
   Cwnd cwnd;
   TCP_state state;
   uint32_t counter;
@@ -34,7 +34,7 @@ void test_checkCACounter_counter_equal_1_not_increment(void){
   counter = 1;
   currentWindowSize = 100;
   ackNo = 50;
-  checkCACounter(counter,&state,&cwnd,currentWindowSize,ackNo);
+  incCACounter(counter,&state,&cwnd,currentWindowSize,ackNo);
   TEST_ASSERT_EQUAL(100,cwnd.size);
   TEST_ASSERT_EQUAL(CongestionAvoidance,state.state);
   TEST_ASSERT_EQUAL(50,cwnd.offset);

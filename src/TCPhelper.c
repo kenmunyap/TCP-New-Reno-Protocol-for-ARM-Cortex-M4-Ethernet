@@ -21,7 +21,7 @@ void checkCAorSSBySSTHRESH(TCP_state *state,Cwnd *cwnd){
     state->state = CongestionAvoidance;
   } 
 }
-void checkCACounter(uint32_t counter,TCP_state *state,Cwnd *cwnd,uint32_t currentWindowSize,uint32_t ackNo){
+void incCACounter(uint32_t counter,TCP_state *state,Cwnd *cwnd,uint32_t currentWindowSize,uint32_t ackNo){
   if(counter == 0){
     cwnd->size = cwndIncrementWindow(cwnd,currentWindowSize);
     cwnd->offset = ackNo;
