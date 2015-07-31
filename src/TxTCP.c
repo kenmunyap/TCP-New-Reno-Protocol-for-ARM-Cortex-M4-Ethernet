@@ -78,7 +78,7 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
           if(ackNo >= sequenceNumber){
             dupAckCounter = 0;
             counter --; 
-            checkCACounter(counter,state,cwnd,currentWindowSize,ackNo);
+            incCACounter(counter,state,cwnd,currentWindowSize,ackNo);
           }else if(ackNo == cwnd->offset){
             dupAckCounter = duplicatePacketCount(state,dupAckCounter);
           }
