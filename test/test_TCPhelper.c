@@ -51,12 +51,12 @@ void test_duplicatePacketCount_should_change_the_state_if_dupack_more_than_3(voi
 void test_duplicatePacketCount_should_change_the_state(void)
 {
   TCP_state state = { .state = CongestionAvoidance };
-  uint32_t dupack = 3;
+  uint32_t dupack = 1;
   uint32_t result;
   
-  result = duplicatePacketCount(&state,result);
-  TEST_ASSERT_EQUAL(1,result);
-  TEST_ASSERT_EQUAL(FastRetransmit,state.state); // state changed
+  result = duplicatePacketCount(&state,dupack);
+  TEST_ASSERT_EQUAL(2,result);
+  TEST_ASSERT_EQUAL(CongestionAvoidance,state.state); // state changed
 }
 
 void test_sendPacket_should_return_the_offset_after_send(void)
