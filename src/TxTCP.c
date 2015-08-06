@@ -93,6 +93,7 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
     
     case FastRecovery:  
       availableSize = cwndGetDataBlock(cwnd,offset,requestedSize,&state->ptrBlock);
+      cwnd->recover = cwnd->size+cwnd->offset;
       if(availableSize != 0){
         offset = sendPacket(state,packet,availableSize,offset);
         state->state = FastRecovery;
@@ -107,7 +108,6 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
         else{
           printf("Partial ACK\n");
           cwnd->size += SMSS;
-          cwnd->recover = cwnd->size + cwnd->recover;
           state->state = FastRecovery;
         }
       }

@@ -14,7 +14,6 @@ uint32_t max(uint32_t valueA, uint32_t valueB){
   return valueA > valueB ? valueA : valueB;
 }
 
-
 void checkCAorSSBySSTHRESH(TCP_state *state,Cwnd *cwnd){
   if(cwnd->size <= (cwnd->ssthresh = ssthres)){
     state->state = SlowStartWaitACK;
@@ -40,7 +39,7 @@ void retransmit(TCP_state *state, Cwnd *cwnd, Packet *packet, uint32_t lostPacke
   cwnd->lostPacket = cwnd->lostPacket+SMSS;
   sendDataPacket(packet,&state->ptrBlock,cwnd->lostPacket);
   cwnd->size = cwnd->ssthresh + 3*SMSS;
-  cwnd->recover = cwnd->offset + cwnd->size;
+  cwnd->recover = cwnd->size+cwnd->offset;
 }
 
 uint32_t sendPacket(TCP_state *state, Packet *packet, uint32_t availableSize , uint32_t offset){
@@ -66,5 +65,3 @@ uint32_t roundOffFlightSize(Cwnd *cwnd){
     cwnd->flightSize = cwnd->flightSize - 25;
   }
 }
-
-
