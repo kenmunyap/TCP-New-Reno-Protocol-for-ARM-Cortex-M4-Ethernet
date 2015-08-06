@@ -298,7 +298,7 @@ void test_TxTCPSM_Congestion_avoidance_should_go_to_fastRetransmit_state_if_3_AC
 void test_TxTCPSM_Congestion_avoidance_should_increment_window_by1_when_inside_congestion_advoide(void){
   Cwnd Window;
   cwndInitWindow(&Window);
-  //printf("TEST START \n");
+  // printf("TEST START \n");
   TCP_state state;
   initTCPState(&state);
   
@@ -357,7 +357,7 @@ void test_TxTCPSM_Congestion_avoidance_should_increment_window_by1_when_inside_c
   
   cwndGetDataBlock_ExpectAndReturn(&Window,250,50,&state.ptrBlock,0);
   getDataPacket_ExpectAndReturn(&packet,&receiveData,100);
-  cwndIncrementWindow_ExpectAndReturn(&Window,100,150); //no increment for 1st successful ack
+  // cwndIncrementWindow_ExpectAndReturn(&Window,100,150); //no increment for 1st successful ack
   TxTCPSM(&state,&Window,&packet);
   TEST_ASSERT_EQUAL(100,Window.offset);
   TEST_ASSERT_EQUAL(150,Window.size);
@@ -371,7 +371,7 @@ void test_TxTCPSM_Congestion_avoidance_should_increment_window_by1_when_inside_c
   TEST_ASSERT_EQUAL(150,Window.size);
   TEST_ASSERT_EQUAL(CongestionAvoidance,state.state);
   
-  //printf("TEST END \n");
+  // printf("TEST END \n");
 }
 
 void test_TxTCPSM_Congestion_avoidance_should_increment_window_1by1_after_receive_all_the_ack(void){

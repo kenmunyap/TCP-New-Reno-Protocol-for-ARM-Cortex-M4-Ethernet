@@ -348,9 +348,9 @@ void test_TxTCPSM_SlowStart_with_not_exited_RoundTripTime_but_over_ssthress(){
 
 
 /*
-  326    Sender                Reciever
+    Sender                Reciever
       0 | -------------------> |
-        | <------------------  | 50(sequenc033eNumber) 33333333333333333333333333333333333333333333333333330A26CKed
+        | <------------------  | 50(sequenceNumber)
       50| -------------------> | 
      100| ----------x          |
         | <------------------- |100(sequenceNumber) ACKed

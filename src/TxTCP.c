@@ -23,27 +23,28 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
   static uint32_t requestedSize;
   static uint32_t ackNo;
   static uint32_t availableSize;
-  static uint8_t *getAddress; 
+  static uint8_t *getAddress;
   static uint32_t sequenceNumber;
   static uint32_t dupAckCounter;
   static uint32_t thresholdValue;
-  static uint32_t lostPacket;
   static uint32_t counterTime;
   static uint32_t counter = 0;
   static uint32_t tempCwndSize;
   static uint32_t recover;
-  
+  static uint32_t checkCounter;
+
   switch(state->state){
     case SlowStart:
       offset = cwndGetBeginningOffset(cwnd);
+      cwnd->recover = offset;
       requestedSize = offset + SMSS;
-      availableSize = cwndGetDataBlock(cwnd,offset,requestedSize,&state->ptrBlock); 
+      availableSize = cwndGetDataBlock(cwnd,offset,requestedSize,&state->ptrBlock);
       if(availableSize != 0){
           offset = sendPacket(state,packet,availableSize,offset);
           state->state = SlowStartWaitACK;
       }
     break;
-    
+
     case SlowStartWaitACK:
       requestedSize = SMSS;
       availableSize = cwndGetDataBlock(cwnd,offset,requestedSize,&state->ptrBlock);
@@ -60,12 +61,11 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
             checkCAorSSBySSTHRESH(state,cwnd);
           }else{
             dupAckCounter = 1;
-            lostPacket = ackNo;
             state->state = CongestionAvoidance;
           }
         }
     break;
-    
+
     case CongestionAvoidance:
       availableSize = cwndGetDataBlock(cwnd,offset,requestedSize,&state->ptrBlock);
       if(availableSize != 0){
@@ -77,44 +77,50 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
         currentWindowSize = cwnd->size;
         if (!counter) counter  = cwnd->size/SMSS;
           if(ackNo >= sequenceNumber){
+            checkCounter = ((ackNo-sequenceNumber)+SMSS)/SMSS;
             dupAckCounter = 0;
-            counter --; 
+            // printf("Bcounter :%d \n",counter);
+            counter = counter-checkCounter; 
+            // printf("checkCounter :%d \n",checkCounter);
+            // printf("counter :%d \n",counter);
             incCACounter(counter,state,cwnd,currentWindowSize,ackNo);
           }else if(ackNo == cwnd->offset){
-            dupAckCounter = duplicatePacketCount(state,dupAckCounter);
-            recover = cwnd->offset;
+            dupAckCounter = duplicatePacketCount(cwnd,state,dupAckCounter,ackNo);
           }
         }
     break;
-    
+
     case FastRetransmit:
-      retransmit(state,cwnd,packet,lostPacket,offset);
-      recover = cwnd->offset + cwnd->size;
+      retransmit(state,cwnd,packet,cwnd->lostPacket,offset);
       state->state = FastRecovery;
     break;
-    
+
     case FastRecovery:
       availableSize = cwndGetDataBlock(cwnd,offset,requestedSize,&state->ptrBlock);
       if(availableSize != 0){
         offset = sendPacket(state,packet,availableSize,offset);
+        state->state = FastRecovery;
       }else{
-        ackNo = getDataPacket(packet,&receiveData);
-        sequenceNumber = cwnd->offset+SMSS;
-        if(ackNo == sequenceNumber){
-          cwnd->size = cwnd->ssthresh;
-          cwnd->offset = ackNo;
-          if(ackNo == recover){
-            state->state = CongestionAvoidance;
-          }
+        ackNo = getDataPacket(packet,&receiveData); 
+        // printf("cwnd->recover :%d \n",cwnd->recover);
+        // printf("cwnd->size :%d \n",cwnd->size);
+        // printf("cwnd->offset :%d \n",cwnd->offset);
+        // printf("ackNo :%d \n",ackNo);
+        if(ackNo == cwnd->recover){
+          printf("Fully ACK\n");
+          cwnd->size = cwnd->size+SMSS;
+          cwnd->offset = cwnd->recover;
+          state->state = CongestionAvoidance;
         }
-        else if(ackNo == cwnd->offset){
+        else{
+          printf("Partial ACK\n");
           cwnd->size += SMSS;
-          tempCwndSize += SMSS;
+          // cwnd->recover = cwnd->size + cwnd->recover;
           state->state = FastRecovery;
         }
       }
     break;
-    
+
     default:
       cwnd->ssthresh = cwnd->size / 2;
       cwnd->size = SMSS;
@@ -123,16 +129,14 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
   }
 }
 
-// SlowStart left timeout 
+// SlowStart left timeout
 // Congestion Avoidance timeout
-// Fast Retransmit
-// Fast Recovery
 // Mock SendPacket
 // Increment
 // GetPacket
 // CwndGetPacket
 //if(timeout() == 50){
-//    ssthress = cwnd->size/2 
+//    ssthress = cwnd->size/2
 //}
 
 

@@ -28,6 +28,9 @@ typedef struct{
 	uint32_t size;
   uint32_t dupACKFlag;
   uint32_t ssthresh;
+  uint32_t recover;
+  uint32_t flightSize;
+  uint32_t lostPacket;
 }Cwnd; // CONGESTION WINDOW
 
 typedef struct{

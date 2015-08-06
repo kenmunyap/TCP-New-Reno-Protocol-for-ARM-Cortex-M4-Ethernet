@@ -32,18 +32,20 @@ void test_max_should_return_the_bigger_value(void)
 void test_duplicatePacketCount_should_change_the_state_if_dupack_more_than_3(void)
 {
   TCP_state state = { .state = CongestionAvoidance };
+  Cwnd cwnd;
+  uint32_t ackNo = 50;
   uint32_t dupack = 0;
   uint32_t result;
   
-  result = duplicatePacketCount(&state,dupack);
+  result = duplicatePacketCount(&cwnd,&state,dupack,ackNo);
   TEST_ASSERT_EQUAL(1,result);
   TEST_ASSERT_EQUAL(CongestionAvoidance,state.state);
   
-  result = duplicatePacketCount(&state,result);
+  result = duplicatePacketCount(&cwnd,&state,result,ackNo);
   TEST_ASSERT_EQUAL(2,result);
   TEST_ASSERT_EQUAL(CongestionAvoidance,state.state);
   
-  result = duplicatePacketCount(&state,result);
+  result = duplicatePacketCount(&cwnd,&state,result,ackNo);
   TEST_ASSERT_EQUAL(0,result);
   TEST_ASSERT_EQUAL(FastRetransmit,state.state); // state changed
 }
@@ -51,10 +53,12 @@ void test_duplicatePacketCount_should_change_the_state_if_dupack_more_than_3(voi
 void test_duplicatePacketCount_should_change_the_state(void)
 {
   TCP_state state = { .state = CongestionAvoidance };
+  Cwnd cwnd;
+  uint32_t ackNo = 50;
   uint32_t dupack = 1;
   uint32_t result;
   
-  result = duplicatePacketCount(&state,dupack);
+  result = duplicatePacketCount(&cwnd,&state,dupack,ackNo);
   TEST_ASSERT_EQUAL(2,result);
   TEST_ASSERT_EQUAL(CongestionAvoidance,state.state); // state changed
 }
@@ -162,4 +166,21 @@ void test_checkCAorSSBySSTHRESH_cwnd_size_larger_than_ssthresh(void){
   cwnd.size = 300;
   checkCAorSSBySSTHRESH(&state,&cwnd);
   TEST_ASSERT_EQUAL(CongestionAvoidance,state.state);
+}
+
+void test_roundOffFlightSize(void){
+ Cwnd cwnd = {.flightSize = 175};
+ roundOffFlightSize(&cwnd);
+ TEST_ASSERT_EQUAL(150,cwnd.flightSize);
+}
+
+void test_roundOffFlightSize_with_different_value_case_1(void){
+ Cwnd cwnd = {.flightSize = 225};
+ roundOffFlightSize(&cwnd);
+ TEST_ASSERT_EQUAL(200,cwnd.flightSize);
+}
+void test_roundOffFlightSize_with_different_value_case_2(void){
+ Cwnd cwnd = {.flightSize = 150};
+ roundOffFlightSize(&cwnd);
+ TEST_ASSERT_EQUAL(150,cwnd.flightSize);
 }
