@@ -215,7 +215,7 @@ void xtest_TxTCPSM_for_fast_recovery_start_from_begining_with_offset_0_and_conge
 }
 
 void test_fastReCovery_all_start_from_slow_start(void){
-  printf("TEST START \n");
+  // printf("TEST START \n");
   
   Cwnd Window;
   cwndInitWindow(&Window);
@@ -331,7 +331,7 @@ void test_fastReCovery_all_start_from_slow_start(void){
   TEST_ASSERT_EQUAL(550,Window.size);
   TEST_ASSERT_EQUAL(CongestionAvoidance,state.state); // recover complete ; come out of fast recovery case
   
-  printf("TEST END \n\n");
+  // printf("TEST END \n\n");
 }
 
 

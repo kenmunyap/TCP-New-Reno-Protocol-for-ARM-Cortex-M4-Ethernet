@@ -107,13 +107,13 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
         // printf("cwnd->offset :%d \n",cwnd->offset);
         // printf("ackNo :%d \n",ackNo);
         if(ackNo == cwnd->recover){
-          printf("Fully ACK\n");
+          // printf("Fully ACK\n");
           cwnd->size = cwnd->size+SMSS;
           cwnd->offset = cwnd->recover;
           state->state = CongestionAvoidance;
         }
         else{
-          printf("Partial ACK\n");
+          // printf("Partial ACK\n");
           cwnd->size += SMSS;
           // cwnd->recover = cwnd->size + cwnd->recover;
           state->state = FastRecovery;
