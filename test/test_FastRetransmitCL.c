@@ -102,7 +102,7 @@ void test_TxTCPSM_for_fast_retransmit_resend_the_lost_packet_after_3_ACK_from_co
   TEST_ASSERT_EQUAL(150,Window.size);
   TEST_ASSERT_EQUAL(FastRetransmit,state.state);
   
-  sendDataPacket_Expect(&packet,&state.ptrBlock,100);      // Resend packet 100 (fast retransmit)
+  sendDataPacket_Expect(&packet,&state.ptrBlock,150);      // Resend packet 100 (fast retransmit)
   TxTCPSM(&state,&Window,&packet);
   TEST_ASSERT_EQUAL(100,Window.offset);
   TEST_ASSERT_EQUAL(250,Window.size);
@@ -201,7 +201,7 @@ void test_TxTCPSM_for_fast_retransmit_after_resend_the_lost_packet_and_continue_
   TEST_ASSERT_EQUAL(150,Window.size);
   TEST_ASSERT_EQUAL(FastRetransmit,state.state);
   
-  sendDataPacket_Expect(&packet,&state.ptrBlock,100);      // Resend packet 100 (fast retransmit)
+  sendDataPacket_Expect(&packet,&state.ptrBlock,150);      // Resend packet 100 (fast retransmit)
   TxTCPSM(&state,&Window,&packet);
   TEST_ASSERT_EQUAL(100,Window.offset);
   TEST_ASSERT_EQUAL(250,Window.size);

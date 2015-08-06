@@ -173,3 +173,14 @@ void test_roundOffFlightSize(void){
  roundOffFlightSize(&cwnd);
  TEST_ASSERT_EQUAL(150,cwnd.flightSize);
 }
+
+void test_roundOffFlightSize_with_different_value_case_1(void){
+ Cwnd cwnd = {.flightSize = 225};
+ roundOffFlightSize(&cwnd);
+ TEST_ASSERT_EQUAL(200,cwnd.flightSize);
+}
+void test_roundOffFlightSize_with_different_value_case_2(void){
+ Cwnd cwnd = {.flightSize = 150};
+ roundOffFlightSize(&cwnd);
+ TEST_ASSERT_EQUAL(150,cwnd.flightSize);
+}
