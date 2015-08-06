@@ -79,10 +79,7 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
           if(ackNo >= sequenceNumber){
             checkCounter = ((ackNo-sequenceNumber)+SMSS)/SMSS;
             dupAckCounter = 0;
-            // printf("Bcounter :%d \n",counter);
             counter = counter-checkCounter; 
-            // printf("checkCounter :%d \n",checkCounter);
-            // printf("counter :%d \n",counter);
             incCACounter(counter,state,cwnd,currentWindowSize,ackNo);
           }else if(ackNo == cwnd->offset){
             dupAckCounter = duplicatePacketCount(cwnd,state,dupAckCounter,ackNo);
@@ -103,10 +100,6 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
         state->state = FastRecovery;
       }else{
         ackNo = getDataPacket(packet,&receiveData); 
-        // printf("cwnd->recover :%d \n",cwnd->recover);
-        // printf("cwnd->size :%d \n",cwnd->size);
-        // printf("cwnd->offset :%d \n",cwnd->offset);
-        // printf("ackNo :%d \n",ackNo);
         if(ackNo == cwnd->recover){
           // printf("Fully ACK\n");
           cwnd->size = cwnd->size+SMSS;
