@@ -34,12 +34,14 @@ void incCACounter(uint32_t counter,TCP_state *state,Cwnd *cwnd,uint32_t currentW
   }
 }
 void retransmit(TCP_state *state, Cwnd *cwnd, Packet *packet, uint32_t lostPacket, uint32_t offset){
+  uint32_t newFlightSize;
   cwnd->flightSize = offset - cwnd->offset;
-  cwnd->ssthresh = max(cwnd->flightSize/2, 2*SMSS);
+  newFlightSize = roundOffValue(cwnd->flightSize);
+  cwnd->ssthresh = max(newFlightSize/2, 2*SMSS);
   cwnd->lostPacket = cwnd->lostPacket+SMSS;
   sendDataPacket(packet,&state->ptrBlock,cwnd->lostPacket);
   cwnd->size = cwnd->ssthresh + 3*SMSS;
-  cwnd->recover = cwnd->offset + cwnd->size;
+  cwnd->recover = cwnd->size+cwnd->offset;
 }
 
 uint32_t sendPacket(TCP_state *state, Packet *packet, uint32_t availableSize , uint32_t offset){
@@ -66,4 +68,9 @@ uint32_t roundOffFlightSize(Cwnd *cwnd){
   }
 }
 
-
+uint32_t roundOffValue(uint32_t valueToRoundOff){
+  if(valueToRoundOff%10 != 0){
+    valueToRoundOff = valueToRoundOff - 25;
+    return valueToRoundOff;
+  }
+}

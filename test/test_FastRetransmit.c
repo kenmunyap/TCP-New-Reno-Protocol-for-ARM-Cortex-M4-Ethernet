@@ -109,7 +109,7 @@ void test_TxTCPSM_Fast_Retransmit_with_retransmit_sequnceNumber_100(){
         | <------------------- | 250      
         | <------------------- | 250    
 *       |     SSTRESH          |
-*       |     Retransmit       |
+*retran | -------------------> | (100)
 */  
 
 void test_TxTCPSM_Fast_Retransmit_sequnceNumber_200(){
@@ -221,6 +221,9 @@ void test_TxTCPSM_Fast_Retransmit_sequnceNumber_200(){
   
   sendDataPacket_Expect(&packet,&state.ptrBlock,300);
   TxTCPSM(&state,&cwnd,&packet);
+  TEST_ASSERT_EQUAL(FastRecovery,state.state);
+  TEST_ASSERT_EQUAL(150,cwnd.ssthresh);
+  
 }
 
 
