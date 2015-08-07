@@ -4,15 +4,15 @@
 #include <stdint.h>
 
 typedef struct{
-  sendTime;
-  ackTime;
-  RTTVAR;
-  SRTT;
-  timeOut;
+  double sendTimer;
+  double ackTimer;
+  double R;
+  double SRTT;
+  double RTTVAR;
+  double RTO;
 }Timer;
 
-uint32_t initEstimatedTime(Timer *timer);
-uint32_t roundTT();
-uint32_t RTO();  // Retransmission time out
+double initRTOTime(Timer *timer);
+double updateRTOTime(Timer *timer);
 
 #endif // Timer_H

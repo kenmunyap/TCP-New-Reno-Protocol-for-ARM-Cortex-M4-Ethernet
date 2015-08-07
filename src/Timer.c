@@ -3,16 +3,26 @@
 #include "Timer.h"
 #include "TCPhelper.h"
 
-#define G  2;
-#define alpha 1/4;
-#define beta 1/8;
+#define G 3
+#define K 4
+#define alpha 0.125   // 1/8
+#define beta 0.25     // 1/4
 
-void initRTOTime(Timer *timer){
-  timer->SRTT = timer->ackTimer - timer->sendTimer; 
+double initRTOTime(Timer *timer){
+  timer->R = timer->sendTimer - timer->ackTimer;
+  timer->SRTT = timer->R;
   timer->RTTVAR = timer->SRTT/2;
-  timer->RTO = timer->SRTT + max(G,4*RTTVAR);
+  timer->RTO = timer->SRTT + max(G,K*timer->RTTVAR);
 }
 
-void updateRTOTime(Timer *timer){
+double updateRTOTime(Timer *timer){
+  double RTTValue;
   
+  timer->SRTT = ((1 - alpha) * timer->SRTT) + (alpha * timer->R);
+  RTTValue = (timer->SRTT - timer->R);
+  if(RTTValue){
+    RTTValue = RTTValue*-1;
+  }  
+  timer->RTTVAR = ((1 - beta) * timer->RTTVAR) + (beta * RTTValue);
+  timer->RTO = timer->SRTT + floatMax(G,K*timer->RTTVAR);
 }
