@@ -14,57 +14,49 @@ uint32_t max(uint32_t valueA, uint32_t valueB){
   return valueA > valueB ? valueA : valueB;
 }
 
-void checkCAorSSBySSTHRESH(TCP_state *state,Cwnd *cwnd){
-  if(cwnd->size <= (cwnd->ssthresh = ssthres)){
-    state->state = SlowStartWaitACK;
+void checkCAorSSBySSTHRESH(TCPSession *session){
+  if(sessionCWND->size <= (sessionCWND->ssthresh = ssthres)){
+    sessionState->state = SlowStartWaitACK;
   }else{
-    state->state = CongestionAvoidance;
+    sessionState->state = CongestionAvoidance;
   }
 }
 
-void incCACounter(uint32_t counter,TCP_state *state,Cwnd *cwnd,uint32_t currentWindowSize,uint32_t ackNo){
+void incCACounter(uint32_t counter,TCPSession *session,uint32_t currentWindowSize,uint32_t ackNo){
   if(counter == 0){
-    cwnd->size = cwndIncrementWindow(cwnd,currentWindowSize);
-    cwnd->offset = ackNo;
-    state->state = CongestionAvoidance;
+    sessionCWND->size = cwndIncrementWindow(sessionCWND,currentWindowSize);
+    sessionCWND->offset = ackNo;
+    sessionState->state = CongestionAvoidance;
   }else{
-    cwnd->size = currentWindowSize;
-    cwnd->offset = ackNo;
-    state->state = CongestionAvoidance;
+    sessionCWND->size = currentWindowSize;
+    sessionCWND->offset = ackNo;
+    sessionState->state = CongestionAvoidance;
   }
 }
-void retransmit(TCP_state *state, Cwnd *cwnd, Packet *packet, uint32_t lostPacket, uint32_t offset){
+
+void retransmit(TCPSession *session, Packet *packet, uint32_t lostPacket){
   uint32_t newFlightSize;
-  cwnd->flightSize = offset - cwnd->offset;
-  newFlightSize = roundOffValue(cwnd->flightSize);
-  cwnd->ssthresh = max(newFlightSize/2, 2*SMSS);
-  cwnd->lostPacket = cwnd->lostPacket+SMSS;
-  sendDataPacket(packet,&state->ptrBlock,cwnd->lostPacket);
-  cwnd->size = cwnd->ssthresh + 3*SMSS;
-  cwnd->recover = cwnd->size+cwnd->offset;
+  sessionCWND->flightSize = session->offset - sessionCWND->offset;
+  newFlightSize = roundOffValue(sessionCWND->flightSize);
+  sessionCWND->ssthresh = max(newFlightSize/2, 2*SMSS);
+  sessionCWND->lostPacket = sessionCWND->lostPacket+SMSS;
+  sendDataPacket(packet,&sessionState->ptrBlock,sessionCWND->lostPacket);
+  sessionCWND->size = sessionCWND->ssthresh + 3*SMSS;
+  sessionCWND->recover = sessionCWND->size+sessionCWND->offset;
 }
 
-uint32_t sendPacket(TCP_state *state, Packet *packet, uint32_t availableSize , uint32_t offset){
-  availableSize = offset + availableSize;
-  sendDataPacket(packet,&state->ptrBlock,availableSize);
-  offset = offset + SMSS;
-
-  return offset;
+void sendPacket(TCPSession *session, Packet *packet, uint32_t availableSize){
+  availableSize = session->offset + availableSize;
+  sendDataPacket(packet,&sessionState->ptrBlock,availableSize);
+  session->offset = session->offset + SMSS;
 }
 
-uint32_t duplicatePacketCount(Cwnd *cwnd, TCP_state *state, uint32_t dupAckCounter,uint32_t ackNo){
-  dupAckCounter += 1;
-  if(dupAckCounter >= 3){
-    dupAckCounter = 0;
-    cwnd->lostPacket = ackNo;
-    state->state = FastRetransmit;
-  }
-  return dupAckCounter;
-}
-
-uint32_t roundOffFlightSize(Cwnd *cwnd){
-  if(cwnd->flightSize%10 != 0){
-    cwnd->flightSize = cwnd->flightSize - 25;
+void duplicatePacketCount(TCPSession *session,uint32_t ackNo){
+  session->dupAckCounter += 1;
+  if(session->dupAckCounter >= 3){
+    session->dupAckCounter = 0;
+    sessionCWND->lostPacket = ackNo;
+    sessionState->state = FastRetransmit;
   }
 }
 
@@ -74,3 +66,4 @@ uint32_t roundOffValue(uint32_t valueToRoundOff){
     return valueToRoundOff;
   }
 }
+

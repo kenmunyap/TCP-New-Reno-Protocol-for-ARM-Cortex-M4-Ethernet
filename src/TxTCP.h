@@ -7,6 +7,10 @@
 #define SMSS 50  // (SMSS) SENDER MAXIMUM SEGMENT SIZE
 #define ssthres 250 // slow start threshold
 
+#define sessionCWND session->cwnd
+#define sessionState session->tcpState
+
+
 extern uint8_t Buffer[1000];
 extern uint8_t *receiveData;
 
@@ -35,11 +39,12 @@ typedef struct{
 }Cwnd; // CONGESTION WINDOW
 
 typedef struct{
-  TCP_state *state;
+  TCP_state *tcpState;
   Cwnd *cwnd;
   Timer *timer;
   uint32_t offset;
   uint32_t requestedSize;
+  uint32_t dupAckCounter;
 }TCPSession;
 
 typedef struct{
@@ -50,9 +55,9 @@ typedef struct{
   uint8_t data;
 }Packet;
 
-void cwndInitWindow(Cwnd *cwnd);
-void initTCPState(TCP_state *state);
+void cwndInitWindow(TCPSession *session);
+void initTCPState(TCPSession *session);
 void initPacket(Packet *packet);
-uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet);
+uint32_t TxTCPSM(TCPSession *session, Packet *packet);
 
 #endif // TXTCP_H

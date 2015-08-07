@@ -3,12 +3,11 @@
 
 #include "TxTCP.h"
 
-uint32_t sendPacket(TCP_state *state, Packet *packet, uint32_t availableSize , uint32_t offset);
-void retransmit(TCP_state *state, Cwnd *cwnd, Packet *packet, uint32_t lostPacket, uint32_t offset);
-void checkCAorSSBySSTHRESH(TCP_state *state,Cwnd *cwnd);
-void incCACounter(uint32_t counter,TCP_state *state,Cwnd *cwnd,uint32_t currentWindowSize,uint32_t ackNo);
-uint32_t duplicatePacketCount(Cwnd *cwnd, TCP_state *state, uint32_t dupAckCounter,uint32_t ackNo);
-uint32_t roundOffFlightSize(Cwnd *cwnd);
+void sendPacket(TCPSession *session, Packet *packet, uint32_t availableSize);
+void retransmit(TCPSession *session, Packet *packet, uint32_t lostPacket);
+void checkCAorSSBySSTHRESH(TCPSession *session);
+void incCACounter(uint32_t counter,TCPSession *session,uint32_t currentWindowSize,uint32_t ackNo);
+void duplicatePacketCount(TCPSession *session,uint32_t ackNo);
 uint32_t roundOffValue(uint32_t valueToRoundOff);
 uint32_t min(uint32_t valueA, uint32_t valueB);
 uint32_t max(uint32_t valueA, uint32_t valueB);

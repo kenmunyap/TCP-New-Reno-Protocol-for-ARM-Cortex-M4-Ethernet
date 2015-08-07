@@ -7,25 +7,22 @@
 
 uint8_t *receiveData;
 
-void cwndInitWindow(Cwnd *cwnd){
-	cwnd->offset = 0;
-	cwnd->size = SMSS;
+void cwndInitWindow(TCPSession *session){
+	sessionCWND->offset = 0;
+	sessionCWND->size = SMSS;
 }
 
-void initTCPState(TCP_state *state){
-	state->state = SlowStart;
-  state->ptrBlock = NULL;
+void initTCPState(TCPSession *session){
+	sessionState->state = SlowStart;
+  sessionState->ptrBlock = NULL;
 }
 
-uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
-  static uint32_t offset;
+uint32_t TxTCPSM(TCPSession *session, Packet *packet){
   static uint32_t currentWindowSize;
-  static uint32_t requestedSize;
   static uint32_t ackNo;
   static uint32_t availableSize;
   static uint8_t *getAddress;
   static uint32_t sequenceNumber;
-  static uint32_t dupAckCounter;
   static uint32_t thresholdValue;
   static uint32_t counterTime;
   static uint32_t counter = 0;
@@ -33,92 +30,95 @@ uint32_t TxTCPSM(TCP_state *state, Cwnd *cwnd, Packet *packet){
   static uint32_t recover;
   static uint32_t checkCounter;
 
-  switch(state->state){
+  switch(sessionState->state){
     case SlowStart:
-      offset = cwndGetBeginningOffset(cwnd);
-      cwnd->recover = offset;
-      requestedSize = offset + SMSS;
-      availableSize = cwndGetDataBlock(cwnd,offset,requestedSize,&state->ptrBlock);
+      session->offset = cwndGetBeginningOffset(sessionCWND);
+      sessionCWND->recover = session->offset;
+      session->requestedSize = session->offset + SMSS;
+      availableSize = cwndGetDataBlock(sessionCWND,session->offset,session->requestedSize,&sessionState->ptrBlock);
       if(availableSize != 0){
-          offset = sendPacket(state,packet,availableSize,offset);
-          state->state = SlowStartWaitACK;
+          sendPacket(session,packet,availableSize);
+          sessionState->state = SlowStartWaitACK;
       }
     break;
 
     case SlowStartWaitACK:
-      requestedSize = SMSS;
-      availableSize = cwndGetDataBlock(cwnd,offset,requestedSize,&state->ptrBlock);
+      session->requestedSize = SMSS;
+      availableSize = cwndGetDataBlock(sessionCWND,session->offset,session->requestedSize,&sessionState->ptrBlock);
         if(availableSize != 0){
-          offset = sendPacket(state,packet,availableSize,offset);
-          state->state = SlowStartWaitACK;
+          sendPacket(session,packet,availableSize);
+          sessionState->state = SlowStartWaitACK;
         }else{
           ackNo = getDataPacket(packet,&receiveData);
-          sequenceNumber = cwnd->offset+SMSS;
-          currentWindowSize = cwnd->size;
+          sequenceNumber = sessionCWND->offset+SMSS;
+          currentWindowSize = sessionCWND->size;
           if(ackNo >= sequenceNumber){
-            cwnd->offset = ackNo;
-            cwnd->size = cwndIncrementWindow(cwnd,currentWindowSize);
-            checkCAorSSBySSTHRESH(state,cwnd);
+            sessionCWND->offset = ackNo;
+            sessionCWND->size = cwndIncrementWindow(sessionCWND,currentWindowSize);
+            checkCAorSSBySSTHRESH(session);
           }else{
-            dupAckCounter = 1;
-            state->state = CongestionAvoidance;
+            session->dupAckCounter = 1;
+            sessionState->state = CongestionAvoidance;
           }
         }
     break;
 
     case CongestionAvoidance:
-      availableSize = cwndGetDataBlock(cwnd,offset,requestedSize,&state->ptrBlock);
+      session->requestedSize = SMSS;
+      availableSize = cwndGetDataBlock(sessionCWND,session->offset,session->requestedSize,&sessionState->ptrBlock);
       if(availableSize != 0){
-        offset = sendPacket(state,packet,availableSize,offset);
-        state->state = CongestionAvoidance;
+        sendPacket(session,packet,availableSize);
+        sessionState->state = CongestionAvoidance;
       }else{
         ackNo = getDataPacket(packet,&receiveData);
-        sequenceNumber = cwnd->offset+SMSS;
-        currentWindowSize = cwnd->size;
-        if (!counter) counter  = cwnd->size/SMSS;
+        sequenceNumber = sessionCWND->offset+SMSS;
+        currentWindowSize = sessionCWND->size;
+        if (!counter) counter  = sessionCWND->size/SMSS;
           if(ackNo >= sequenceNumber){
             checkCounter = ((ackNo-sequenceNumber)+SMSS)/SMSS;
-            dupAckCounter = 0;
-            counter = counter-checkCounter; 
-            incCACounter(counter,state,cwnd,currentWindowSize,ackNo);
-          }else if(ackNo == cwnd->offset){
-            dupAckCounter = duplicatePacketCount(cwnd,state,dupAckCounter,ackNo);
+            session->dupAckCounter = 0;
+            counter = counter-checkCounter;
+            incCACounter(counter,session,currentWindowSize,ackNo);
+          }else if(ackNo == sessionCWND->offset){
+            counter = 0;
+            duplicatePacketCount(session,ackNo);
           }
         }
     break;
 
     case FastRetransmit:
-      retransmit(state,cwnd,packet,cwnd->lostPacket,offset);
-      state->state = FastRecovery;
+      retransmit(session,packet,sessionCWND->lostPacket);
+      sessionState->state = FastRecovery;
     break;
 
     case FastRecovery:
-      availableSize = cwndGetDataBlock(cwnd,offset,requestedSize,&state->ptrBlock);
-      cwnd->recover = cwnd->size+cwnd->offset;
+      availableSize = cwndGetDataBlock(sessionCWND,session->offset,session->requestedSize,&sessionState->ptrBlock);
+      sessionCWND->recover = sessionCWND->size+sessionCWND->offset;
       if(availableSize != 0){
-        offset = sendPacket(state,packet,availableSize,offset);
-        state->state = FastRecovery;
+        sendPacket(session,packet,availableSize);
+        sessionState->state = FastRecovery;
       }else{
         ackNo = getDataPacket(packet,&receiveData); 
-        if(ackNo == cwnd->recover){
-          cwnd->size = cwnd->size+SMSS;
-          cwnd->offset = cwnd->recover;
-          state->state = CongestionAvoidance;
+        if(ackNo == sessionCWND->recover){
+          sessionCWND->size = sessionCWND->size+SMSS;
+          sessionCWND->offset = sessionCWND->recover;
+          sessionState->state = CongestionAvoidance;
         }
         else{
-          cwnd->size += SMSS;
-          state->state = FastRecovery;
+          sessionCWND->size += SMSS;
+          sessionState->state = FastRecovery;
         }
       }
     break;
 
     default:
-      cwnd->ssthresh = cwnd->size / 2;
-      cwnd->size = SMSS;
-      state->state = SlowStart;
+      sessionCWND->ssthresh = sessionCWND->size / 2;
+      sessionCWND->size = SMSS;
+      sessionState->state = SlowStart;
     break;
   }
 }
+
 
 // SlowStart left timeout
 // Congestion Avoidance timeout
