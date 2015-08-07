@@ -2,6 +2,7 @@
 #define TXTCP_H
 
 #include <stdint.h>
+#include "Timer.h"
 
 #define SMSS 50  // (SMSS) SENDER MAXIMUM SEGMENT SIZE
 #define ssthres 250 // slow start threshold
@@ -32,6 +33,14 @@ typedef struct{
   uint32_t flightSize;
   uint32_t lostPacket;
 }Cwnd; // CONGESTION WINDOW
+
+typedef struct{
+  TCP_state *state;
+  Cwnd *cwnd;
+  Timer *timer;
+  uint32_t offset;
+  uint32_t requestedSize;
+}TCPSession;
 
 typedef struct{
   uint32_t srcIpAddr;
