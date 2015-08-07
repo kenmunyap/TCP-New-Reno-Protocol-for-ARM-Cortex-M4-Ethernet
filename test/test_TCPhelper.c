@@ -12,9 +12,9 @@ void test_min_should_return_the_smaller_value(void)
   uint32_t a = 10;
   uint32_t b = 5;
   uint32_t result;
-  
+
   result = min(a,b);
-  
+
   TEST_ASSERT_EQUAL(5,result);
 }
 
@@ -23,149 +23,171 @@ void test_max_should_return_the_bigger_value(void)
   uint32_t a = 10;
   uint32_t b = 5;
   uint32_t result;
-  
+
   result = max(a,b);
-  
+
   TEST_ASSERT_EQUAL(10,result);
 }
 
 void test_duplicatePacketCount_should_change_the_state_if_dupack_more_than_3(void)
 {
-  TCP_state state = { .state = CongestionAvoidance };
+  TCPSession session = {.dupAckCounter = 0};
+  TCP_state tcpState = {.state = CongestionAvoidance};
   Cwnd cwnd;
+  session.cwnd = &cwnd;
+  session.tcpState = &tcpState;
+
   uint32_t ackNo = 50;
-  uint32_t dupack = 0;
-  uint32_t result;
-  
-  result = duplicatePacketCount(&cwnd,&state,dupack,ackNo);
-  TEST_ASSERT_EQUAL(1,result);
-  TEST_ASSERT_EQUAL(CongestionAvoidance,state.state);
-  
-  result = duplicatePacketCount(&cwnd,&state,result,ackNo);
-  TEST_ASSERT_EQUAL(2,result);
-  TEST_ASSERT_EQUAL(CongestionAvoidance,state.state);
-  
-  result = duplicatePacketCount(&cwnd,&state,result,ackNo);
-  TEST_ASSERT_EQUAL(0,result);
-  TEST_ASSERT_EQUAL(FastRetransmit,state.state); // state changed
+
+  duplicatePacketCount(&session,ackNo);
+  TEST_ASSERT_EQUAL(1,session.dupAckCounter);
+  TEST_ASSERT_EQUAL(CongestionAvoidance,session.tcpState->state);
+
+  duplicatePacketCount(&session,ackNo);
+  TEST_ASSERT_EQUAL(2,session.dupAckCounter);
+  TEST_ASSERT_EQUAL(CongestionAvoidance,session.tcpState->state);
+
+  duplicatePacketCount(&session,ackNo);
+  TEST_ASSERT_EQUAL(0,session.dupAckCounter);
+  TEST_ASSERT_EQUAL(FastRetransmit,session.tcpState->state); // state changed
 }
 
 void test_duplicatePacketCount_should_change_the_state(void)
 {
-  TCP_state state = { .state = CongestionAvoidance };
-  Cwnd cwnd;
-  uint32_t ackNo = 50;
-  uint32_t dupack = 1;
-  uint32_t result;
+  TCPSession session = {.dupAckCounter = 1};
+  TCP_state tcpState = { .state = CongestionAvoidance };
+  session.tcpState = &tcpState;
   
-  result = duplicatePacketCount(&cwnd,&state,dupack,ackNo);
-  TEST_ASSERT_EQUAL(2,result);
-  TEST_ASSERT_EQUAL(CongestionAvoidance,state.state); // state changed
+  uint32_t ackNo = 50;
+
+  duplicatePacketCount(&session,ackNo);
+  TEST_ASSERT_EQUAL(2,session.dupAckCounter);
+  TEST_ASSERT_EQUAL(CongestionAvoidance,session.tcpState->state); // state changed
 }
 
 void test_sendPacket_should_return_the_offset_after_send(void)
 {
-  TCP_state state;
+  TCPSession session = { .offset = 0};
   Packet packet;
-  uint32_t offset = 0;
   uint32_t availableSize = SMSS;
-  
-  sendDataPacket_Expect(&packet,&state.ptrBlock,50);   
-  offset = sendPacket(&state,&packet,availableSize,offset);
-  TEST_ASSERT_EQUAL(50,offset);
-  
-  sendDataPacket_Expect(&packet,&state.ptrBlock,100);   
-  offset = sendPacket(&state,&packet,availableSize,offset);
-  TEST_ASSERT_EQUAL(100,offset);
+
+  sendDataPacket_Expect(&packet,&session.tcpState->ptrBlock,50);
+  sendPacket(&session,&packet,availableSize);
+  TEST_ASSERT_EQUAL(50,session.offset);
+
+  sendDataPacket_Expect(&packet,&session.tcpState->ptrBlock,100);
+  sendPacket(&session,&packet,availableSize);
+  TEST_ASSERT_EQUAL(100,session.offset);
 }
 
 void test_retransmit_should_change_the_cwnd_data_and_the_state(void)
 {
+  TCPSession session;
   TCP_state state = { .state = CongestionAvoidance };
-  Cwnd Window = {.offset = 0, .size = 50, .ssthresh = 1000};
+  Cwnd cwnd = {.offset = 0, .size = 50, .ssthresh = 1000};
+  session.tcpState = &state;
+  session.cwnd = &cwnd;
   Packet packet;
-  uint32_t offset = 0;
+  session.offset = 0;
   uint32_t lostPacket = 50;
-  
-  sendDataPacket_Expect(&packet,&state.ptrBlock,lostPacket);   
-  retransmit(&state,&Window,&packet,lostPacket,offset);
-  
-  TEST_ASSERT_EQUAL(0,Window.offset);
-  TEST_ASSERT_EQUAL(100,Window.ssthresh);
-  TEST_ASSERT_EQUAL(250,Window.size);
+
+  sendDataPacket_Expect(&packet,&session.tcpState->ptrBlock,lostPacket);
+  retransmit(&session,&packet,lostPacket);
+
+  TEST_ASSERT_EQUAL(0,session.cwnd->offset);
+  TEST_ASSERT_EQUAL(100,session.cwnd->ssthresh);
+  TEST_ASSERT_EQUAL(250,session.cwnd->size);
 }
 
 void test_retransmit_should_change_the_cwnd_data_and_the_state_with_different_data(void)
-{
+{ 
+  TCPSession session;
   TCP_state state = { .state = CongestionAvoidance };
-  Cwnd Window = {.offset = 100, .size = 200, .ssthresh = 1000};
+  Cwnd cwnd = {.offset = 100, .size = 200, .ssthresh = 1000};
+  session.tcpState = &state;
+  session.cwnd = &cwnd;
   Packet packet;
-  uint32_t offset = 300;
+  session.offset = 300;
   uint32_t lostPacket = 50;
-  
-  sendDataPacket_Expect(&packet,&state.ptrBlock,lostPacket);   
-  retransmit(&state,&Window,&packet,lostPacket,offset);
-  
-  TEST_ASSERT_EQUAL(100,Window.offset);
-  TEST_ASSERT_EQUAL(100,Window.ssthresh);
-  TEST_ASSERT_EQUAL(250,Window.size);
+
+  sendDataPacket_Expect(&packet,&session.tcpState->ptrBlock,lostPacket);
+  retransmit(&session,&packet,lostPacket);
+  TEST_ASSERT_EQUAL(100,session.cwnd->offset);
+  TEST_ASSERT_EQUAL(100,session.cwnd->ssthresh);
+  TEST_ASSERT_EQUAL(250,session.cwnd->size);
 }
 
 void test_incCACounter_counter_equal_0_increment(void){
+  TCPSession session;
+  TCP_state tcpState;
   Cwnd cwnd;
-  TCP_state state;
+  session.cwnd = &cwnd;
+  session.tcpState = &tcpState;
   uint32_t counter;
   uint32_t currentWindowSize;
   uint32_t ackNo;
-  
+
   counter = 0;
   currentWindowSize = 100;
   ackNo = 50;
-  cwndIncrementWindow_ExpectAndReturn(&cwnd,currentWindowSize,150);
-  incCACounter(counter,&state,&cwnd,currentWindowSize,ackNo);
-  TEST_ASSERT_EQUAL(150,cwnd.size);
-  TEST_ASSERT_EQUAL(CongestionAvoidance,state.state);
-  TEST_ASSERT_EQUAL(50,cwnd.offset);
+  cwndIncrementWindow_ExpectAndReturn(session.cwnd,currentWindowSize,150);
+  incCACounter(counter,&session,currentWindowSize,ackNo);
+  TEST_ASSERT_EQUAL(150,session.cwnd->size);
+  TEST_ASSERT_EQUAL(CongestionAvoidance,session.tcpState->state);
+  TEST_ASSERT_EQUAL(50,session.cwnd->offset);
 }
 
 void test_incCACounter_counter_equal_1_not_increment(void){
+  TCPSession session;
+  TCP_state tcpState;
   Cwnd cwnd;
-  TCP_state state;
+  session.cwnd = &cwnd;
+  session.tcpState = &tcpState;
   uint32_t counter;
   uint32_t currentWindowSize;
   uint32_t ackNo;
-  
+
   counter = 1;
   currentWindowSize = 100;
   ackNo = 50;
-  incCACounter(counter,&state,&cwnd,currentWindowSize,ackNo);
-  TEST_ASSERT_EQUAL(100,cwnd.size);
-  TEST_ASSERT_EQUAL(CongestionAvoidance,state.state);
-  TEST_ASSERT_EQUAL(50,cwnd.offset);
+  incCACounter(counter,&session,currentWindowSize,ackNo);
+  TEST_ASSERT_EQUAL(100,session.cwnd->size);
+  TEST_ASSERT_EQUAL(CongestionAvoidance,session.tcpState->state);
+  TEST_ASSERT_EQUAL(50,session.cwnd->offset);
 }
 
 void test_checkCAorSSBySSTHRESH_cwnd_size_smaller_than_ssthresh(void){
-  Cwnd cwnd;
-  TCP_state state;
-  cwnd.size = 200;
-  checkCAorSSBySSTHRESH(&state,&cwnd);
-  TEST_ASSERT_EQUAL(SlowStartWaitACK,state.state);
+  TCPSession session;
+  TCP_state tcpState;
+  Cwnd cwnd = { .size = 200};
+  session.cwnd = &cwnd;
+  session.tcpState = &tcpState;
+  
+  checkCAorSSBySSTHRESH(&session);
+  TEST_ASSERT_EQUAL(SlowStartWaitACK,session.tcpState->state);
 }
 
 void test_checkCAorSSBySSTHRESH_cwnd_size_smaller_and_equal_than_ssthresh(void){
-  Cwnd cwnd;
-  TCP_state state;
-  cwnd.size = 250;
-  checkCAorSSBySSTHRESH(&state,&cwnd);
-  TEST_ASSERT_EQUAL(SlowStartWaitACK,state.state);
+  TCPSession session;
+  TCP_state tcpState;
+  Cwnd cwnd = { .size = 250};
+  session.cwnd = &cwnd;
+  session.tcpState = &tcpState;
+  
+  checkCAorSSBySSTHRESH(&session);
+  TEST_ASSERT_EQUAL(SlowStartWaitACK,session.tcpState->state);
 }
 
 void test_checkCAorSSBySSTHRESH_cwnd_size_larger_than_ssthresh(void){
-  Cwnd cwnd;
-  TCP_state state;
-  cwnd.size = 300;
-  checkCAorSSBySSTHRESH(&state,&cwnd);
-  TEST_ASSERT_EQUAL(CongestionAvoidance,state.state);
+  TCPSession session;
+  TCP_state tcpState;
+  Cwnd cwnd = { .size = 300};
+  session.cwnd = &cwnd;
+  session.tcpState = &tcpState;
+
+  checkCAorSSBySSTHRESH(&session);
+  TEST_ASSERT_EQUAL(300,session.cwnd->size);
+  TEST_ASSERT_EQUAL(CongestionAvoidance,session.tcpState->state); 
 }
 
 void test_roundOffValue_with_the_data_175_should_rounddown_to_150(void){
