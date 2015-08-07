@@ -8,7 +8,6 @@ void retransmit(TCP_state *state, Cwnd *cwnd, Packet *packet, uint32_t lostPacke
 void checkCAorSSBySSTHRESH(TCP_state *state,Cwnd *cwnd);
 void incCACounter(uint32_t counter,TCP_state *state,Cwnd *cwnd,uint32_t currentWindowSize,uint32_t ackNo);
 uint32_t duplicatePacketCount(Cwnd *cwnd, TCP_state *state, uint32_t dupAckCounter,uint32_t ackNo);
-uint32_t roundOffFlightSize(Cwnd *cwnd);
 uint32_t roundOffValue(uint32_t valueToRoundOff);
 uint32_t min(uint32_t valueA, uint32_t valueB);
 uint32_t max(uint32_t valueA, uint32_t valueB);
