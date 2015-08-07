@@ -190,20 +190,19 @@ void test_checkCAorSSBySSTHRESH_cwnd_size_larger_than_ssthresh(void){
   TEST_ASSERT_EQUAL(CongestionAvoidance,session.tcpState->state); 
 }
 
-void test_roundOffFlightSize_with_the_data_should_minus_25_and_get_150(void){
- uint32_t returnValue;
- returnValue = roundOffValue(175);
- TEST_ASSERT_EQUAL(150,returnValue);
+void test_roundOffValue_with_the_data_175_should_rounddown_to_150(void){
+ uint32_t returnResult;
+ returnResult = roundOffValue(175);
+ TEST_ASSERT_EQUAL(150,returnResult);
 }
 
-void test_roundOffFlightSize_with_the_data_should_minus_25_and_get_200(void){
- uint32_t returnValue;
- returnValue = roundOffValue(225);
- TEST_ASSERT_EQUAL(200,returnValue);
+void test_roundOffValue_with_the_data_225_should_rounddown_to_200(void){
+ uint32_t returnResult;
+ returnResult = roundOffValue(225);
+ TEST_ASSERT_EQUAL(200,returnResult);
 }
-
-void test_roundOffFlightSize_with_the_data_should_remain_as_150(void){
- uint32_t returnValue;
- returnValue = roundOffValue(150);
- TEST_ASSERT_EQUAL(150,returnValue);
+void test_roundOffValue_with_the_data_150_should_remain_as_150(void){
+ uint32_t returnResult;
+ returnResult = roundOffValue(150);
+ TEST_ASSERT_EQUAL(150,returnResult);
 }

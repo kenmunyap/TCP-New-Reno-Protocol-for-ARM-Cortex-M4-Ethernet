@@ -11,5 +11,6 @@ void duplicatePacketCount(TCPSession *session,uint32_t ackNo);
 uint32_t roundOffValue(uint32_t valueToRoundOff);
 uint32_t min(uint32_t valueA, uint32_t valueB);
 uint32_t max(uint32_t valueA, uint32_t valueB);
+double floatMax(double valueA, double valueB);
 
 #endif // TCPhelper_H

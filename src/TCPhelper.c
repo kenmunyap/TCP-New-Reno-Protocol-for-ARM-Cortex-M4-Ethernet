@@ -14,6 +14,10 @@ uint32_t max(uint32_t valueA, uint32_t valueB){
   return valueA > valueB ? valueA : valueB;
 }
 
+double floatMax(double valueA, double valueB){
+  return valueA > valueB ? valueA : valueB;
+}
+
 void checkCAorSSBySSTHRESH(TCPSession *session){
   if(sessionCWND->size <= (sessionCWND->ssthresh = ssthres)){
     sessionState->state = SlowStartWaitACK;
