@@ -9,18 +9,23 @@ void tearDown(void){}
 Packet packet;
 
 void test_cwndInitWindow_should_init_a_window_with_default_data(void){
+  TCPSession session;
   Cwnd Window;
-  cwndInitWindow(&Window);
+  session.cwnd = &Window;
   
-  TEST_ASSERT_EQUAL(0,Window.offset);
-  TEST_ASSERT_EQUAL(50,Window.size);
+  cwndInitWindow(&session);
+  
+  TEST_ASSERT_EQUAL(0,session.cwnd->offset);
+  TEST_ASSERT_EQUAL(50,session.cwnd->size);
 }
 
 void test_initTCPState_should_go_to_the_slow_start_state(void){
+  TCPSession session;
   TCP_state state;
-  initTCPState(&state);
+  session.tcpState = &state;
+  initTCPState(&session);
   
-  TEST_ASSERT_EQUAL(SlowStart,state.state);
+  TEST_ASSERT_EQUAL(SlowStart,session.tcpState->state);
 }
 
 /////////////////////////////////
@@ -41,31 +46,32 @@ void test_initTCPState_should_go_to_the_slow_start_state(void){
  *   offset moved to 50
  */
 void test_TxTCPSM_should_init_and_send_the_first_data_increase_WindowSize_after_ACK(void){
+  TCPSession session;
   Cwnd Window;
   TCP_state state;
+  session.cwnd = &Window;
+  session.tcpState = &state;
+  
+  cwndInitWindow(&session);
+  initTCPState(&session);
+  TEST_ASSERT_EQUAL(SlowStart,session.tcpState->state);
+  
+  cwndGetBeginningOffset_ExpectAndReturn(session.cwnd,0);
+  cwndGetDataBlock_ExpectAndReturn(session.cwnd,0,50,&state.ptrBlock,50);
 
-  cwndInitWindow(&Window);
-  initTCPState(&state);
-  TEST_ASSERT_EQUAL(SlowStart,state.state);
+  sendDataPacket_Expect(&packet,&session.tcpState->ptrBlock,50);
+  TxTCPSM(&session,&packet);
+  TEST_ASSERT_EQUAL(0,session.cwnd->offset);
+  TEST_ASSERT_EQUAL(50,session.cwnd->size);
+  TEST_ASSERT_EQUAL(SlowStartWaitACK,session.tcpState->state);  
   
-  cwndGetBeginningOffset_ExpectAndReturn(&Window,0);
-  cwndGetDataBlock_ExpectAndReturn(&Window,0,50,&state.ptrBlock,50);
-
-  sendDataPacket_Expect(&packet,&state.ptrBlock,50);
-  TxTCPSM(&state,&Window,&packet);
-  
-  TEST_ASSERT_EQUAL(0,Window.offset);
-  TEST_ASSERT_EQUAL(50,Window.size);
-  TEST_ASSERT_EQUAL(SlowStartWaitACK,state.state);
-  
-  cwndGetDataBlock_ExpectAndReturn(&Window,50,50,&state.ptrBlock,0);
+  cwndGetDataBlock_ExpectAndReturn(session.cwnd,50,50,&state.ptrBlock,0);
   getDataPacket_ExpectAndReturn(&packet,&receiveData,50);
-  cwndIncrementWindow_ExpectAndReturn(&Window,50,100);
-  TxTCPSM(&state,&Window,&packet);
-  
-  TEST_ASSERT_EQUAL(50,Window.offset);
-  TEST_ASSERT_EQUAL(100,Window.size);
-  TEST_ASSERT_EQUAL(SlowStartWaitACK,state.state);
+  cwndIncrementWindow_ExpectAndReturn(session.cwnd,50,100);
+  TxTCPSM(&session,&packet);
+  TEST_ASSERT_EQUAL(50,session.cwnd->offset);
+  TEST_ASSERT_EQUAL(100,session.cwnd->size);
+  TEST_ASSERT_EQUAL(SlowStartWaitACK,session.tcpState->state); 
 }
 /**
  *   0 _____       _____ 0         _____  0
@@ -85,6 +91,7 @@ void test_TxTCPSM_should_init_and_send_the_first_data_increase_WindowSize_after_
  *   offset moved to 100
  */
 void test_TxTCPSM_should_increase_WindowSize_after_ACK_and_offset_moved_to_100(void){
+  TCPSession session;
   Cwnd Window;
   cwndInitWindow(&Window);
   
