@@ -38,7 +38,7 @@ void incCACounter(uint32_t counter,TCPSession *session,uint32_t currentWindowSiz
   }
 }
 
-void retransmit(TCPSession *session, Packet *packet, uint32_t lostPacket){
+void retransmit(TCPSession *session, Packet *packet){
   uint32_t newFlightSize;
   sessionCWND->flightSize = session->offset - sessionCWND->offset;
   newFlightSize = roundOffValue(sessionCWND->flightSize);

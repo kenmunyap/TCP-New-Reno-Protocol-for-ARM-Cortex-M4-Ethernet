@@ -4,7 +4,7 @@
 #include "TxTCP.h"
 
 void sendPacket(TCPSession *session, Packet *packet, uint32_t availableSize);
-void retransmit(TCPSession *session, Packet *packet, uint32_t lostPacket);
+void retransmit(TCPSession *session, Packet *packet);
 void checkCAorSSBySSTHRESH(TCPSession *session);
 void incCACounter(uint32_t counter,TCPSession *session,uint32_t currentWindowSize,uint32_t ackNo);
 void duplicatePacketCount(TCPSession *session,uint32_t ackNo);

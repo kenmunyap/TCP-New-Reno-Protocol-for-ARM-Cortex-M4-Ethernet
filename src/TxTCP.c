@@ -71,7 +71,7 @@ uint32_t TxTCPSM(TCPSession *session, Packet *packet){
     break;
 
     case FastRetransmit:
-      retransmit(session,packet,sessionCWND->lostPacket);
+      retransmit(session,packet);
       sessionState->state = FastRecovery;
     break;
 
@@ -83,15 +83,18 @@ uint32_t TxTCPSM(TCPSession *session, Packet *packet){
         sessionState->state = FastRecovery;
       }else{
         ackNo = getDataPacket(packet,&receiveData);
+        currentWindowSize = sessionCWND->size;
         if(ackNo == sessionCWND->recover){
+          printf("Fully ACK");
           sessionCWND->size = min(sessionCWND->ssthresh, sessionCWND->flightSize+SMSS);
           sessionCWND->offset = sessionCWND->recover;
           sessionState->state = CongestionAvoidance;
         }else{
+          printf("Partial ACK");
           sessionCWND->lostPacket = ackNo + SMSS;
           sendDataPacket(packet,&sessionState->ptrBlock,sessionCWND->lostPacket);
           sessionCWND->offset = ackNo;
-          sessionCWND->size += SMSS;
+          sessionCWND->size = cwndIncrementWindow(sessionCWND,currentWindowSize);
           sessionState->state = FastRecovery;
         }
       }
