@@ -190,6 +190,83 @@ void test_checkCAorSSBySSTHRESH_cwnd_size_larger_than_ssthresh(void){
   TEST_ASSERT_EQUAL(CongestionAvoidance,session.tcpState->state); 
 }
 
+void test_checkSSIsACKNoEqualSequenceNumber_acknowledge_number_is_equal_to_sequence_number(){
+  TCPSession session;
+  TCP_state tcpState;
+  Cwnd cwnd;
+  session.cwnd = &cwnd;
+  session.tcpState = &tcpState;
+  
+  uint32_t ackNo = 50;
+  uint32_t sequenceNumber = 50;
+  uint32_t currentWindowSize = 50;
+  cwndIncrementWindow_ExpectAndReturn(session.cwnd,50,100);
+  checkSSisACKNoEqualSequenceNumber(ackNo,sequenceNumber,currentWindowSize,&session);
+}
+
+void test_checkSSIsACKNoEqualSequenceNumber_acknowledge_number_is_not_equal_to_sequence_number(){
+  TCPSession session;
+  TCP_state state;
+  Cwnd cwnd;
+  session.cwnd = &cwnd;
+  session.tcpState = &state;
+  
+  uint32_t ackNo = 100;
+  uint32_t sequenceNumber = 150;
+  uint32_t currentWindowSize = 50;
+  checkSSisACKNoEqualSequenceNumber(ackNo,sequenceNumber,currentWindowSize,&session);
+  TEST_ASSERT_EQUAL(1,session.dupAckCounter);
+  TEST_ASSERT_EQUAL(CongestionAvoidance,session.tcpState->state);
+}
+
+void test_checkCAisACKNoEqualSequenceNumber_acknowledge_number_is_not_equal_to_sequence_number(){
+  TCPSession session = {.dupAckCounter = 1};
+  TCP_state state = {.state = CongestionAvoidance};
+  Cwnd cwnd = {.size = 150, .offset=100};
+  session.cwnd = &cwnd;
+  session.tcpState = &state;
+  
+  uint32_t ackNo = 100;
+  uint32_t sequenceNumber = 150;
+  uint32_t currentWindowSize = 150;
+  uint32_t counter = 1;
+  checkCAisACKNoEqualSequenceNumber(ackNo,sequenceNumber,currentWindowSize,counter,&session);
+  TEST_ASSERT_EQUAL(CongestionAvoidance,session.tcpState->state);
+}
+
+void test_checkCAisACKNoEqualSequenceNumber_acknowledge_number_is_equal_to_sequence_number_but_counter_is_3_not_increment(){
+  TCPSession session;
+  TCP_state state = {.state = CongestionAvoidance};
+  Cwnd cwnd = {.size = 150, .offset=100};
+  session.cwnd = &cwnd;
+  session.tcpState = &state;
+  
+  uint32_t ackNo = 150;
+  uint32_t sequenceNumber = 150;
+  uint32_t currentWindowSize = 150;
+  uint32_t counter = 3;
+  checkCAisACKNoEqualSequenceNumber(ackNo,sequenceNumber,currentWindowSize,counter,&session);
+  TEST_ASSERT_EQUAL(CongestionAvoidance,session.tcpState->state);
+}
+
+void test_checkCAisACKNoEqualSequenceNumber_acknowledge_number_is_equal_to_sequence_number_but_counter_is_1_and_increment(){
+  TCPSession session;
+  TCP_state state = {.state = CongestionAvoidance};
+  Cwnd cwnd = {.size = 150, .offset=100};
+  session.cwnd = &cwnd;
+  session.tcpState = &state;
+  
+  uint32_t ackNo = 150;
+  uint32_t sequenceNumber = 150;
+  uint32_t currentWindowSize = 150;
+  uint32_t counter = 1;
+  cwndIncrementWindow_ExpectAndReturn(session.cwnd,currentWindowSize,200);
+  checkCAisACKNoEqualSequenceNumber(ackNo,sequenceNumber,currentWindowSize,counter,&session);
+
+  // TEST_ASSERT_EQUAL(CongestionAvoidance,session.tcpState->state);
+}
+
+
 void test_roundOffValue_with_the_data_175_should_rounddown_to_150(void){
  uint32_t returnResult;
  returnResult = roundOffValue(175);

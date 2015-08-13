@@ -28,7 +28,6 @@ uint32_t TxTCPSM(TCPSession *session, Packet *packet){
   static uint32_t counter = 0;
   static uint32_t tempCwndSize;
   static uint32_t recover;
-  static uint32_t checkCounter;
 
   switch(sessionState->state){
     case SlowStart:
@@ -52,14 +51,7 @@ uint32_t TxTCPSM(TCPSession *session, Packet *packet){
           ackNo = getDataPacket(packet,&receiveData);
           sequenceNumber = sessionCWND->offset+SMSS;
           currentWindowSize = sessionCWND->size;
-          if(ackNo >= sequenceNumber){
-            sessionCWND->offset = ackNo;
-            sessionCWND->size = cwndIncrementWindow(sessionCWND,currentWindowSize);
-            checkCAorSSBySSTHRESH(session);
-          }else{
-            session->dupAckCounter = 1;
-            sessionState->state = CongestionAvoidance;
-          }
+          checkSSisACKNoEqualSequenceNumber(ackNo,sequenceNumber,currentWindowSize,session);
         }
     break;
 
@@ -74,16 +66,8 @@ uint32_t TxTCPSM(TCPSession *session, Packet *packet){
         sequenceNumber = sessionCWND->offset+SMSS;
         currentWindowSize = sessionCWND->size;
         if (!counter) counter  = sessionCWND->size/SMSS;
-          if(ackNo >= sequenceNumber){
-            checkCounter = ((ackNo-sequenceNumber)+SMSS)/SMSS;
-            session->dupAckCounter = 0;
-            counter = counter-checkCounter;
-            incCACounter(counter,session,currentWindowSize,ackNo);
-          }else if(ackNo == sessionCWND->offset){
-            counter = 0;
-            duplicatePacketCount(session,ackNo);
-          }
-        }
+          counter = checkCAisACKNoEqualSequenceNumber(ackNo,sequenceNumber,currentWindowSize,counter,session);
+      }
     break;
 
     case FastRetransmit:
@@ -98,13 +82,15 @@ uint32_t TxTCPSM(TCPSession *session, Packet *packet){
         sendPacket(session,packet,availableSize);
         sessionState->state = FastRecovery;
       }else{
-        ackNo = getDataPacket(packet,&receiveData); 
+        ackNo = getDataPacket(packet,&receiveData);
         if(ackNo == sessionCWND->recover){
-          sessionCWND->size = sessionCWND->size+SMSS;
+          sessionCWND->size = min(sessionCWND->ssthresh, sessionCWND->flightSize+SMSS);
           sessionCWND->offset = sessionCWND->recover;
           sessionState->state = CongestionAvoidance;
-        }
-        else{
+        }else{
+          sessionCWND->lostPacket = ackNo + SMSS;
+          sendDataPacket(packet,&sessionState->ptrBlock,sessionCWND->lostPacket);
+          sessionCWND->offset = ackNo;
           sessionCWND->size += SMSS;
           sessionState->state = FastRecovery;
         }

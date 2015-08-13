@@ -104,7 +104,7 @@ void test_TxTCPSM_SlowStart_send_3packet_successfully(){
       0 | -------------------> |
         | <------------------  | 50(sequenceNumber) ACKed
       50| -------------------> | send
-     100| -------------------> | send
+     100| ----------x          | send
         | <------------------  |100(acked)
      150| ------------------>  |
      200| ------------------>  |
@@ -242,7 +242,7 @@ void test_TxTCPSM_SlowStart_send_from_150_but_congestion_window_size_larger_than
         | <------------------  | 50(sequenceNumber) ACKed
       50| -------------------> | send
      100| -------------------> | send
-        | <------------------  |150(acked)
+        | <------------------  |150(acked) - directly get 100 and skip 50
      150| ------------------>  |
      200| ------------------>  |
      250| ------------------>  |
@@ -295,52 +295,6 @@ void test_TxTCPSM_SlowStart_send_3packet_successfully_but_ack_skipped_100_and_ac
   TEST_ASSERT_EQUAL(200,session.cwnd->size);
   TEST_ASSERT_EQUAL(SlowStartWaitACK,session.tcpState->state); 
 }
-
-
-
-
-/*
-    Sender                Reciever
-      0 | -------------------> |
-        | <------------------  | 50(sequenceNumber)
-      50| -------------------> | 
-     100| ----------x          |
-        | <------------------- |100(sequenceNumber) ACKed
-        | <------------------  | 50(sequenceNumber) dupACKed
-        | <------------------  | 50(sequenceNumber) dupACKed
-        | <------------------  | 50(sequenceNumber) dupACKed/z
-        |    fast retransmit   | 
- */
-
-
-/*
-      Sender                Reciever
-      0 | -------------------> |
-        | <------------------  | 50(sequenceNumber) ACKed
-      50| -------------------> | 
-     100| -------------------> |
-        |     x--------------- |100(sequenceNumber) ACKed     
-        | <------------------  | 50(sequenceNumber) dupACKed
-        | <------------------  | 50(sequenceNumber) dupACKed
-        | <------------------  |100(sequenceNumber) ACKed
-     150| -------------------> | 
- */
-
-
-
-/*
-      Sender                Reciever
-      0 | -------------------> |
-        | <------------------  | 50(sequenceNumber) ACKed
-      50| -------------------> | 
-     100| -------------------> | 
-        | <------------------- |150(sequenceNumber) ACKed
-        | <------------------  |100(sequenceNumber) ACKed
-     150| -------------------> |
-     200| -------------------> |
-     250| -------------------> |
-     300| -------------------> |
- */
 
  
 

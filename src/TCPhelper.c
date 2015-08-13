@@ -64,6 +64,32 @@ void duplicatePacketCount(TCPSession *session,uint32_t ackNo){
   }
 }
 
+void checkSSisACKNoEqualSequenceNumber(uint32_t ackNo,uint32_t sequenceNumber,uint32_t currentWindowSize,TCPSession *session){
+    if(ackNo >= sequenceNumber){
+      sessionCWND->offset = ackNo;
+      sessionCWND->size = cwndIncrementWindow(sessionCWND,currentWindowSize);
+      checkCAorSSBySSTHRESH(session);
+    }else{
+      session->dupAckCounter = 1;
+      sessionState->state = CongestionAvoidance;
+    }
+}
+
+uint32_t checkCAisACKNoEqualSequenceNumber(uint32_t ackNo,uint32_t sequenceNumber,uint32_t currentWindowSize,uint32_t counter,TCPSession *session){
+    static uint32_t checkCounter;
+    
+    if(ackNo >= sequenceNumber){
+      checkCounter = ((ackNo-sequenceNumber)+SMSS)/SMSS;
+      session->dupAckCounter = 0;
+      counter = counter-checkCounter;
+      incCACounter(counter,session,currentWindowSize,ackNo);
+    }else if(ackNo == sessionCWND->offset){
+      counter = 0;
+      duplicatePacketCount(session,ackNo);
+    }
+    return counter;
+}
+
 uint32_t roundOffValue(uint32_t valueToRoundOff){
   if(valueToRoundOff%10 != 0){
     valueToRoundOff = valueToRoundOff - 25;
