@@ -6,17 +6,52 @@
 #include "Timer.h"
 
 uint8_t *receiveData;
-
+/******************************************************************************
+ * initCongestionWindow
+ *
+ *  Operation:
+ *          To initialize congestion window offset and size
+ *
+ *  Input:
+ *         structure of TCPSession with CWND
+ *          
+ *  Return:
+ *          No return
+ ******************************************************************************/
 void cwndInitWindow(TCPSession *session){
 	sessionCWND->offset = 0;
 	sessionCWND->size = SMSS;
 }
 
+/******************************************************************************
+ * initTCPState
+ *
+ *  Operation:
+ *          To initialize state
+ *
+ *  Input:
+ *         structure of TCPSession
+ *          
+ *  Return:
+ *          No return
+ ******************************************************************************/
 void initTCPState(TCPSession *session){
 	sessionState->state = SlowStart;
   sessionState->ptrBlock = NULL;
 }
 
+/******************************************************************************
+ * TxTCPSM
+ *
+ *  Operation:
+ *          State machine of transmit TCP
+ *
+ *  Input:
+ *         state machine of sessionTCP
+ *          
+ *  Return:
+ *          No return
+ ******************************************************************************/
 uint32_t TxTCPSM(TCPSession *session, Packet *packet){
   static uint32_t currentWindowSize;
   static uint32_t ackNo;
@@ -28,7 +63,6 @@ uint32_t TxTCPSM(TCPSession *session, Packet *packet){
   static uint32_t counter = 0;
   static uint32_t tempCwndSize;
   static uint32_t recover;
-  static uint32_t checkCounter;
 
   switch(sessionState->state){
     case SlowStart:
@@ -52,14 +86,7 @@ uint32_t TxTCPSM(TCPSession *session, Packet *packet){
           ackNo = getDataPacket(packet,&receiveData);
           sequenceNumber = sessionCWND->offset+SMSS;
           currentWindowSize = sessionCWND->size;
-          if(ackNo >= sequenceNumber){
-            sessionCWND->offset = ackNo;
-            sessionCWND->size = cwndIncrementWindow(sessionCWND,currentWindowSize);
-            checkCAorSSBySSTHRESH(session);
-          }else{
-            session->dupAckCounter = 1;
-            sessionState->state = CongestionAvoidance;
-          }
+          checkSSisACKNoEqualSequenceNumber(ackNo,sequenceNumber,currentWindowSize,session);
         }
     break;
 
@@ -74,20 +101,12 @@ uint32_t TxTCPSM(TCPSession *session, Packet *packet){
         sequenceNumber = sessionCWND->offset+SMSS;
         currentWindowSize = sessionCWND->size;
         if (!counter) counter  = sessionCWND->size/SMSS;
-          if(ackNo >= sequenceNumber){
-            checkCounter = ((ackNo-sequenceNumber)+SMSS)/SMSS;
-            session->dupAckCounter = 0;
-            counter = counter-checkCounter;
-            incCACounter(counter,session,currentWindowSize,ackNo);
-          }else if(ackNo == sessionCWND->offset){
-            counter = 0;
-            duplicatePacketCount(session,ackNo);
-          }
-        }
+          counter = checkCAisACKNoEqualSequenceNumber(ackNo,sequenceNumber,currentWindowSize,counter,session);
+      }
     break;
 
     case FastRetransmit:
-      retransmit(session,packet,sessionCWND->lostPacket);
+      retransmit(session,packet);
       sessionState->state = FastRecovery;
     break;
 
@@ -98,14 +117,19 @@ uint32_t TxTCPSM(TCPSession *session, Packet *packet){
         sendPacket(session,packet,availableSize);
         sessionState->state = FastRecovery;
       }else{
-        ackNo = getDataPacket(packet,&receiveData); 
+        ackNo = getDataPacket(packet,&receiveData);
+        currentWindowSize = sessionCWND->size;
         if(ackNo == sessionCWND->recover){
-          sessionCWND->size = sessionCWND->size+SMSS;
+          printf("Fully ACK");
+          sessionCWND->size = min(sessionCWND->ssthresh, sessionCWND->flightSize+SMSS);
           sessionCWND->offset = sessionCWND->recover;
           sessionState->state = CongestionAvoidance;
-        }
-        else{
-          sessionCWND->size += SMSS;
+        }else{
+          printf("Partial ACK");
+          sessionCWND->lostPacket = ackNo + SMSS;
+          sendDataPacket(packet,&sessionState->ptrBlock,sessionCWND->lostPacket);
+          sessionCWND->offset = ackNo;
+          sessionCWND->size = cwndIncrementWindow(sessionCWND,currentWindowSize);
           sessionState->state = FastRecovery;
         }
       }
@@ -119,18 +143,3 @@ uint32_t TxTCPSM(TCPSession *session, Packet *packet){
   }
 }
 
-
-// SlowStart left timeout
-// Congestion Avoidance timeout
-// Mock SendPacket
-// Increment
-// GetPacket
-// CwndGetPacket
-//if(timeout() == 50){
-//    ssthress = cwnd->size/2
-//}
-
-
-// timeout then  ssthresh = cwndsize/2 then goes bak to slow start
-// duplicate 3 time = cwndsize/2 then goes to fast recover
-// program still can send after exceed offset using mock
