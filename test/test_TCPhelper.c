@@ -84,16 +84,15 @@ void test_retransmit_should_change_the_cwnd_data_and_the_state(void)
 {
   TCPSession session;
   TCP_state state = { .state = CongestionAvoidance };
-  Cwnd cwnd = {.offset = 0, .size = 50, .ssthresh = 1000};
+  Cwnd cwnd = {.offset = 0, .size = 50, .ssthresh = 1000,.lostPacket = 50};
   session.tcpState = &state;
   session.cwnd = &cwnd;
   Packet packet;
   session.offset = 0;
   uint32_t lostPacket = 50;
 
-  sendDataPacket_Expect(&packet,&session.tcpState->ptrBlock,lostPacket);
-  retransmit(&session,&packet,lostPacket);
-
+  sendDataPacket_Expect(&packet,&session.tcpState->ptrBlock,100);
+  retransmit(&session,&packet);
   TEST_ASSERT_EQUAL(0,session.cwnd->offset);
   TEST_ASSERT_EQUAL(100,session.cwnd->ssthresh);
   TEST_ASSERT_EQUAL(250,session.cwnd->size);
@@ -103,15 +102,14 @@ void test_retransmit_should_change_the_cwnd_data_and_the_state_with_different_da
 { 
   TCPSession session;
   TCP_state state = { .state = CongestionAvoidance };
-  Cwnd cwnd = {.offset = 100, .size = 200, .ssthresh = 1000};
+  Cwnd cwnd = {.offset = 100, .size = 200, .ssthresh = 1000,.lostPacket = 50};
   session.tcpState = &state;
   session.cwnd = &cwnd;
   Packet packet;
   session.offset = 300;
-  uint32_t lostPacket = 50;
 
-  sendDataPacket_Expect(&packet,&session.tcpState->ptrBlock,lostPacket);
-  retransmit(&session,&packet,lostPacket);
+  sendDataPacket_Expect(&packet,&session.tcpState->ptrBlock,100);
+  retransmit(&session,&packet);
   TEST_ASSERT_EQUAL(100,session.cwnd->offset);
   TEST_ASSERT_EQUAL(100,session.cwnd->ssthresh);
   TEST_ASSERT_EQUAL(250,session.cwnd->size);

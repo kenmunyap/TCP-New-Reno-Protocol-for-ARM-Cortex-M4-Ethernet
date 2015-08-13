@@ -6,17 +6,52 @@
 #include "Timer.h"
 
 uint8_t *receiveData;
-
+/******************************************************************************
+ * initCongestionWindow
+ *
+ *  Operation:
+ *          To initialize congestion window offset and size
+ *
+ *  Input:
+ *         structure of TCPSession with CWND
+ *          
+ *  Return:
+ *          No return
+ ******************************************************************************/
 void cwndInitWindow(TCPSession *session){
 	sessionCWND->offset = 0;
 	sessionCWND->size = SMSS;
 }
 
+/******************************************************************************
+ * initTCPState
+ *
+ *  Operation:
+ *          To initialize state
+ *
+ *  Input:
+ *         structure of TCPSession
+ *          
+ *  Return:
+ *          No return
+ ******************************************************************************/
 void initTCPState(TCPSession *session){
 	sessionState->state = SlowStart;
   sessionState->ptrBlock = NULL;
 }
 
+/******************************************************************************
+ * TxTCPSM
+ *
+ *  Operation:
+ *          State machine of transmit TCP
+ *
+ *  Input:
+ *         state machine of sessionTCP
+ *          
+ *  Return:
+ *          No return
+ ******************************************************************************/
 uint32_t TxTCPSM(TCPSession *session, Packet *packet){
   static uint32_t currentWindowSize;
   static uint32_t ackNo;
@@ -108,18 +143,3 @@ uint32_t TxTCPSM(TCPSession *session, Packet *packet){
   }
 }
 
-
-// SlowStart left timeout
-// Congestion Avoidance timeout
-// Mock SendPacket
-// Increment
-// GetPacket
-// CwndGetPacket
-//if(timeout() == 50){
-//    ssthress = cwnd->size/2
-//}
-
-
-// timeout then  ssthresh = cwndsize/2 then goes bak to slow start
-// duplicate 3 time = cwndsize/2 then goes to fast recover
-// program still can send after exceed offset using mock
