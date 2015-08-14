@@ -133,9 +133,81 @@ void test_TxTCPSM_Fast_Recover_200_and_get_550_ack_that_is_partial_ack(){
   cwndGetDataBlock_ExpectAndReturn(session.cwnd, 650,50,&state.ptrBlock,0);
   getDataPacket_ExpectAndReturn(&packet,&receiveData,650);
   TxTCPSM(&session,&packet);
-  
-
 }
+
+/*
+*                 Sender                Reciever 
+                50  | -------------------> | 
+                100 | -------------------> |
+                    | <------------------  | ack 100
+                150 | -------------------> | 
+                200 | -------------------> | 
+                    | <------------------  | dup ack100 (ack 150)
+                    | <------------------  | dup ack100
+                    | <------------------  | dup ack100
+                    | -------------------> | retransmit 100
+                250 | -------------------> | -formula extra 
+                300 | -------------------> | -formula extra
+                350 | -------------------> | dup add 
+                400 | -------------------> | dup add
+                450 | -------------------> | dup add
+*/  
+void test_TxTCPSM_Fast_Recover_200_and_get_dupACK_5_times(){
+  TCPSession session = {.offset = 250, .requestedSize = 50};
+  Cwnd cwnd = {.size = 250, .offset = 100 ,.ssthresh = 100,.flightSize = 150}; 
+  TCP_state state = {.state = FastRecovery};
+  session.cwnd = &cwnd;
+  session.tcpState = &state;
+  uint32_t size;
+  Packet packet = {.srcIpAddr = 1};
+  
+  cwndGetDataBlock_ExpectAndReturn(session.cwnd, 250,50,&state.ptrBlock,50);
+  sendDataPacket_Expect(&packet,&session.tcpState->ptrBlock,300);
+  TxTCPSM(&session,&packet);
+  cwndGetDataBlock_ExpectAndReturn(session.cwnd,  300,50,&state.ptrBlock,50);
+  sendDataPacket_Expect(&packet,&session.tcpState->ptrBlock,350);
+  TxTCPSM(&session,&packet);
+  
+  cwndGetDataBlock_ExpectAndReturn(session.cwnd, 350,50,&state.ptrBlock,0);
+  getDataPacket_ExpectAndReturn(&packet,&receiveData,100);
+  sendDataPacket_Expect(&packet,&session.tcpState->ptrBlock,150);
+  cwndIncrementWindow_ExpectAndReturn(session.cwnd,250,300);
+  TxTCPSM(&session,&packet);
+  
+  cwndGetDataBlock_ExpectAndReturn(session.cwnd,  350,50,&state.ptrBlock,50);
+  sendDataPacket_Expect(&packet,&session.tcpState->ptrBlock,400);
+  TxTCPSM(&session,&packet);
+  
+  cwndGetDataBlock_ExpectAndReturn(session.cwnd, 400,50,&state.ptrBlock,0);
+  getDataPacket_ExpectAndReturn(&packet,&receiveData,100);
+  sendDataPacket_Expect(&packet,&session.tcpState->ptrBlock,150);
+  cwndIncrementWindow_ExpectAndReturn(session.cwnd,300,350);
+  TxTCPSM(&session,&packet);
+  
+  cwndGetDataBlock_ExpectAndReturn(session.cwnd,  400,50,&state.ptrBlock,50);
+  sendDataPacket_Expect(&packet,&session.tcpState->ptrBlock,450);
+  TxTCPSM(&session,&packet);
+  
+  cwndGetDataBlock_ExpectAndReturn(session.cwnd, 450,50,&state.ptrBlock,0);
+  getDataPacket_ExpectAndReturn(&packet,&receiveData,100);
+  sendDataPacket_Expect(&packet,&session.tcpState->ptrBlock,150);
+  cwndIncrementWindow_ExpectAndReturn(session.cwnd,350,400);
+  TxTCPSM(&session,&packet);
+  
+  cwndGetDataBlock_ExpectAndReturn(session.cwnd,  450,50,&state.ptrBlock,50);
+  sendDataPacket_Expect(&packet,&session.tcpState->ptrBlock,500);
+  TxTCPSM(&session,&packet);
+  TEST_ASSERT_EQUAL(500,session.cwnd->recover);  
+  TEST_ASSERT_EQUAL(100,session.cwnd->offset);
+  TEST_ASSERT_EQUAL(400,session.cwnd->size);
+  
+  cwndGetDataBlock_ExpectAndReturn(session.cwnd, 500,50,&state.ptrBlock,0);
+  getDataPacket_ExpectAndReturn(&packet,&receiveData,500);
+  TxTCPSM(&session,&packet);
+}
+
+
+  
 
 
  

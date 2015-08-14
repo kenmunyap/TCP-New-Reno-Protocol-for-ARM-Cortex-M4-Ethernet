@@ -120,12 +120,12 @@ uint32_t TxTCPSM(TCPSession *session, Packet *packet){
         ackNo = getDataPacket(packet,&receiveData);
         currentWindowSize = sessionCWND->size;
         if(ackNo == sessionCWND->recover){
-          printf("Fully ACK");
+          printf("Fully ACK \n");
           sessionCWND->size = min(sessionCWND->ssthresh, sessionCWND->flightSize+SMSS);
           sessionCWND->offset = sessionCWND->recover;
           sessionState->state = CongestionAvoidance;
         }else{
-          printf("Partial ACK");
+          printf("Partial ACK \n");
           sessionCWND->lostPacket = ackNo + SMSS;
           sendDataPacket(packet,&sessionState->ptrBlock,sessionCWND->lostPacket);
           sessionCWND->offset = ackNo;
