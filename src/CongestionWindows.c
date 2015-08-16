@@ -44,3 +44,14 @@ uint32_t cwndGetDataBlocks(Cwnd *cwnd, uint32_t offset, uint32_t requestedSize, 
   return 0;
 }
 
+uint32_t slideWindow(TCPSession *session){
+  uint32_t availableSize;
+  uint32_t sendDataSize;
+  sendDataSize= session->offset - sessionCWND->offset;
+  if(sendDataSize > sessionCWND->size){
+    return 0;
+  }else{
+    return availableSize = session->requestedSize;
+  }
+}
+

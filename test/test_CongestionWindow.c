@@ -1,6 +1,7 @@
 #include "unity.h"
 #include "TxTCP.h"
 #include "TCPhelper.h"
+#include "linkedList.h"
 #include "CongestionWindows.h"
 #include "mock_congestionWindow.h"
 #include "mock_Packet.h"
@@ -51,118 +52,137 @@ void test_cwndIncrementWindows_should_return_the_incremented_window_case2(void){
   TEST_ASSERT_EQUAL(250, windowSize);
 }
 
-void test_cwndGetDataBlock_should_return_the_availableSize_of_the_block(void){
-  TCPSession session;
-  Cwnd Window;
-  TCP_state state;
-  session.cwnd = &Window;
-  session.tcpState = &state;
-  uint32_t returnAvailableSize;
+// void test_cwndGetDataBlock_should_return_the_availableSize_of_the_block(void){
+  // TCPSession session;
+  // Cwnd Window;
+  // TCP_state state;
+  // session.cwnd = &Window;
+  // session.tcpState = &state;
+  // uint32_t returnAvailableSize;
 
-  cwndInitWindow(&session);
-  initTCPState(&session);
+  // cwndInitWindow(&session);
+  // initTCPState(&session);
   
-  returnAvailableSize = cwndGetDataBlocks(session.cwnd,0,50,&state.ptrBlock);
+  // returnAvailableSize = cwndGetDataBlocks(session.cwnd,0,50,&state.ptrBlock);
   
-  TEST_ASSERT_EQUAL(50, returnAvailableSize);
-}
-void test_cwndGetDataBlock_should_return_0_if_the_size_not_enough(void){
-    TCPSession session;
-  Cwnd Window;
-  TCP_state state;
-  session.cwnd = &Window;
-  session.tcpState = &state;
-  uint32_t returnAvailableSize;
+  // TEST_ASSERT_EQUAL(50, returnAvailableSize);
+// }
+// void test_cwndGetDataBlock_should_return_0_if_the_size_not_enough(void){
+    // TCPSession session;
+  // Cwnd Window;
+  // TCP_state state;
+  // session.cwnd = &Window;
+  // session.tcpState = &state;
+  // uint32_t returnAvailableSize;
 
-  cwndInitWindow(&session);
-  initTCPState(&session);
+  // cwndInitWindow(&session);
+  // initTCPState(&session);
   
-  returnAvailableSize = cwndGetDataBlocks(session.cwnd,0,51,&state.ptrBlock);
+  // returnAvailableSize = cwndGetDataBlocks(session.cwnd,0,51,&state.ptrBlock);
   
-  TEST_ASSERT_EQUAL(0, returnAvailableSize);
-}
-void test_cwndGetDataBlock_should_return_the_availableSize_if_the_offSet_is_same(void){
-  TCPSession session;
-  Cwnd Window;
-  TCP_state state;
-  session.cwnd = &Window;
-  session.tcpState = &state;
-  uint32_t returnAvailableSize;
+  // TEST_ASSERT_EQUAL(0, returnAvailableSize);
+// }
+// void test_cwndGetDataBlock_should_return_the_availableSize_if_the_offSet_is_same(void){
+  // TCPSession session;
+  // Cwnd Window;
+  // TCP_state state;
+  // session.cwnd = &Window;
+  // session.tcpState = &state;
+  // uint32_t returnAvailableSize;
 
-  cwndInitWindow(&session);
-  initTCPState(&session);
+  // cwndInitWindow(&session);
+  // initTCPState(&session);
   
-  returnAvailableSize = cwndGetDataBlocks(session.cwnd,0,50,&state.ptrBlock);
+  // returnAvailableSize = cwndGetDataBlocks(session.cwnd,0,50,&state.ptrBlock);
   
-  TEST_ASSERT_EQUAL(50, returnAvailableSize);
-}
-void test_cwndGetDataBlock_should_not_return_the_availableSize_if_the_offSet_is_not_same(void){
-  Cwnd Window;
-  TCPSession session;
-  TCP_state state;
-  session.cwnd = &Window;
-  session.tcpState = &state;
-  uint32_t returnAvailableSize;
+  // TEST_ASSERT_EQUAL(50, returnAvailableSize);
+// }
+// void test_cwndGetDataBlock_should_not_return_the_availableSize_if_the_offSet_is_not_same(void){
+  // Cwnd Window;
+  // TCPSession session;
+  // TCP_state state;
+  // session.cwnd = &Window;
+  // session.tcpState = &state;
+  // uint32_t returnAvailableSize;
 
-  cwndInitWindow(&session);
-  initTCPState(&session);
+  // cwndInitWindow(&session);
+  // initTCPState(&session);
   
-  returnAvailableSize = cwndGetDataBlocks(session.cwnd,50,50,&state.ptrBlock);
+  // returnAvailableSize = cwndGetDataBlocks(session.cwnd,50,50,&state.ptrBlock);
   
-  TEST_ASSERT_EQUAL(0, returnAvailableSize);
+  // TEST_ASSERT_EQUAL(0, returnAvailableSize);
+// }
+
+// void test_cwndGetDataBlock_should_return_the_availableSize_with_higher_offset(void){
+  // Cwnd Window = {.size = 50, .offset = 200};
+  // TCPSession session;
+  // TCP_state state;
+  // session.cwnd = &Window;
+  // session.tcpState = &state;
+  // uint32_t returnAvailableSize;
+  
+  // returnAvailableSize = cwndGetDataBlocks(session.cwnd,200,50,&state.ptrBlock);
+  
+  // TEST_ASSERT_EQUAL(50, returnAvailableSize);
+// }
+
+// void test_cwndGetDataBlock_should_return_the_availableSize_with_different_offset(void){
+  // Cwnd Window = {.size = 50, .offset = 200};
+  // TCPSession session;
+  // TCP_state state;
+  // session.cwnd = &Window;
+  // session.tcpState = &state;
+  // uint32_t returnAvailableSize;
+  
+  // returnAvailableSize = cwndGetDataBlocks(session.cwnd,150,50,&state.ptrBlock);
+  
+  // TEST_ASSERT_EQUAL(0, returnAvailableSize);
+// }
+
+// void test_cwndGetDataBlock_should_return_the_availableSize_with_higher_requesting_size(void){
+  // Cwnd Window = {.size = 400, .offset = 200};
+  // TCPSession session;
+  // TCP_state state;
+  // session.cwnd = &Window;
+  // session.tcpState = &state;
+  // uint32_t returnAvailableSize;
+  
+  // returnAvailableSize = cwndGetDataBlocks(session.cwnd,200,300,&state.ptrBlock);
+  
+  // TEST_ASSERT_EQUAL(300, returnAvailableSize);
+// }
+
+// void test_cwndGetDataBlock_should_not_return_availableSize_if_the_window_size_not_enough(void){
+  // Cwnd Window = {.size = 400, .offset = 200};
+  // TCPSession session;
+  // TCP_state state;
+  // session.cwnd = &Window;
+  // session.tcpState = &state;
+  // uint32_t returnAvailableSize;
+  
+  // returnAvailableSize = cwndGetDataBlocks(session.cwnd,200,600,&state.ptrBlock);
+  
+  // TEST_ASSERT_EQUAL(0, returnAvailableSize);
+// }
+
+void test_slideWindow_that_sendDataSize_is_larger_than_cwnd_window_size(){
+  Cwnd cwnd = {.size = 300, .offset = 200};
+  TCPSession session = {.offset = 550,.requestedSize = 50};
+  session.cwnd = &cwnd;
+  uint32_t value;
+  value = slideWindow(&session);
+  TEST_ASSERT_EQUAL(0,value);
 }
 
-void test_cwndGetDataBlock_should_return_the_availableSize_with_higher_offset(void){
-  Cwnd Window = {.size = 50, .offset = 200};
-  TCPSession session;
-  TCP_state state;
-  session.cwnd = &Window;
-  session.tcpState = &state;
-  uint32_t returnAvailableSize;
-  
-  returnAvailableSize = cwndGetDataBlocks(session.cwnd,200,50,&state.ptrBlock);
-  
-  TEST_ASSERT_EQUAL(50, returnAvailableSize);
+void test_slideWindow_that_sendDataSize_is_not_larger_than_cwnd_window_size(){
+  Cwnd cwnd = {.size = 300, .offset = 200};
+  TCPSession session = {.offset = 500,.requestedSize = 50};
+  session.cwnd = &cwnd;
+  uint32_t value;
+  value = slideWindow(&session);
+  TEST_ASSERT_EQUAL(50,value);
 }
 
-void test_cwndGetDataBlock_should_return_the_availableSize_with_different_offset(void){
-  Cwnd Window = {.size = 50, .offset = 200};
-  TCPSession session;
-  TCP_state state;
-  session.cwnd = &Window;
-  session.tcpState = &state;
-  uint32_t returnAvailableSize;
-  
-  returnAvailableSize = cwndGetDataBlocks(session.cwnd,150,50,&state.ptrBlock);
-  
-  TEST_ASSERT_EQUAL(0, returnAvailableSize);
-}
-
-void test_cwndGetDataBlock_should_return_the_availableSize_with_higher_requesting_size(void){
-  Cwnd Window = {.size = 400, .offset = 200};
-  TCPSession session;
-  TCP_state state;
-  session.cwnd = &Window;
-  session.tcpState = &state;
-  uint32_t returnAvailableSize;
-  
-  returnAvailableSize = cwndGetDataBlocks(session.cwnd,200,300,&state.ptrBlock);
-  
-  TEST_ASSERT_EQUAL(300, returnAvailableSize);
-}
-
-void test_cwndGetDataBlock_should_not_return_availableSize_if_the_window_size_not_enough(void){
-  Cwnd Window = {.size = 400, .offset = 200};
-  TCPSession session;
-  TCP_state state;
-  session.cwnd = &Window;
-  session.tcpState = &state;
-  uint32_t returnAvailableSize;
-  
-  returnAvailableSize = cwndGetDataBlocks(session.cwnd,200,600,&state.ptrBlock);
-  
-  TEST_ASSERT_EQUAL(0, returnAvailableSize);
-}
 
 
 

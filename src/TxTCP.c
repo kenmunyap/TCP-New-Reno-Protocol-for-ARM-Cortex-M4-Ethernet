@@ -6,7 +6,6 @@
 #include "Timer.h"
 #include "linkedList.h"
 
-
 uint8_t *receiveData;
 /******************************************************************************
  * initCongestionWindow
@@ -65,9 +64,13 @@ uint32_t TxTCPSM(TCPSession *session, Packet *packet){
   static uint32_t counter = 0;
   static uint32_t tempCwndSize;
   static uint32_t recover;
-
+  linkedList *list;
+  Element *element;
+  
   switch(sessionState->state){
     case SlowStart:
+      list = create_linkedList();
+      List_addLast(list,element);
       session->offset = cwndGetBeginningOffset(sessionCWND);
       sessionCWND->recover = session->offset;
       session->requestedSize = session->offset + SMSS;

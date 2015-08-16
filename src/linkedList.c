@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <malloc.h>
 #include "linkedList.h"
 
@@ -37,6 +38,18 @@ Element *List_removeFirst(linkedList *list){
       list->head = list->head->next;
       list->length--;
     }
+    return element;
+}
+
+Element *List_removeMiddle(linkedList *list,Element *removeElement,Element *element){
+    int length;
+      
+    list->current = removeElement;
+    list->previous = element;
+    free(list->current);
+    list->previous->next = removeElement->next;
+    list->length--;
+      
     return element;
 }
 

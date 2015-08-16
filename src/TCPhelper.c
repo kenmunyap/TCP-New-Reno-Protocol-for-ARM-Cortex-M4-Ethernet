@@ -176,9 +176,9 @@ void duplicatePacketCount(TCPSession *session,uint32_t ackNo){
  *     no return
  ******************************************************************************/
 void checkSSisACKNoEqualSequenceNumber(uint32_t ackNo,uint32_t sequenceNumber,uint32_t currentWindowSize,TCPSession *session){
-    if(ackNo >= sequenceNumber){
-      sessionCWND->offset = ackNo;
+    if(ackNo >= sequenceNumber){      
       sessionCWND->size = cwndIncrementWindow(sessionCWND,currentWindowSize);
+      sessionCWND->offset = ackNo;
       checkCAorSSBySSTHRESH(session);
     }else{
       session->dupAckCounter = 1;

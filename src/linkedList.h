@@ -10,6 +10,8 @@ typedef struct Element_t{
 typedef struct{
 	Element *head;
 	Element *tail;
+  Element *current;
+  Element *previous;
   int length;
 }linkedList;
 
@@ -20,7 +22,7 @@ typedef struct{
 linkedList *create_linkedList();
 void List_addLast(linkedList *list,Element *element);
 Element *List_removeFirst(linkedList *list);
-
+Element *List_removeMiddle(linkedList *list,Element *removeElement,Element *element);
 
 //Function prototype
 // linkedList *create_linkedList();
